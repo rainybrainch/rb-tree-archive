@@ -244,9 +244,11 @@ function saveStatus(num,st){
   localStorage.setItem(AK,JSON.stringify(arr));
 }
 loadStatus();
+const SI="🌳";
+const SN="Economics";
 
 // ── Tree Layout ──
-const NW=112, NH=54, NR=11, H_GAP=28, V_GAP=100, PAD=60;
+const NW=112, NH=54, NR=11, H_GAP=28, V_GAP=120, PAD=108;
 
 function buildLayout(){
   const childrenOf={};
@@ -327,6 +329,21 @@ function build(){
   defs.appendChild(mk);
   svg.appendChild(defs);
 
+  // ── VIRTUAL ROOT (topic node at top) ──
+  const VRX=svgW/2, VRY=48, VRR=32;
+  svg.appendChild(el("circle",{cx:VRX,cy:VRY,r:VRR+10,fill:"none",stroke:LC["ROOT"].r+".1)","stroke-width":"1.5","stroke-dasharray":"4 8"}));
+  svg.appendChild(el("circle",{cx:VRX,cy:VRY,r:VRR,fill:LC["ROOT"].r+".15)",stroke:LC["ROOT"].r+".72)","stroke-width":"2.5"}));
+  svg.appendChild(el("text",{x:VRX,y:VRY-5,"dominant-baseline":"central","text-anchor":"middle",fill:LC["ROOT"].c,"font-size":"18","font-family":"Noto Serif JP","font-weight":"700"},SI));
+  svg.appendChild(el("text",{x:VRX,y:VRY+12,"dominant-baseline":"central","text-anchor":"middle",fill:LC["ROOT"].r+".8)","font-size":"8","font-family":"Noto Sans JP","font-weight":"900","letter-spacing":"1.5"},SN));
+  // Edges: virtual root → ROOT seeds
+  SEEDS.filter(s=>s.parent==null).forEach(s=>{
+    const ey1=VRY+VRR, ey2=s._y, emy=(ey1+ey2)/2;
+    svg.appendChild(el("path",{
+      d:`M${VRX},${ey1} C${VRX},${emy},${s._cx},${emy},${s._cx},${ey2}`,
+      fill:"none",stroke:LC["ROOT"].r+".42)","stroke-width":"2","stroke-linecap":"round"
+    }));
+  });
+
   // Level bands & labels
   LEVELS.forEach((lv,li)=>{
     const lc=LC[lv]; const y=levelY[lv];
@@ -351,27 +368,16 @@ function build(){
   SEEDS.forEach(s=>{
     if(s.parent==null) return;
     const p=SEEDS.find(x=>x.num===s.parent); if(!p) return;
-    const lc=LC[s.level];
+    const plc=LC[p.level];
     const x1=p._cx, y1=p._y+NH;
     const x2=s._cx, y2=s._y;
     const my=(y1+y2)/2;
-    // Curved bezier branch
     svg.appendChild(el("path",{
       d:`M${x1},${y1} C${x1},${my},${x2},${my},${x2},${y2}`,
-      fill:"none",stroke:lc.r+".22)","stroke-width":"1.8",
+      fill:"none",stroke:plc.r+".38)","stroke-width":"2",
       "stroke-linecap":"round"
     }));
   });
-
-  // ROOT horizontal flow arrows
-  const rootSeeds=SEEDS.filter(s=>s.parent==null);
-  for(let i=0;i<rootSeeds.length-1;i++){
-    const a=rootSeeds[i],b=rootSeeds[i+1];
-    svg.appendChild(el("path",{
-      d:`M${a._x+NW+4},${a._cy} L${b._x-4},${b._cy}`,
-      fill:"none",stroke:"rgba(201,168,76,.2)","stroke-width":"1.2","marker-end":"url(#arr)"
-    }));
-  }
 
   // ── NODES ──
   let nDone=0,nWip=0;
