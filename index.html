@@ -2,429 +2,444 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>RB-Tree Archive — RAINY BRAIN</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:        #080f0a;
-  --bg2:       #0e1a10;
-  --panel:     rgba(12,22,14,.94);
-  --line:      rgba(100,180,120,.14);
-  --text:      #d4e8d0;
-  --muted:     rgba(180,210,180,.55);
-  --faint:     rgba(180,210,180,.32);
-  --econ:      #c9a84c;
-  --poli:      #6bb6ff;
-  --invest:    #57c87c;
-  --seed-c:    #a8d08d;
-  --branch-c:  #6db36d;
-  --leaf-c:    #4a9c5f;
-  --tree-c:    #2d7a4a;
-  --forest-c:  #1a5c38;
-  --radius:    10px;
-  --font:      "Noto Sans JP", sans-serif;
-  --serif:     "Noto Serif JP", serif;
+  --bg:      #060c08;
+  --bg2:     #0c1810;
+  --panel:   rgba(10,20,12,.94);
+  --line:    rgba(100,180,120,.13);
+  --text:    #d4e8d0;
+  --muted:   rgba(180,210,180,.52);
+  --faint:   rgba(180,210,180,.28);
+  --econ:    #c9a84c;  --econ-rgb:  201,168,76;
+  --poli:    #6bb6ff;  --poli-rgb:  107,182,255;
+  --invest:  #57c87c;  --invest-rgb:87,200,124;
+  --font:    "Noto Sans JP", sans-serif;
+  --serif:   "Noto Serif JP", serif;
   color-scheme: dark;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;font-family:var(--font);color:var(--text);background:var(--bg);}
+html,body{height:100%;font-family:var(--font);color:var(--text);background:var(--bg);overflow:hidden;}
 button,input,textarea,select{font:inherit;color:inherit;}
-a{color:inherit;text-decoration:none;}
 
 /* ── LAYOUT ── */
-.app{display:grid;grid-template-rows:56px 1fr;height:100vh;overflow:hidden;}
+.app{display:flex;flex-direction:column;height:100vh;}
+
+/* ── HEADER ── */
 .header{
-  display:flex;align-items:center;gap:14px;
-  padding:0 20px;
+  flex-shrink:0;
+  display:flex;align-items:center;gap:12px;padding:0 18px;height:50px;
   border-bottom:1px solid var(--line);
-  background:linear-gradient(90deg,rgba(12,22,14,.98),rgba(8,15,10,.98));
-  backdrop-filter:blur(14px);
-  z-index:10;
+  background:rgba(6,12,8,.96);backdrop-filter:blur(12px);
+  z-index:20;
 }
-.logo{display:flex;align-items:center;gap:10px;white-space:nowrap;}
-.logo-mark{font-size:22px;line-height:1;}
-.logo-text{font-family:var(--serif);font-size:15px;font-weight:700;letter-spacing:.06em;}
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.12em;font-weight:700;margin-top:2px;}
-.search-bar{
-  flex:1;max-width:480px;
-  display:flex;align-items:center;gap:8px;
-  padding:6px 12px;
-  border:1px solid var(--line);border-radius:999px;
-  background:rgba(0,0,0,.32);
-  transition:border-color .2s;
+.logo{display:flex;align-items:center;gap:9px;white-space:nowrap;flex-shrink:0;}
+.logo-mark{font-size:20px;}
+.logo-name{font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:.06em;}
+.logo-rb{font-size:9px;color:var(--muted);letter-spacing:.16em;margin-top:1px;}
+.h-search{
+  flex:1;max-width:400px;
+  display:flex;align-items:center;gap:7px;
+  padding:5px 11px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(0,0,0,.32);transition:border-color .2s;
 }
-.search-bar:focus-within{border-color:rgba(100,180,120,.4);}
-.search-bar input{flex:1;background:transparent;border:0;outline:none;font-size:13px;}
-.search-bar input::placeholder{color:var(--faint);}
-.header-actions{margin-left:auto;display:flex;gap:8px;}
+.h-search:focus-within{border-color:rgba(100,180,120,.4);}
+.h-search input{flex:1;background:0;border:0;outline:0;font-size:12px;}
+.h-search input::placeholder{color:var(--faint);}
+.h-right{margin-left:auto;display:flex;gap:7px;align-items:center;}
+.view-toggle{
+  display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+}
+.vt-btn{
+  padding:5px 11px;border:0;background:0;cursor:pointer;
+  font-size:11px;font-weight:900;color:var(--muted);transition:all .15s;
+}
+.vt-btn.active{background:rgba(100,180,120,.18);color:var(--text);}
 
-.body{display:grid;grid-template-columns:220px 1fr;overflow:hidden;}
-
-/* ── SIDEBAR ── */
-.sidebar{
-  overflow-y:auto;padding:16px 12px;
-  border-right:1px solid var(--line);
-  background:rgba(8,14,10,.88);
-  display:flex;flex-direction:column;gap:18px;
-  scrollbar-width:thin;scrollbar-color:rgba(100,180,120,.15) transparent;
+/* ── TABS ── */
+.tabs{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:0;
+  border-bottom:1px solid var(--line);
+  background:rgba(6,12,8,.94);
+  padding:0 18px;
+  overflow-x:auto;scrollbar-width:none;
 }
-.sb-section{}
-.sb-label{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:8px;}
-.sb-cats{display:flex;flex-direction:column;gap:4px;}
-.cat-btn{
-  display:flex;align-items:center;gap:9px;
-  padding:8px 10px;border-radius:8px;
-  border:1px solid transparent;
-  background:transparent;cursor:pointer;
+.tabs::-webkit-scrollbar{display:none;}
+.tab{
+  display:flex;align-items:center;gap:7px;
+  padding:10px 16px;border:0;background:0;cursor:pointer;
+  font-size:12px;font-weight:900;letter-spacing:.04em;color:var(--muted);
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  white-space:nowrap;transition:all .15s;
+}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--text);border-bottom-color:var(--tab-c,var(--invest));}
+.tab-dot{width:7px;height:7px;border-radius:999px;background:var(--tab-c,var(--invest));}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow:hidden;position:relative;}
+.view{position:absolute;inset:0;overflow:auto;display:none;}
+.view.active{display:block;}
+
+/* ── TREE VIEW ── */
+#treeView{overflow:hidden;cursor:default;}
+.tree-canvas{
+  position:relative;
+  width:100%;height:100%;
+  overflow:auto;
+  scrollbar-width:thin;scrollbar-color:rgba(100,180,120,.18) transparent;
+}
+.tree-canvas::-webkit-scrollbar{width:5px;height:5px;}
+.tree-canvas::-webkit-scrollbar-thumb{background:rgba(100,180,120,.2);border-radius:999px;}
+.tree-svg-wrap{
+  position:relative;
+  min-width:100%;
+  padding:0;
+}
+.tree-bg{
+  position:sticky;left:0;top:0;width:100vw;height:100vh;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 80%, rgba(var(--cat-rgb,87,200,124),.07), transparent 55%),
+    radial-gradient(ellipse at 20% 20%, rgba(var(--cat-rgb,87,200,124),.04), transparent 40%);
+  z-index:0;
+}
+
+/* ── SVG STYLES ── */
+.tree-stage-row{fill:rgba(255,255,255,.022);}
+.tree-stage-label{
+  fill:rgba(180,210,180,.25);
+  font-family:"Noto Sans JP",sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:.12em;
+}
+.tree-edge{
+  fill:none;
+  stroke:rgba(var(--cat-rgb,87,200,124),.22);
+  stroke-width:1.5;
+  stroke-dasharray:4 0;
+}
+.tree-edge.highlighted{stroke:rgba(var(--cat-rgb,87,200,124),.65);stroke-width:2;}
+.tree-node{cursor:pointer;}
+.tree-node .node-bg{
+  fill:rgba(10,20,12,.86);
+  stroke:rgba(var(--cat-rgb,87,200,124),.32);
+  stroke-width:1.5;
+  transition:stroke .15s,filter .15s;
+}
+.tree-node:hover .node-bg{
+  stroke:rgba(var(--cat-rgb,87,200,124),.85);
+  filter:drop-shadow(0 0 10px rgba(var(--cat-rgb,87,200,124),.35));
+}
+.tree-node.selected .node-bg{
+  stroke:rgba(var(--cat-rgb,87,200,124),1);
+  filter:drop-shadow(0 0 18px rgba(var(--cat-rgb,87,200,124),.5));
+}
+.node-icon{fill:var(--text);font-size:12px;dominant-baseline:central;}
+.node-text{
+  fill:var(--text);
+  font-family:"Noto Sans JP",sans-serif;
   font-size:12px;font-weight:700;
-  color:var(--muted);transition:all .15s;
-  text-align:left;
+  dominant-baseline:central;
 }
-.cat-btn:hover{background:rgba(100,180,120,.07);color:var(--text);}
-.cat-btn.active{border-color:var(--cat-c,var(--invest));background:rgba(var(--cat-rgb,87,200,124),.12);color:var(--text);}
-.cat-dot{width:8px;height:8px;border-radius:999px;background:var(--cat-c,var(--invest));flex-shrink:0;}
-.cat-count{margin-left:auto;font-size:10px;color:var(--faint);}
-
-.stage-btns{display:flex;flex-direction:column;gap:3px;}
-.stage-btn{
-  display:flex;align-items:center;gap:8px;
-  padding:7px 10px;border-radius:8px;
-  border:1px solid transparent;
-  background:transparent;cursor:pointer;
-  font-size:12px;font-weight:700;
-  color:var(--muted);transition:all .15s;text-align:left;
+.tree-root-circle{
+  fill:rgba(var(--cat-rgb,87,200,124),.14);
+  stroke:rgba(var(--cat-rgb,87,200,124),.55);
+  stroke-width:2;
+  filter:drop-shadow(0 0 16px rgba(var(--cat-rgb,87,200,124),.3));
 }
-.stage-btn:hover{background:rgba(100,180,120,.07);color:var(--text);}
-.stage-btn.active{border-color:rgba(100,180,120,.3);background:rgba(100,180,120,.1);color:var(--text);}
-.stage-ico{font-size:14px;line-height:1;}
-
-.recent-list{display:flex;flex-direction:column;gap:4px;}
-.recent-item{
-  padding:7px 10px;border-radius:8px;cursor:pointer;
-  font-size:11px;font-weight:700;color:var(--muted);
-  border:1px solid transparent;transition:all .15s;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.tree-root-text{
+  fill:var(--text);
+  font-family:"Noto Serif JP",serif;
+  font-size:14px;font-weight:700;letter-spacing:.06em;
+  dominant-baseline:central;text-anchor:middle;
 }
-.recent-item:hover{background:rgba(100,180,120,.07);color:var(--text);}
+.orphan-line{
+  stroke:rgba(var(--cat-rgb,87,200,124),.1);
+  stroke-width:1;stroke-dasharray:3 4;fill:none;
+}
 
-/* ── MAIN ── */
-.main{overflow-y:auto;padding:18px 20px;scrollbar-width:thin;scrollbar-color:rgba(100,180,120,.15) transparent;}
-.main-top{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+/* ── STAGE LEGEND ── */
+.stage-legend{
+  position:absolute;bottom:16px;right:16px;z-index:10;
+  display:flex;gap:6px;
+  padding:8px 12px;border-radius:10px;
+  background:rgba(6,12,8,.88);backdrop-filter:blur(12px);
+  border:1px solid var(--line);
+  pointer-events:none;
+}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:900;color:var(--muted);}
+
+/* ── CARDS VIEW ── */
+#cardView{padding:16px 20px;background:var(--bg);}
+.cards-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
 .result-count{font-size:12px;color:var(--muted);font-weight:700;}
 .add-btn{
-  margin-left:auto;
-  display:flex;align-items:center;gap:6px;
-  padding:7px 14px;border-radius:8px;
-  border:1px solid rgba(100,180,120,.4);
-  background:rgba(100,180,120,.12);
-  color:var(--text);cursor:pointer;
-  font-size:12px;font-weight:900;letter-spacing:.04em;
-  transition:background .15s;
+  margin-left:auto;display:flex;align-items:center;gap:6px;
+  padding:7px 13px;border-radius:8px;border:1px solid rgba(100,180,120,.4);
+  background:rgba(100,180,120,.12);cursor:pointer;
+  font-size:12px;font-weight:900;transition:background .15s;
 }
 .add-btn:hover{background:rgba(100,180,120,.22);}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
 .card{
-  border:1px solid var(--line);border-radius:var(--radius);
-  background:var(--panel);
-  padding:14px;cursor:pointer;
+  border:1px solid var(--line);border-radius:10px;background:rgba(10,20,12,.88);
+  padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:8px;
   transition:border-color .18s,transform .12s,box-shadow .18s;
-  display:flex;flex-direction:column;gap:8px;
 }
-.card:hover{border-color:rgba(100,180,120,.35);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.28);}
-.card-top{display:flex;align-items:center;gap:8px;}
-.card-stage{font-size:20px;line-height:1;flex-shrink:0;}
-.card-cat{
-  font-size:9px;font-weight:900;letter-spacing:.1em;
-  padding:2px 7px;border-radius:999px;
-  background:rgba(var(--ccat-rgb,87,200,124),.18);
-  color:var(--ccat,var(--invest));
-  border:1px solid rgba(var(--ccat-rgb,87,200,124),.3);
-}
-.card-keyword{font-family:var(--serif);font-size:17px;font-weight:700;line-height:1.2;overflow-wrap:anywhere;}
-.card-body{font-size:12px;color:var(--muted);line-height:1.55;overflow-wrap:break-word;
+.card:hover{border-color:rgba(var(--ccat-rgb,87,200,124),.5);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3);}
+.card-top{display:flex;align-items:center;gap:7px;}
+.card-stage-ico{font-size:18px;line-height:1;}
+.card-cat{font-size:9px;font-weight:900;letter-spacing:.1em;padding:2px 7px;border-radius:999px;}
+.card-kw{font-family:var(--serif);font-size:16px;font-weight:700;line-height:1.2;overflow-wrap:anywhere;}
+.card-body{font-size:11px;color:var(--muted);line-height:1.55;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
-.card-footer{display:flex;align-items:center;gap:8px;margin-top:auto;}
-.card-branches{font-size:10px;color:var(--faint);font-weight:700;}
+.card-footer{display:flex;align-items:center;gap:7px;margin-top:auto;}
+.card-br{font-size:10px;color:var(--faint);font-weight:700;}
 .card-date{font-size:10px;color:var(--faint);margin-left:auto;}
-.empty{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--faint);font-size:14px;font-weight:700;}
+.empty-state{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--faint);font-size:14px;}
 
 /* ── MODAL ── */
 .overlay{
   position:fixed;inset:0;z-index:50;
-  background:rgba(0,0,0,.72);backdrop-filter:blur(8px);
+  background:rgba(0,0,0,.68);backdrop-filter:blur(8px);
   display:none;align-items:flex-start;justify-content:flex-end;
-  padding:0;
 }
 .overlay.open{display:flex;}
 .modal{
-  width:min(560px,100vw);height:100vh;overflow-y:auto;
-  background:linear-gradient(180deg,var(--bg2),var(--bg));
+  width:min(540px,100vw);height:100vh;overflow-y:auto;
+  background:linear-gradient(180deg,#0c1810,#060c08);
   border-left:1px solid var(--line);
-  padding:24px;display:flex;flex-direction:column;gap:18px;
+  padding:22px;display:flex;flex-direction:column;gap:16px;
   scrollbar-width:thin;scrollbar-color:rgba(100,180,120,.15) transparent;
   animation:slideIn .22s ease;
 }
 @keyframes slideIn{from{transform:translateX(40px);opacity:0;}to{transform:none;opacity:1;}}
-.modal-close{
-  align-self:flex-end;
-  width:32px;height:32px;border-radius:8px;
-  border:1px solid var(--line);background:rgba(255,255,255,.06);
-  color:var(--muted);cursor:pointer;font-size:16px;
-  display:grid;place-items:center;transition:background .15s;
+.m-close{
+  align-self:flex-end;width:30px;height:30px;border-radius:7px;
+  border:1px solid var(--line);background:rgba(255,255,255,.05);
+  color:var(--muted);cursor:pointer;display:grid;place-items:center;font-size:15px;
+  transition:background .15s;
 }
-.modal-close:hover{background:rgba(255,255,255,.12);}
-.modal-stage-path{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
-.path-item{
-  display:flex;align-items:center;gap:4px;
-  font-size:11px;font-weight:900;letter-spacing:.06em;
-  padding:4px 9px;border-radius:999px;
+.m-close:hover{background:rgba(255,255,255,.1);}
+.m-stage-path{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.m-path-item{
+  font-size:10px;font-weight:900;letter-spacing:.06em;
+  padding:3px 8px;border-radius:999px;
   border:1px solid var(--line);color:var(--faint);
-  transition:all .15s;
 }
-.path-item.active{color:var(--text);border-color:rgba(100,180,120,.5);background:rgba(100,180,120,.14);}
-.path-arrow{color:var(--faint);font-size:11px;}
-.modal-keyword{font-family:var(--serif);font-size:26px;font-weight:700;line-height:1.2;overflow-wrap:anywhere;}
-.modal-cat-badge{
+.m-path-item.active{color:var(--text);border-color:rgba(100,180,120,.5);background:rgba(100,180,120,.12);}
+.m-path-arrow{color:var(--faint);font-size:10px;}
+.m-keyword{font-family:var(--serif);font-size:24px;font-weight:700;line-height:1.25;overflow-wrap:anywhere;}
+.m-badge{
   display:inline-flex;align-items:center;gap:6px;
-  font-size:11px;font-weight:900;letter-spacing:.08em;
-  padding:4px 10px;border-radius:999px;
+  font-size:10px;font-weight:900;letter-spacing:.08em;
+  padding:3px 10px;border-radius:999px;
 }
-.section-label{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;}
-.modal-body{font-size:14px;line-height:1.75;color:var(--text);overflow-wrap:break-word;white-space:pre-wrap;}
-.branches-list{display:flex;flex-wrap:wrap;gap:6px;}
-.branch-tag{
-  padding:5px 11px;border-radius:999px;
-  border:1px solid rgba(100,180,120,.28);
-  background:rgba(100,180,120,.08);
-  font-size:12px;font-weight:700;cursor:pointer;
+.m-slabel{font-size:10px;font-weight:900;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:7px;}
+.m-body{font-size:13px;line-height:1.8;color:var(--text);overflow-wrap:break-word;white-space:pre-wrap;}
+.m-branches{display:flex;flex-wrap:wrap;gap:6px;}
+.m-branch{
+  padding:4px 11px;border-radius:999px;border:1px solid rgba(100,180,120,.28);
+  background:rgba(100,180,120,.07);font-size:11px;font-weight:700;cursor:pointer;
   transition:all .15s;
 }
-.branch-tag:hover{border-color:rgba(100,180,120,.6);background:rgba(100,180,120,.18);color:var(--text);}
-.sources-list{display:flex;flex-direction:column;gap:6px;}
-.source-item{
-  display:flex;align-items:center;gap:8px;
-  font-size:12px;color:var(--muted);
-  padding:7px 10px;border-radius:8px;
-  border:1px solid var(--line);background:rgba(0,0,0,.18);
+.m-branch:hover{border-color:rgba(100,180,120,.6);background:rgba(100,180,120,.18);}
+.m-sources{display:flex;flex-direction:column;gap:5px;}
+.m-source{
+  display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);
+  padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:rgba(0,0,0,.18);
 }
-.source-item a{color:var(--invest);text-decoration:underline;text-underline-offset:3px;}
-.session-link{
+.m-source a{color:var(--invest);text-underline-offset:3px;}
+.m-session{
   display:flex;align-items:center;gap:9px;
-  padding:10px 14px;border-radius:9px;
-  border:1px solid rgba(100,180,120,.22);background:rgba(100,180,120,.07);
-  font-size:12px;font-weight:700;
+  padding:9px 13px;border-radius:8px;
+  border:1px solid rgba(100,180,120,.2);background:rgba(100,180,120,.07);
+  font-size:11px;font-weight:700;
 }
-.session-link a{color:var(--invest);}
-.modal-actions{display:flex;gap:8px;padding-top:4px;border-top:1px solid var(--line);margin-top:auto;}
+.m-session a{color:var(--invest);}
+.m-actions{display:flex;gap:7px;padding-top:4px;border-top:1px solid var(--line);margin-top:auto;}
 
 /* ── FORM ── */
-.form-overlay{
+.form-ov{
   position:fixed;inset:0;z-index:60;
-  background:rgba(0,0,0,.8);backdrop-filter:blur(10px);
-  display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;
 }
-.form-overlay.open{display:flex;}
+.form-ov.open{display:flex;}
 .form-panel{
-  width:min(600px,100%);max-height:90vh;overflow-y:auto;
-  background:var(--bg2);border:1px solid var(--line);
-  border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px;
-  scrollbar-width:thin;scrollbar-color:rgba(100,180,120,.15) transparent;
-  animation:fadeUp .22s ease;
+  width:min(580px,100%);max-height:90vh;overflow-y:auto;
+  background:#0c1810;border:1px solid var(--line);border-radius:14px;
+  padding:22px;display:flex;flex-direction:column;gap:13px;
+  scrollbar-width:thin;animation:fadeUp .22s ease;
 }
-@keyframes fadeUp{from{transform:translateY(16px);opacity:0;}to{transform:none;opacity:1;}}
-.form-title{font-family:var(--serif);font-size:18px;font-weight:700;}
+@keyframes fadeUp{from{transform:translateY(14px);opacity:0;}to{transform:none;opacity:1;}}
+.f-title{font-family:var(--serif);font-size:17px;font-weight:700;}
 .field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-size:11px;font-weight:900;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;}
+.field label{font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;}
 .field input,.field textarea,.field select{
-  padding:9px 11px;border:1px solid var(--line);border-radius:8px;
-  background:rgba(0,0,0,.3);outline:none;font-size:13px;
-  transition:border-color .15s;
+  padding:8px 10px;border:1px solid var(--line);border-radius:8px;
+  background:rgba(0,0,0,.3);outline:0;font-size:12px;transition:border-color .15s;
 }
 .field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(100,180,120,.5);}
-.field textarea{min-height:100px;resize:vertical;line-height:1.6;}
+.field textarea{min-height:90px;resize:vertical;line-height:1.6;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.form-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:4px;border-top:1px solid var(--line);}
+.f-actions{display:flex;gap:7px;justify-content:flex-end;padding-top:4px;border-top:1px solid var(--line);}
+
+/* ── SYNC ── */
+.sync-ov{
+  position:fixed;inset:0;z-index:70;
+  background:rgba(0,0,0,.78);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.sync-ov.open{display:flex;}
+.sync-panel{
+  width:min(440px,100%);background:#0c1810;border:1px solid var(--line);
+  border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:13px;
+}
+.sync-st{font-size:11px;color:var(--muted);min-height:18px;}
 
 /* ── BUTTONS ── */
 .btn{
-  padding:8px 16px;border-radius:8px;border:1px solid var(--line);
-  background:rgba(255,255,255,.07);cursor:pointer;font-size:12px;font-weight:900;
-  transition:background .15s;letter-spacing:.04em;
+  padding:7px 14px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(255,255,255,.06);cursor:pointer;font-size:11px;font-weight:900;
+  letter-spacing:.04em;transition:background .15s;
 }
-.btn:hover{background:rgba(255,255,255,.13);}
-.btn.primary{border-color:rgba(100,180,120,.5);background:rgba(100,180,120,.16);}
-.btn.primary:hover{background:rgba(100,180,120,.26);}
-.btn.danger{border-color:rgba(255,90,90,.4);background:rgba(255,90,90,.1);color:#ff8080;}
-.btn.danger:hover{background:rgba(255,90,90,.2);}
-.btn.sm{padding:5px 11px;font-size:11px;min-height:32px;}
-
-/* ── SYNC PANEL ── */
-.sync-overlay{
-  position:fixed;inset:0;z-index:70;
-  background:rgba(0,0,0,.8);backdrop-filter:blur(10px);
-  display:none;align-items:center;justify-content:center;padding:20px;
-}
-.sync-overlay.open{display:flex;}
-.sync-panel{
-  width:min(460px,100%);
-  background:var(--bg2);border:1px solid var(--line);
-  border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px;
-}
-.sync-status{font-size:12px;color:var(--muted);min-height:20px;}
+.btn:hover{background:rgba(255,255,255,.12);}
+.btn.primary{border-color:rgba(100,180,120,.48);background:rgba(100,180,120,.14);}
+.btn.primary:hover{background:rgba(100,180,120,.24);}
+.btn.danger{border-color:rgba(255,80,80,.4);background:rgba(255,80,80,.1);color:#ff8888;}
+.btn.danger:hover{background:rgba(255,80,80,.2);}
+.btn.sm{padding:5px 10px;font-size:10px;}
 
 /* ── TOAST ── */
 .toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  padding:10px 20px;border-radius:999px;
-  background:rgba(12,22,14,.95);border:1px solid rgba(100,180,120,.4);
-  font-size:12px;font-weight:900;letter-spacing:.06em;
-  pointer-events:none;z-index:100;
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  padding:8px 18px;border-radius:999px;
+  background:rgba(10,20,12,.95);border:1px solid rgba(100,180,120,.38);
+  font-size:11px;font-weight:900;pointer-events:none;z-index:100;
   opacity:0;transition:opacity .25s;white-space:nowrap;
 }
 .toast.show{opacity:1;}
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-thumb{background:rgba(100,180,120,.2);border-radius:999px;}
-
 /* ── RESPONSIVE ── */
-@media(max-width:860px){
-  .body{grid-template-columns:1fr;}
-  .sidebar{display:none;}
-  .cards{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}
-}
-@media(max-width:500px){
-  .cards{grid-template-columns:1fr;}
+@media(max-width:600px){
   .modal{width:100vw;}
   .grid2{grid-template-columns:1fr;}
+  .logo-rb{display:none;}
 }
 </style>
 </head>
 <body>
-<div class="app" id="app">
+<div class="app">
+
+  <!-- Header -->
   <header class="header">
     <div class="logo">
       <span class="logo-mark">🌲</span>
       <div>
-        <div class="logo-text">RB-Tree Archive</div>
-        <div class="logo-sub">RAINY BRAIN</div>
+        <div class="logo-name">RB-Tree Archive</div>
+        <div class="logo-rb">RAINY BRAIN</div>
       </div>
     </div>
-    <div class="search-bar">
-      <span style="color:var(--faint);font-size:13px">🔍</span>
-      <input id="searchInput" type="search" placeholder="キーワード・本文を検索…" autocomplete="off">
+    <div class="h-search">
+      <span style="color:var(--faint);font-size:12px">🔍</span>
+      <input id="searchInput" type="search" placeholder="キーワード検索…" autocomplete="off">
     </div>
-    <div class="header-actions">
-      <button class="btn sm" id="syncOpenBtn">⇅ Gist 同期</button>
+    <div class="h-right">
+      <div class="view-toggle">
+        <button class="vt-btn active" id="btnTree" title="ツリー表示">🌲 ツリー</button>
+        <button class="vt-btn" id="btnCards" title="カード表示">⊞ カード</button>
+      </div>
+      <button class="btn sm" id="addBtnH">＋ 追加</button>
+      <button class="btn sm" id="syncOpenBtn">⇅ Gist</button>
     </div>
   </header>
 
-  <div class="body">
-    <aside class="sidebar" id="sidebar">
-      <div class="sb-section">
-        <div class="sb-label">カテゴリ</div>
-        <div class="sb-cats" id="catBtns">
-          <button class="cat-btn active" data-cat="" style="--cat-c:var(--invest);--cat-rgb:87,200,124">
-            <span class="cat-dot" style="background:var(--text);opacity:.4"></span>すべて
-            <span class="cat-count" id="countAll">0</span>
-          </button>
-          <button class="cat-btn" data-cat="economics" style="--cat-c:var(--econ);--cat-rgb:201,168,76">
-            <span class="cat-dot" style="background:var(--econ)"></span>Economics
-            <span class="cat-count" id="countEcon">0</span>
-          </button>
-          <button class="cat-btn" data-cat="politics" style="--cat-c:var(--poli);--cat-rgb:107,182,255">
-            <span class="cat-dot" style="background:var(--poli)"></span>Politics
-            <span class="cat-count" id="countPoli">0</span>
-          </button>
-          <button class="cat-btn" data-cat="investment" style="--cat-c:var(--invest);--cat-rgb:87,200,124">
-            <span class="cat-dot" style="background:var(--invest)"></span>Investment
-            <span class="cat-count" id="countInvest">0</span>
-          </button>
-        </div>
-      </div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-cat="" style="--tab-c:var(--invest)">
+      <span class="tab-dot" style="background:rgba(180,210,180,.4)"></span>すべて
+    </button>
+    <button class="tab" data-cat="economics" style="--tab-c:var(--econ)">
+      <span class="tab-dot" style="background:var(--econ)"></span>Economics
+    </button>
+    <button class="tab" data-cat="politics" style="--tab-c:var(--poli)">
+      <span class="tab-dot" style="background:var(--poli)"></span>Politics
+    </button>
+    <button class="tab" data-cat="investment" style="--tab-c:var(--invest)">
+      <span class="tab-dot" style="background:var(--invest)"></span>Investment
+    </button>
+  </div>
 
-      <div class="sb-section">
-        <div class="sb-label">ステージ</div>
-        <div class="stage-btns" id="stageBtns">
-          <button class="stage-btn active" data-stage="">
-            <span class="stage-ico">🌲</span>すべて
-          </button>
-          <button class="stage-btn" data-stage="seed">
-            <span class="stage-ico">🌱</span>Seed — 種
-          </button>
-          <button class="stage-btn" data-stage="branch">
-            <span class="stage-ico">🌿</span>Branch — 枝
-          </button>
-          <button class="stage-btn" data-stage="leaf">
-            <span class="stage-ico">🍃</span>Leaf — 葉
-          </button>
-          <button class="stage-btn" data-stage="tree">
-            <span class="stage-ico">🌳</span>Tree — 樹
-          </button>
-          <button class="stage-btn" data-stage="forest">
-            <span class="stage-ico">🌲</span>Forest — 森
-          </button>
-        </div>
-      </div>
+  <!-- Content -->
+  <div class="content">
 
-      <div class="sb-section">
-        <div class="sb-label">最近追加</div>
-        <div class="recent-list" id="recentList"></div>
+    <!-- Tree view -->
+    <div class="view active" id="treeView">
+      <div class="tree-canvas" id="treeCanvas"></div>
+      <div class="stage-legend">
+        <div class="legend-item">🌱 Seed</div>
+        <div class="legend-item">🌿 Branch</div>
+        <div class="legend-item">🍃 Leaf</div>
+        <div class="legend-item">🌳 Tree</div>
+        <div class="legend-item">🌲 Forest</div>
       </div>
-    </aside>
+    </div>
 
-    <main class="main" id="main">
-      <div class="main-top">
+    <!-- Cards view -->
+    <div class="view" id="cardView">
+      <div class="cards-header">
         <span class="result-count" id="resultCount"></span>
-        <button class="add-btn" id="addBtn">＋ 新規エントリ</button>
+        <button class="add-btn" id="addBtnC">＋ 新規エントリ</button>
       </div>
-      <div class="cards" id="cards"></div>
-    </main>
+      <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- 詳細モーダル -->
-<div class="overlay" id="detailOverlay">
-  <div class="modal" id="detailModal">
-    <button class="modal-close" id="detailClose">✕</button>
-    <div class="modal-stage-path" id="stagePath"></div>
+<!-- Detail modal -->
+<div class="overlay" id="detailOv">
+  <div class="modal">
+    <button class="m-close" id="detailClose">✕</button>
+    <div class="m-stage-path" id="stagePath"></div>
+    <div class="m-badge" id="mBadge"></div>
+    <div class="m-keyword" id="mKeyword"></div>
     <div>
-      <div class="modal-cat-badge" id="modalCatBadge"></div>
+      <div class="m-slabel">🍃 学びの記録</div>
+      <div class="m-body" id="mBody"></div>
     </div>
-    <div class="modal-keyword" id="modalKeyword"></div>
-    <div>
-      <div class="section-label" style="margin-bottom:8px">🍃 Leaf — 学びの記録</div>
-      <div class="modal-body" id="modalBody"></div>
+    <div id="mBranchWrap">
+      <div class="m-slabel">🌿 関連キーワード</div>
+      <div class="m-branches" id="mBranches"></div>
     </div>
-    <div id="modalBranchesWrap">
-      <div class="section-label" style="margin-bottom:8px">🌿 Branch — 関連キーワード</div>
-      <div class="branches-list" id="modalBranches"></div>
+    <div id="mSourceWrap">
+      <div class="m-slabel">☀ 知識源</div>
+      <div class="m-sources" id="mSources"></div>
     </div>
-    <div id="modalSourcesWrap">
-      <div class="section-label" style="margin-bottom:8px">☀ Sun — 知識源</div>
-      <div class="sources-list" id="modalSources"></div>
+    <div id="mSessionWrap" style="display:none">
+      <div class="m-slabel">🎥 Session</div>
+      <div class="m-session" id="mSession"></div>
     </div>
-    <div id="modalSessionWrap" style="display:none">
-      <div class="section-label" style="margin-bottom:8px">🎥 Session</div>
-      <div class="session-link" id="modalSession"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn primary sm" id="modalEditBtn">編集</button>
-      <button class="btn danger sm" id="modalDeleteBtn">削除</button>
-      <button class="btn sm" id="modalCloseBtn" style="margin-left:auto">閉じる</button>
+    <div class="m-actions">
+      <button class="btn primary sm" id="mEditBtn">編集</button>
+      <button class="btn danger sm" id="mDeleteBtn">削除</button>
+      <button class="btn sm" id="mCloseBtn" style="margin-left:auto">閉じる</button>
     </div>
   </div>
 </div>
 
-<!-- エントリフォーム -->
-<div class="form-overlay" id="formOverlay">
+<!-- Form -->
+<div class="form-ov" id="formOv">
   <div class="form-panel">
-    <div class="form-title" id="formTitle">新規エントリ</div>
+    <div class="f-title" id="fTitle">新規エントリ</div>
     <div class="grid2">
       <div class="field">
         <label>カテゴリ</label>
-        <select id="fCategory">
+        <select id="fCat">
           <option value="economics">🟡 Economics</option>
           <option value="politics">🔵 Politics</option>
           <option value="investment">🟢 Investment</option>
@@ -441,56 +456,32 @@ a{color:inherit;text-decoration:none;}
         </select>
       </div>
     </div>
-    <div class="field">
-      <label>キーワード</label>
-      <input id="fKeyword" placeholder="例: 金利" maxlength="40">
-    </div>
-    <div class="field">
-      <label>学びの記録（自分の言葉で）</label>
-      <textarea id="fBody" placeholder="このキーワードについて、自分の言葉で説明してください…" rows="5"></textarea>
-    </div>
-    <div class="field">
-      <label>Branch — 関連キーワード（カンマ区切り）</label>
-      <input id="fBranches" placeholder="例: 利上げ, 国債, 為替">
-    </div>
-    <div class="field">
-      <label>Sun — 知識源 URL（1行1件: タイトル|URL）</label>
-      <textarea id="fSources" placeholder="日本銀行|https://www.boj.or.jp" rows="3"></textarea>
-    </div>
+    <div class="field"><label>キーワード</label><input id="fKw" placeholder="例: 金利" maxlength="40"></div>
+    <div class="field"><label>学びの記録（自分の言葉で）</label><textarea id="fBody" rows="5" placeholder="このキーワードについて、自分の言葉で説明してください…"></textarea></div>
+    <div class="field"><label>Branch — 関連キーワード（カンマ区切り）</label><input id="fBranches" placeholder="例: 利上げ, 国債, 為替"></div>
+    <div class="field"><label>Sun — 知識源（1行1件: タイトル|URL）</label><textarea id="fSources" rows="3" placeholder="日本銀行|https://www.boj.or.jp"></textarea></div>
     <div class="grid2">
-      <div class="field">
-        <label>Session</label>
-        <input id="fSession" placeholder="例: RB-Tree Economics #001">
-      </div>
-      <div class="field">
-        <label>Session URL</label>
-        <input id="fSessionUrl" placeholder="https://youtube.com/...">
-      </div>
+      <div class="field"><label>Session</label><input id="fSession" placeholder="RB-Tree Economics #001"></div>
+      <div class="field"><label>Session URL</label><input id="fSessionUrl" placeholder="https://youtube.com/..."></div>
     </div>
-    <div class="form-actions">
-      <button class="btn sm" id="formCancelBtn">キャンセル</button>
-      <button class="btn primary sm" id="formSaveBtn">保存</button>
+    <div class="f-actions">
+      <button class="btn sm" id="fCancelBtn">キャンセル</button>
+      <button class="btn primary sm" id="fSaveBtn">保存</button>
     </div>
   </div>
 </div>
 
-<!-- Gist同期パネル -->
-<div class="sync-overlay" id="syncOverlay">
+<!-- Gist sync -->
+<div class="sync-ov" id="syncOv">
   <div class="sync-panel">
-    <div class="form-title">⇅ Gist 同期</div>
-    <div class="field">
-      <label>Gist ID</label>
-      <input id="syncGistId" placeholder="（新規作成時は空欄）">
-    </div>
-    <div class="field">
-      <label>GitHub PAT（gist スコープ）</label>
-      <input id="syncPat" type="password" placeholder="ghp_...">
-    </div>
-    <div class="sync-status" id="syncStatus">未接続</div>
-    <div class="form-actions">
-      <button class="btn sm" id="syncCancelBtn">閉じる</button>
-      <button class="btn sm" id="syncLoadBtn">Gistから読込</button>
-      <button class="btn primary sm" id="syncSaveBtn">Gistへ保存</button>
+    <div class="f-title">⇅ Gist 同期</div>
+    <div class="field"><label>Gist ID（新規作成時は空欄）</label><input id="sGistId" placeholder=""></div>
+    <div class="field"><label>GitHub PAT（gist スコープ）</label><input id="sPat" type="password" placeholder="ghp_..."></div>
+    <div class="sync-st" id="syncSt">未接続</div>
+    <div class="f-actions">
+      <button class="btn sm" id="sCancelBtn">閉じる</button>
+      <button class="btn sm" id="sLoadBtn">Gistから読込</button>
+      <button class="btn primary sm" id="sSaveBtn">Gistへ保存</button>
     </div>
   </div>
 </div>
@@ -501,487 +492,565 @@ a{color:inherit;text-decoration:none;}
 (() => {
 "use strict";
 
-// ── 定数 ──
 const LS_DATA    = "rbt_data_v1";
 const LS_GIST_ID = "rbt_gist_id";
 const LS_GIST_PAT= "rbt_gist_pat";
 const GIST_FILE  = "rb-tree-data.json";
 
-const CAT_META = {
-  economics:  { label:"Economics", icon:"🟡", color:"var(--econ)",   rgb:"201,168,76" },
-  politics:   { label:"Politics",  icon:"🔵", color:"var(--poli)",   rgb:"107,182,255" },
-  investment: { label:"Investment",icon:"🟢", color:"var(--invest)", rgb:"87,200,124" }
-};
-const STAGE_META = {
-  seed:   { label:"Seed",   icon:"🌱" },
-  branch: { label:"Branch", icon:"🌿" },
-  leaf:   { label:"Leaf",   icon:"🍃" },
-  tree:   { label:"Tree",   icon:"🌳" },
-  forest: { label:"Forest", icon:"🌲" }
-};
 const STAGES = ["seed","branch","leaf","tree","forest"];
+const STAGE_META = {
+  seed:  {icon:"🌱",label:"Seed"},
+  branch:{icon:"🌿",label:"Branch"},
+  leaf:  {icon:"🍃",label:"Leaf"},
+  tree:  {icon:"🌳",label:"Tree"},
+  forest:{icon:"🌲",label:"Forest"}
+};
+const CAT_META = {
+  economics: {label:"Economics",icon:"🟡",color:"var(--econ)",rgb:"201,168,76"},
+  politics:  {label:"Politics", icon:"🔵",color:"var(--poli)",rgb:"107,182,255"},
+  investment:{label:"Investment",icon:"🟢",color:"var(--invest)",rgb:"87,200,124"}
+};
+const CAT_COLORS = {economics:"#c9a84c",politics:"#6bb6ff",investment:"#57c87c"};
 
-// ── 状態 ──
+// ── State ──
 let entries = [];
-let filter  = { cat:"", stage:"", q:"" };
+let filter = {cat:"", q:""};
+let currentView = "tree";
 let selectedId = null;
 let editId = null;
 
-// ── 初期データ（30件）──
-const SEED_ENTRIES = [
-  // Economics
-  {id:"rbt_econ_01",category:"economics",stage:"seed",keyword:"お金",body:"交換手段として生まれた。物物交換の不便さを解決するために登場した共通の価値尺度。",branches:["銀行","インフレ","金利"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_02",category:"economics",stage:"seed",keyword:"銀行",body:"お金を預かり、貸し出す機関。預金者から預かったお金を、融資として企業や個人に提供する。",branches:["金利","中央銀行","国債"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_03",category:"economics",stage:"seed",keyword:"インフレ",body:"物価が全体的に上がり続ける現象。お金の価値が下がる。年2%程度のインフレは健全とされる。",branches:["金利","景気","GDP"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_04",category:"economics",stage:"seed",keyword:"金利",body:"お金を借りる価格。金利が上がると借金しにくくなり景気を冷ます方向に働く。中央銀行が政策手段として使う。",branches:["利上げ","利下げ","国債","為替"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_05",category:"economics",stage:"seed",keyword:"為替",body:"異なる通貨を交換する比率。円高だと輸入が安くなり、円安だと輸出企業が得をしやすい。",branches:["金利","インフレ","貿易"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_06",category:"economics",stage:"seed",keyword:"GDP",body:"国内総生産。一定期間に国内で生み出された付加価値の合計。経済規模を測る基本指標。",branches:["景気","雇用","インフレ"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_07",category:"economics",stage:"seed",keyword:"中央銀行",body:"国の金融政策を担う銀行の銀行。日本では日本銀行。金利政策・お金の量を調整する。",branches:["金利","インフレ","国債"],sources:[{title:"日本銀行",url:"https://www.boj.or.jp"}],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_08",category:"economics",stage:"seed",keyword:"国債",body:"国が発行する借金の証書。投資家が国にお金を貸し、満期に利子つきで返ってくる。金利と深く関わる。",branches:["金利","中央銀行","財政"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_09",category:"economics",stage:"seed",keyword:"景気",body:"経済全体の活動水準。好景気は企業業績・雇用が良く、不景気は逆。サイクルを繰り返す。",branches:["GDP","インフレ","雇用","金利"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_econ_10",category:"economics",stage:"seed",keyword:"雇用",body:"働く機会のこと。失業率が低いほど好景気の指標。完全雇用に近いと賃金が上がりやすい。",branches:["景気","GDP","インフレ"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  // Politics
-  {id:"rbt_poli_01",category:"politics",stage:"seed",keyword:"国家",body:"一定の領土・国民・主権を持つ政治組織。近代国家は三権分立によって権力を分散させる。",branches:["三権分立","国会","主権"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_02",category:"politics",stage:"seed",keyword:"三権分立",body:"立法・行政・司法の3つに権力を分けて相互監視させる仕組み。権力の独占・暴走を防ぐ。",branches:["国会","内閣","裁判所"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_03",category:"politics",stage:"seed",keyword:"国会",body:"法律を作る立法機関。衆議院と参議院の二院制。国民が選んだ議員で構成される。",branches:["三権分立","内閣","選挙"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_04",category:"politics",stage:"seed",keyword:"内閣",body:"行政を担う機関。首相と大臣で構成。法律を執行し、国を動かす実務的な中心。",branches:["三権分立","国会","官僚"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_05",category:"politics",stage:"seed",keyword:"税金",body:"国や地方自治体が国民から集めるお金。行政サービスの財源。所得税・消費税・法人税など種類が多い。",branches:["国家予算","社会保障","財政"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_06",category:"politics",stage:"seed",keyword:"国家予算",body:"政府の1年間の収支計画。一般会計と特別会計がある。税収と国債で賄い、社会保障や公共投資に使う。",branches:["税金","国債","社会保障"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_07",category:"politics",stage:"seed",keyword:"社会保障",body:"年金・医療・介護・失業給付など、生活を守る公的制度。少子高齢化で財政負担が増大している。",branches:["税金","国家予算","年金"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_08",category:"politics",stage:"seed",keyword:"選挙",body:"国民が代表者を選ぶ制度。民主主義の根幹。衆院選・参院選・地方選がある。投票率が課題。",branches:["国会","政党","民主主義"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_09",category:"politics",stage:"seed",keyword:"官僚",body:"省庁に勤める国家公務員。政策を立案・実行する専門家集団。内閣を支える実務の担い手。",branches:["内閣","省庁","政策"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_poli_10",category:"politics",stage:"seed",keyword:"地方自治",body:"都道府県・市区町村が地域住民のために自治を行う仕組み。住民に身近な行政サービスを担う。",branches:["税金","国家","選挙"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  // Investment
-  {id:"rbt_inv_01",category:"investment",stage:"seed",keyword:"投資とは",body:"将来のリターンを期待して、今お金や時間を使うこと。株・不動産・債券など手段は多様。",branches:["リスク","複利","分散投資"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_02",category:"investment",stage:"seed",keyword:"複利",body:"利子に利子がつく仕組み。時間をかけるほど雪だるま式に増える。「世界8番目の不思議」とも。",branches:["投資とは","長期投資","NISA"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_03",category:"investment",stage:"seed",keyword:"リスク",body:"投資における不確実性・価格変動の幅。高リターンは高リスクとセット。リスクを取らないリスクもある。",branches:["投資とは","分散投資","株式"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_04",category:"investment",stage:"seed",keyword:"分散投資",body:"複数の資産・地域・時期に分けて投資すること。一点集中のリスクを下げる基本戦略。",branches:["リスク","ETF","資産配分"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_05",category:"investment",stage:"seed",keyword:"株式",body:"企業の所有権の一部。値上がり益（キャピタルゲイン）と配当を得られる。価格変動リスクあり。",branches:["リスク","配当","ETF","市場"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_06",category:"investment",stage:"seed",keyword:"ETF",body:"上場投資信託。株式市場で売買できる投資信託。低コストで分散投資できる人気商品。",branches:["株式","分散投資","NISA","オルカン"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_07",category:"investment",stage:"seed",keyword:"債券",body:"国や企業が発行する借用証書。定期的に利息を受け取り満期に元本が戻る。株より安定的。",branches:["国債","リスク","金利"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_08",category:"investment",stage:"seed",keyword:"NISA",body:"投資の利益が非課税になる日本の制度。2024年から新NISA。年360万円まで投資枠あり。",branches:["ETF","複利","株式","投資とは"],sources:[{title:"金融庁NISA",url:"https://www.fsa.go.jp/policy/nisa2/"}],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_09",category:"investment",stage:"seed",keyword:"REIT",body:"不動産投資信託。小額から不動産に間接投資できる。家賃収入由来の安定配当が特徴。",branches:["株式","ETF","分散投資","不動産"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
-  {id:"rbt_inv_10",category:"investment",stage:"seed",keyword:"投資哲学",body:"長期・分散・低コストが個人投資の基本。自分のリスク許容度を知ることが最初の一歩。",branches:["複利","分散投資","リスク"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+// ── Seed data ──
+const SEED_DATA = [
+  {id:"rbt_ec_01",category:"economics",stage:"seed",keyword:"お金",body:"交換手段として生まれた。物物交換の不便さを解決するために登場した共通の価値尺度。貯蓄・支払い・価値保存の3つの機能を持つ。",branches:["銀行","インフレ","金利"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_02",category:"economics",stage:"seed",keyword:"銀行",body:"お金を預かり、貸し出す機関。預金者から預かったお金を、融資として企業や個人に提供する。金利の差（利ざや）で収益を得る。",branches:["金利","中央銀行","国債"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_03",category:"economics",stage:"seed",keyword:"インフレ",body:"物価が全体的に上がり続ける現象。お金の価値が下がる。年2%程度のインフレは健全とされる。急激なインフレは生活を圧迫する。",branches:["金利","景気","GDP"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_04",category:"economics",stage:"seed",keyword:"金利",body:"お金を借りる価格。金利が上がると借金しにくくなり景気を冷ます方向に働く。中央銀行が金融政策の手段として使う最重要指標。",branches:["銀行","中央銀行","国債","為替","インフレ"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_05",category:"economics",stage:"seed",keyword:"為替",body:"異なる通貨を交換する比率。円高だと輸入が安くなり、円安だと輸出企業が得をしやすい。金利差が為替に大きな影響を与える。",branches:["金利","インフレ"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_06",category:"economics",stage:"seed",keyword:"GDP",body:"国内総生産。一定期間に国内で生み出された付加価値の合計。経済規模を測る基本指標。消費・投資・政府支出・純輸出で構成。",branches:["景気","雇用","インフレ"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_07",category:"economics",stage:"seed",keyword:"中央銀行",body:"国の金融政策を担う銀行の銀行。日本では日本銀行。金利政策やお金の量（マネーサプライ）を調整して経済を安定させる。",branches:["金利","インフレ","国債"],sources:[{title:"日本銀行",url:"https://www.boj.or.jp"}],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_08",category:"economics",stage:"seed",keyword:"国債",body:"国が発行する借金の証書。投資家が国にお金を貸し、満期に利子つきで返ってくる。金利と深く関わり、財政状況を示す重要指標。",branches:["金利","中央銀行"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_09",category:"economics",stage:"seed",keyword:"景気",body:"経済全体の活動水準。好景気は企業業績・雇用が良く、不景気は逆。約10年サイクルで繰り返す。政府と中央銀行が政策で調整する。",branches:["GDP","インフレ","雇用","金利"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_ec_10",category:"economics",stage:"seed",keyword:"雇用",body:"働く機会のこと。失業率が低いほど好景気の指標。完全雇用に近いと賃金が上がりやすい。日銀の物価目標とも密接に関係する。",branches:["景気","GDP","インフレ"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_01",category:"politics",stage:"seed",keyword:"国家",body:"一定の領土・国民・主権を持つ政治組織。近代国家は三権分立によって権力を分散させる。",branches:["三権分立","国会"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_02",category:"politics",stage:"seed",keyword:"三権分立",body:"立法・行政・司法の3つに権力を分けて相互監視させる仕組み。権力の独占・暴走を防ぐ民主主義の根幹。",branches:["国会","内閣"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_03",category:"politics",stage:"seed",keyword:"国会",body:"法律を作る立法機関。衆議院と参議院の二院制。国民が選んだ議員で構成。内閣総理大臣の指名も行う。",branches:["三権分立","内閣","選挙"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_04",category:"politics",stage:"seed",keyword:"内閣",body:"行政を担う機関。首相と大臣で構成。法律を執行し国を動かす実務の中心。国会に対して連帯責任を持つ。",branches:["三権分立","国会","官僚"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_05",category:"politics",stage:"seed",keyword:"税金",body:"国や地方自治体が国民から集めるお金。行政サービスの財源。所得税・消費税・法人税など種類が多く、再分配機能も持つ。",branches:["国家予算","社会保障"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_06",category:"politics",stage:"seed",keyword:"国家予算",body:"政府の1年間の収支計画。一般会計と特別会計がある。税収と国債で賄い、社会保障・公共投資・教育に使う。",branches:["税金","社会保障"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_07",category:"politics",stage:"seed",keyword:"社会保障",body:"年金・医療・介護・失業給付など、生活を守る公的制度。少子高齢化で財政負担が増大している日本最大の課題。",branches:["税金","国家予算"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_08",category:"politics",stage:"seed",keyword:"選挙",body:"国民が代表者を選ぶ制度。民主主義の根幹。衆院選・参院選・地方選がある。投票率の低下が現代的課題。",branches:["国会"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_09",category:"politics",stage:"seed",keyword:"官僚",body:"省庁に勤める国家公務員。政策を立案・実行する専門家集団。内閣を支える実務の担い手。縦割り行政が課題。",branches:["内閣"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_po_10",category:"politics",stage:"seed",keyword:"地方自治",body:"都道府県・市区町村が地域住民のために自治を行う仕組み。国から権限・財源を移譲する地方分権が進む。",branches:["税金","選挙"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_01",category:"investment",stage:"seed",keyword:"投資とは",body:"将来のリターンを期待して、今お金や時間を使うこと。株・不動産・債券など手段は多様。貯蓄との違いはリスクを取ること。",branches:["リスク","複利","分散投資"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_02",category:"investment",stage:"seed",keyword:"複利",body:"利子に利子がつく仕組み。時間をかけるほど雪だるま式に増える。アインシュタインが「世界8番目の不思議」と言ったとされる。",branches:["投資とは","NISA"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_03",category:"investment",stage:"seed",keyword:"リスク",body:"投資における不確実性・価格変動の幅。高リターンは高リスクとセット。リスクを取らないこと自体もインフレリスクという意味でリスク。",branches:["投資とは","分散投資","株式"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_04",category:"investment",stage:"seed",keyword:"分散投資",body:"複数の資産・地域・時期に分けて投資すること。一点集中のリスクを下げる個人投資の基本戦略。",branches:["リスク","ETF"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_05",category:"investment",stage:"seed",keyword:"株式",body:"企業の所有権の一部。値上がり益（キャピタルゲイン）と配当（インカムゲイン）を得られる。価格変動リスクあり。",branches:["リスク","ETF","NISA"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_06",category:"investment",stage:"seed",keyword:"ETF",body:"上場投資信託。株式市場で売買できる投資信託。低コストで分散投資できる。オルカン・S&P500が人気。",branches:["株式","分散投資","NISA"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_07",category:"investment",stage:"seed",keyword:"債券",body:"国や企業が発行する借用証書。定期的に利息を受け取り満期に元本が戻る。株より安定的だが金利上昇時に価格が下がる。",branches:["リスク","分散投資"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_08",category:"investment",stage:"seed",keyword:"NISA",body:"投資の利益が非課税になる日本の制度。2024年から新NISA。年360万円まで投資枠あり。長期・積立・分散に最適。",branches:["ETF","複利","株式","投資とは"],sources:[{title:"金融庁NISA",url:"https://www.fsa.go.jp/policy/nisa2/"}],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_09",category:"investment",stage:"seed",keyword:"REIT",body:"不動産投資信託。小額から不動産に間接投資できる。家賃収入由来の安定配当が特徴。金利の影響を受けやすい。",branches:["株式","ETF","分散投資"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
+  {id:"rbt_in_10",category:"investment",stage:"seed",keyword:"投資哲学",body:"長期・分散・低コストが個人投資の基本原則。自分のリスク許容度を知ることが最初の一歩。投資は感情との戦いでもある。",branches:["複利","分散投資","リスク"],sources:[],session:"",sessionUrl:"",createdAt:"2026-06-01",updatedAt:"2026-06-01"},
 ];
 
-// ── 初期化 ──
+// ── Init ──
 function init() {
   const saved = loadLocal();
-  entries = saved.length ? saved : SEED_ENTRIES.map(e=>({...e}));
-  bindEvents();
-  render();
+  entries = saved.length ? saved : SEED_DATA.map(e=>({...e}));
+  bindUI();
+  setView("tree");
+  renderTabs();
 }
 
-// ── レンダリング ──
-function render() {
-  renderCounts();
-  renderCards();
-  renderRecent();
+// ── View switching ──
+function setView(v) {
+  currentView = v;
+  document.getElementById("treeView").classList.toggle("active", v==="tree");
+  document.getElementById("cardView").classList.toggle("active", v==="cards");
+  document.getElementById("btnTree").classList.toggle("active",  v==="tree");
+  document.getElementById("btnCards").classList.toggle("active", v==="cards");
+  if (v==="tree")  renderTree();
+  if (v==="cards") renderCards();
 }
 
-function filteredEntries() {
+// ── Filter ──
+function filtered() {
   const q = filter.q.trim().toLowerCase();
-  return entries.filter(e => {
-    if (filter.cat   && e.category !== filter.cat)   return false;
-    if (filter.stage && e.stage    !== filter.stage) return false;
-    if (q && !( e.keyword.toLowerCase().includes(q) ||
-                e.body.toLowerCase().includes(q) ||
+  return entries.filter(e=>{
+    if (filter.cat && e.category!==filter.cat) return false;
+    if (q && !( e.keyword.toLowerCase().includes(q)||
+                e.body.toLowerCase().includes(q)||
                 (e.branches||[]).some(b=>b.toLowerCase().includes(q)) )) return false;
     return true;
   });
 }
 
-function renderCounts() {
-  const all  = entries.length;
-  const econ = entries.filter(e=>e.category==="economics").length;
-  const poli = entries.filter(e=>e.category==="politics").length;
-  const inv  = entries.filter(e=>e.category==="investment").length;
-  document.getElementById("countAll").textContent    = all;
-  document.getElementById("countEcon").textContent   = econ;
-  document.getElementById("countPoli").textContent   = poli;
-  document.getElementById("countInvest").textContent = inv;
+// ══════════════════════════════════
+//  TREE VIEW
+// ══════════════════════════════════
+const NW=148, NH=38, HGAP=18, VGAP=130, TOP=70, SIDE=60, ROOT_R=30;
+
+function buildConnections(list) {
+  const byKw = {};
+  list.forEach(e=>{ byKw[e.keyword]=e; });
+  const links=[];
+  list.forEach(child=>{
+    (child.branches||[]).filter(Boolean).forEach(bkw=>{
+      const parent=byKw[bkw];
+      if(parent && STAGES.indexOf(parent.stage)<STAGES.indexOf(child.stage)){
+        links.push({from:parent.id,to:child.id});
+      }
+    });
+  });
+  return links;
 }
 
+function computePositions(list) {
+  const byStage={};
+  STAGES.forEach(s=>{ byStage[s]=list.filter(e=>e.stage===s); });
+  const pos={};
+  STAGES.forEach((stage,si)=>{
+    const group=byStage[stage];
+    const totalW=group.length*(NW+HGAP)-HGAP;
+    const startX=Math.max(SIDE, 0); // will center later
+    group.forEach((e,i)=>{
+      pos[e.id]={
+        x:i*(NW+HGAP),
+        y:TOP+si*(NH+VGAP),
+        si
+      };
+    });
+  });
+  // Normalize x positions per stage to fill canvas
+  return pos;
+}
+
+function renderTree() {
+  const canvas = document.getElementById("treeCanvas");
+  // Determine which categories to show
+  const cats = filter.cat ? [filter.cat] : ["economics","politics","investment"];
+  const allFiltered = filtered();
+  // Render each category as a section
+  let html = "";
+  let totalW = 0;
+  const catLayouts = [];
+
+  cats.forEach(cat=>{
+    const list = allFiltered.filter(e=>e.category===cat);
+    if(!list.length) return;
+    const cm = CAT_META[cat];
+    const byStage={};
+    STAGES.forEach(s=>{ byStage[s]=list.filter(e=>e.stage===s); });
+    const maxPerRow = Math.max(1,...STAGES.map(s=>byStage[s].length));
+    const w = Math.max(400, maxPerRow*(NW+HGAP)-HGAP+SIDE*2);
+    const h = TOP+STAGES.length*(NH+VGAP)+60;
+    catLayouts.push({cat,list,cm,byStage,w,h});
+  });
+
+  const totalHeight = catLayouts.length ? Math.max(...catLayouts.map(c=>c.h)) : 500;
+  const totalWidth  = catLayouts.reduce((a,c)=>a+c.w+40,0)||800;
+
+  canvas.style.minHeight = totalHeight + "px";
+
+  let svgContent = "";
+  let offsetX = 20;
+
+  catLayouts.forEach(({cat,list,cm,byStage,w,h})=>{
+    const rgb = cm.rgb;
+    const col = CAT_COLORS[cat];
+
+    // Category root
+    const rootX = offsetX + w/2;
+    const rootY = 30;
+
+    // Compute node positions
+    const pos = {};
+    STAGES.forEach((stage,si)=>{
+      const group = byStage[stage];
+      const rowW = group.length*(NW+HGAP)-HGAP;
+      const startX = offsetX + w/2 - rowW/2;
+      group.forEach((e,i)=>{
+        pos[e.id]={
+          x: startX+i*(NW+HGAP)+NW/2,
+          y: TOP+ROOT_R*2+20+si*(NH+VGAP)+NH/2
+        };
+      });
+    });
+
+    // Background gradient rect
+    svgContent += `<defs>
+      <radialGradient id="bg_${cat}" cx="50%" cy="90%" r="60%">
+        <stop offset="0%" stop-color="${col}" stop-opacity="0.07"/>
+        <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect x="${offsetX}" y="0" width="${w}" height="${h}" rx="16" fill="url(#bg_${cat})" stroke="rgba(${rgb},.1)" stroke-width="1"/>`;
+
+    // Stage row labels (left side)
+    STAGES.forEach((stage,si)=>{
+      const y = TOP+ROOT_R*2+20+si*(NH+VGAP);
+      svgContent += `<text x="${offsetX+8}" y="${y+NH/2+4}" class="tree-stage-label">${STAGE_META[stage].icon}</text>`;
+      if(byStage[stage].length>0){
+        svgContent += `<rect x="${offsetX}" y="${y-4}" width="${w}" height="${NH+8}" rx="4" class="tree-stage-row"/>`;
+      }
+    });
+
+    // Root node
+    svgContent += `
+    <circle cx="${rootX}" cy="${rootY}" r="${ROOT_R}" class="tree-root-circle" style="--cat-rgb:${rgb}"/>
+    <text x="${rootX}" y="${rootY-4}" class="tree-root-text" style="font-size:11px">${cm.icon}</text>
+    <text x="${rootX}" y="${rootY+9}" class="tree-root-text" style="font-size:10px">${cm.label}</text>`;
+
+    // Lines from root to first-stage nodes
+    const seedGroup = byStage["seed"];
+    seedGroup.forEach(e=>{
+      const p = pos[e.id];
+      if(!p) return;
+      const x2=p.x, y2=p.y-NH/2;
+      const y1=rootY+ROOT_R;
+      const mid=(y1+y2)/2;
+      svgContent += `<path d="M ${rootX} ${y1} C ${rootX} ${mid} ${x2} ${mid} ${x2} ${y2}" class="tree-edge" style="--cat-rgb:${rgb}"/>`;
+    });
+
+    // Inter-node connections
+    const links = buildConnections(list);
+    links.forEach(({from,to})=>{
+      const p1=pos[from], p2=pos[to];
+      if(!p1||!p2) return;
+      const x1=p1.x, y1=p1.y+NH/2;
+      const x2=p2.x, y2=p2.y-NH/2;
+      const mid=(y1+y2)/2;
+      svgContent += `<path d="M ${x1} ${y1} C ${x1} ${mid} ${x2} ${mid} ${x2} ${y2}" class="tree-edge" style="--cat-rgb:${rgb}"/>`;
+    });
+
+    // Nodes
+    list.forEach(e=>{
+      const p=pos[e.id];
+      if(!p) return;
+      const x=p.x-NW/2, y=p.y-NH/2;
+      const sm=STAGE_META[e.stage];
+      const truncKw = e.keyword.length>9 ? e.keyword.slice(0,8)+"…" : e.keyword;
+      svgContent += `
+      <g class="tree-node" data-id="${e.id}" style="--cat-rgb:${rgb}" transform="translate(0,0)">
+        <rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="19" class="node-bg"/>
+        <text x="${x+22}" y="${p.y+1}" class="node-icon" style="font-size:13px">${sm.icon}</text>
+        <text x="${x+36}" y="${p.y+1}" class="node-text" style="font-size:12px">${esc(truncKw)}</text>
+      </g>`;
+    });
+
+    offsetX += w + 40;
+  });
+
+  const svgEl = `<svg xmlns="http://www.w3.org/2000/svg"
+    width="${totalWidth}" height="${totalHeight}"
+    viewBox="0 0 ${totalWidth} ${totalHeight}"
+    style="display:block;min-width:${totalWidth}px">
+    ${svgContent}
+  </svg>`;
+
+  canvas.innerHTML = svgEl;
+
+  // Set background CSS var for gradient
+  const catRgb = filter.cat ? CAT_META[filter.cat]?.rgb : "87,200,124";
+  canvas.style.setProperty("--cat-rgb", catRgb||"87,200,124");
+
+  // Node click events
+  canvas.querySelectorAll(".tree-node").forEach(node=>{
+    node.addEventListener("click", ()=>openDetail(node.dataset.id));
+    node.addEventListener("mouseenter", ()=>highlightConnected(node.dataset.id, canvas));
+    node.addEventListener("mouseleave", ()=>clearHighlight(canvas));
+  });
+}
+
+function highlightConnected(id, canvas) {
+  canvas.querySelectorAll(".tree-node").forEach(n=>{
+    n.style.opacity = n.dataset.id===id ? "1" : "0.45";
+  });
+}
+function clearHighlight(canvas) {
+  canvas.querySelectorAll(".tree-node").forEach(n=>{ n.style.opacity="1"; });
+}
+
+// ══════════════════════════════════
+//  CARDS VIEW
+// ══════════════════════════════════
 function renderCards() {
-  const list = filteredEntries();
-  const container = document.getElementById("cards");
-  document.getElementById("resultCount").textContent = `${list.length} 件`;
+  const list = filtered();
+  const grid = document.getElementById("cardsGrid");
+  document.getElementById("resultCount").textContent = list.length + " 件";
   if (!list.length) {
-    container.innerHTML = `<div class="empty">エントリが見つかりません</div>`;
-    return;
+    grid.innerHTML = `<div class="empty-state">エントリが見つかりません</div>`; return;
   }
-  container.innerHTML = list.map(e => {
-    const cm = CAT_META[e.category] || CAT_META.economics;
-    const sm = STAGE_META[e.stage]  || STAGE_META.seed;
-    const brCount = (e.branches||[]).filter(Boolean).length;
-    const date = (e.updatedAt||e.createdAt||"").slice(0,10);
-    return `<div class="card" data-id="${e.id}">
+  grid.innerHTML = list.map(e=>{
+    const cm=CAT_META[e.category]||CAT_META.economics;
+    const sm=STAGE_META[e.stage]||STAGE_META.seed;
+    const br=(e.branches||[]).filter(Boolean).length;
+    return `<div class="card" data-id="${e.id}" style="--ccat-rgb:${cm.rgb}">
       <div class="card-top">
-        <span class="card-stage">${sm.icon}</span>
-        <span class="card-cat" style="--ccat:${cm.color};--ccat-rgb:${cm.rgb}">${cm.label}</span>
+        <span class="card-stage-ico">${sm.icon}</span>
+        <span class="card-cat" style="background:rgba(${cm.rgb},.18);color:${cm.color};border:1px solid rgba(${cm.rgb},.3)">${cm.label}</span>
       </div>
-      <div class="card-keyword">${esc(e.keyword)}</div>
+      <div class="card-kw">${esc(e.keyword)}</div>
       <div class="card-body">${esc(e.body||"（本文未入力）")}</div>
       <div class="card-footer">
-        <span class="card-branches">${brCount > 0 ? `🌿 ${brCount}枝` : ""}</span>
-        <span class="card-date">${date}</span>
+        <span class="card-br">${br>0?`🌿 ${br}枝`:""}</span>
+        <span class="card-date">${(e.updatedAt||e.createdAt||"").slice(0,10)}</span>
       </div>
     </div>`;
   }).join("");
-
-  container.querySelectorAll(".card").forEach(el => {
-    el.addEventListener("click", () => openDetail(el.dataset.id));
+  grid.querySelectorAll(".card").forEach(el=>{
+    el.addEventListener("click",()=>openDetail(el.dataset.id));
   });
 }
 
-function renderRecent() {
-  const recent = [...entries].sort((a,b)=>
-    (b.updatedAt||b.createdAt||"").localeCompare(a.updatedAt||a.createdAt||"")
-  ).slice(0,6);
-  document.getElementById("recentList").innerHTML = recent.map(e =>
-    `<div class="recent-item" data-id="${e.id}">${STAGE_META[e.stage]?.icon||"🌱"} ${esc(e.keyword)}</div>`
-  ).join("");
-  document.querySelectorAll(".recent-item").forEach(el => {
-    el.addEventListener("click", () => openDetail(el.dataset.id));
+// ── Tabs ──
+function renderTabs() {
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.classList.toggle("active", tab.dataset.cat===filter.cat);
   });
 }
 
-// ── 詳細モーダル ──
+// ── Detail modal ──
 function openDetail(id) {
-  const e = entries.find(x=>x.id===id);
-  if (!e) return;
-  selectedId = id;
-  const cm = CAT_META[e.category] || CAT_META.economics;
-  const sm = STAGE_META[e.stage]  || STAGE_META.seed;
+  const e=entries.find(x=>x.id===id);
+  if(!e) return;
+  selectedId=id;
+  const cm=CAT_META[e.category]||CAT_META.economics;
+  const sm=STAGE_META[e.stage]||STAGE_META.seed;
 
-  // stage path
-  document.getElementById("stagePath").innerHTML = STAGES.map((s,i) => {
-    const m = STAGE_META[s];
-    const isActive = s === e.stage;
-    return (i>0 ? `<span class="path-arrow">→</span>` : "") +
-      `<span class="path-item ${isActive?"active":""}">${m.icon} ${m.label}</span>`;
+  document.getElementById("stagePath").innerHTML = STAGES.map((s,i)=>{
+    const m=STAGE_META[s];
+    const active=s===e.stage;
+    return (i>0?`<span class="m-path-arrow">→</span>`:"")+
+      `<span class="m-path-item ${active?"active":""}">${m.icon} ${m.label}</span>`;
   }).join("");
 
-  // badge
-  document.getElementById("modalCatBadge").innerHTML =
-    `<span style="font-size:14px">${cm.icon}</span>`;
-  document.getElementById("modalCatBadge").style.cssText =
-    `background:rgba(${cm.rgb},.18);color:${cm.color};border:1px solid rgba(${cm.rgb},.35);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:900;letter-spacing:.08em;display:inline-flex;align-items:center;gap:6px;`;
-  document.getElementById("modalCatBadge").innerHTML +=
-    ` <span>${cm.label}</span> <span style="opacity:.6;font-size:10px">${sm.icon} ${sm.label}</span>`;
+  const badge=document.getElementById("mBadge");
+  badge.textContent=`${cm.icon} ${cm.label}  ${sm.icon} ${sm.label}`;
+  badge.style.cssText=`background:rgba(${cm.rgb},.18);color:${cm.color};border:1px solid rgba(${cm.rgb},.35);border-radius:999px;padding:4px 12px;font-size:10px;font-weight:900;letter-spacing:.08em;`;
+  document.getElementById("mKeyword").textContent=e.keyword;
+  document.getElementById("mBody").textContent=e.body||"（本文未入力）";
 
-  document.getElementById("modalKeyword").textContent = e.keyword;
-  document.getElementById("modalBody").textContent    = e.body || "（本文未入力）";
-
-  // branches
-  const branches = (e.branches||[]).filter(Boolean);
-  if (branches.length) {
-    document.getElementById("modalBranchesWrap").style.display = "";
-    document.getElementById("modalBranches").innerHTML = branches.map(b =>
-      `<span class="branch-tag" data-kw="${esc(b)}">${esc(b)}</span>`
-    ).join("");
-    document.querySelectorAll(".branch-tag").forEach(el => {
-      el.addEventListener("click", () => {
-        jumpToKeyword(el.dataset.kw);
-        closeDetail();
-      });
+  const branches=(e.branches||[]).filter(Boolean);
+  if(branches.length){
+    document.getElementById("mBranchWrap").style.display="";
+    document.getElementById("mBranches").innerHTML=branches.map(b=>
+      `<span class="m-branch" data-kw="${esc(b)}">${esc(b)}</span>`).join("");
+    document.querySelectorAll(".m-branch").forEach(el=>{
+      el.addEventListener("click",()=>{ jumpToKeyword(el.dataset.kw); closeDetail(); });
     });
-  } else {
-    document.getElementById("modalBranchesWrap").style.display = "none";
-  }
+  } else { document.getElementById("mBranchWrap").style.display="none"; }
 
-  // sources
-  const sources = (e.sources||[]).filter(s=>s&&s.title);
-  if (sources.length) {
-    document.getElementById("modalSourcesWrap").style.display = "";
-    document.getElementById("modalSources").innerHTML = sources.map(s =>
-      `<div class="source-item">☀<a href="${esc(s.url||"#")}" target="_blank" rel="noopener">${esc(s.title)}</a></div>`
-    ).join("");
-  } else {
-    document.getElementById("modalSourcesWrap").style.display = "none";
-  }
+  const sources=(e.sources||[]).filter(s=>s&&s.title);
+  if(sources.length){
+    document.getElementById("mSourceWrap").style.display="";
+    document.getElementById("mSources").innerHTML=sources.map(s=>
+      `<div class="m-source">☀ <a href="${esc(s.url||"#")}" target="_blank" rel="noopener">${esc(s.title)}</a></div>`).join("");
+  } else { document.getElementById("mSourceWrap").style.display="none"; }
 
-  // session
-  if (e.session) {
-    document.getElementById("modalSessionWrap").style.display = "";
-    document.getElementById("modalSession").innerHTML = e.sessionUrl
-      ? `🎥 <a href="${esc(e.sessionUrl)}" target="_blank">${esc(e.session)}</a>`
-      : `🎥 ${esc(e.session)}`;
-  } else {
-    document.getElementById("modalSessionWrap").style.display = "none";
-  }
+  if(e.session){
+    document.getElementById("mSessionWrap").style.display="";
+    document.getElementById("mSession").innerHTML=e.sessionUrl
+      ?`🎥 <a href="${esc(e.sessionUrl)}" target="_blank">${esc(e.session)}</a>`
+      :`🎥 ${esc(e.session)}`;
+  } else { document.getElementById("mSessionWrap").style.display="none"; }
 
-  document.getElementById("detailOverlay").classList.add("open");
+  document.getElementById("detailOv").classList.add("open");
 }
 
-function closeDetail() {
-  document.getElementById("detailOverlay").classList.remove("open");
-  selectedId = null;
+function closeDetail(){
+  document.getElementById("detailOv").classList.remove("open");
+  selectedId=null;
 }
 
-// ── フォーム ──
-function openForm(entry = null) {
-  editId = entry ? entry.id : null;
-  document.getElementById("formTitle").textContent = entry ? "エントリ編集" : "新規エントリ";
-  document.getElementById("fCategory").value   = entry?.category   || "economics";
-  document.getElementById("fStage").value       = entry?.stage      || "seed";
-  document.getElementById("fKeyword").value     = entry?.keyword    || "";
-  document.getElementById("fBody").value        = entry?.body       || "";
-  document.getElementById("fBranches").value    = (entry?.branches||[]).filter(Boolean).join(", ");
-  document.getElementById("fSources").value     = (entry?.sources||[]).filter(s=>s&&s.title)
-    .map(s=>`${s.title}|${s.url||""}`).join("\n");
-  document.getElementById("fSession").value     = entry?.session    || "";
-  document.getElementById("fSessionUrl").value  = entry?.sessionUrl || "";
-  document.getElementById("formOverlay").classList.add("open");
-}
-
-function closeForm() {
-  document.getElementById("formOverlay").classList.remove("open");
-  editId = null;
-}
-
-function saveForm() {
-  const kw = document.getElementById("fKeyword").value.trim();
-  if (!kw) { toast("キーワードは必須です"); return; }
-  const branches = document.getElementById("fBranches").value
-    .split(/[,、，]+/).map(s=>s.trim()).filter(Boolean);
-  const sources = document.getElementById("fSources").value
-    .split("\n").map(line => {
-      const [title,...rest] = line.split("|");
-      return { title:title.trim(), url:(rest.join("|")||"").trim() };
-    }).filter(s=>s.title);
-  const now = new Date().toISOString().slice(0,10);
-
-  if (editId) {
-    entries = entries.map(e => e.id===editId ? {
-      ...e,
-      category:   document.getElementById("fCategory").value,
-      stage:      document.getElementById("fStage").value,
-      keyword:    kw,
-      body:       document.getElementById("fBody").value.trim(),
-      branches, sources,
-      session:    document.getElementById("fSession").value.trim(),
-      sessionUrl: document.getElementById("fSessionUrl").value.trim(),
-      updatedAt:  now
-    } : e);
-    toast("更新しました");
-  } else {
-    const newEntry = {
-      id: "rbt_" + Date.now() + "_" + Math.random().toString(36).slice(2,6),
-      category:   document.getElementById("fCategory").value,
-      stage:      document.getElementById("fStage").value,
-      keyword:    kw,
-      body:       document.getElementById("fBody").value.trim(),
-      branches, sources,
-      session:    document.getElementById("fSession").value.trim(),
-      sessionUrl: document.getElementById("fSessionUrl").value.trim(),
-      createdAt:  now,
-      updatedAt:  now
-    };
-    entries.unshift(newEntry);
-    toast("追加しました");
-  }
-  saveLocal();
-  closeForm();
-  render();
-}
-
-function deleteEntry(id) {
-  if (!confirm("このエントリを削除しますか？")) return;
-  entries = entries.filter(e=>e.id!==id);
-  saveLocal();
-  closeDetail();
-  render();
-  toast("削除しました");
-}
-
-// ── 関連キーワードジャンプ ──
+// ── Jump by keyword ──
 function jumpToKeyword(kw) {
-  const target = entries.find(e => e.keyword === kw);
-  if (target) {
-    filter.q = "";
-    filter.cat = "";
-    filter.stage = "";
-    document.getElementById("searchInput").value = "";
-    updateFilterUI();
-    render();
+  const target=entries.find(e=>e.keyword===kw);
+  if(target){
+    filter.q="";
+    document.getElementById("searchInput").value="";
+    if(currentView==="tree") renderTree(); else renderCards();
     openDetail(target.id);
   } else {
-    filter.q = kw;
-    document.getElementById("searchInput").value = kw;
-    render();
+    filter.q=kw;
+    document.getElementById("searchInput").value=kw;
+    if(currentView==="cards") renderCards();
     toast(`「${kw}」のエントリはまだありません`);
   }
 }
 
-// ── Gist 同期 ──
-function openSync() {
-  document.getElementById("syncGistId").value = localStorage.getItem(LS_GIST_ID)||"";
-  document.getElementById("syncPat").value    = localStorage.getItem(LS_GIST_PAT)||"";
-  document.getElementById("syncStatus").textContent = "接続情報を入力してください";
-  document.getElementById("syncOverlay").classList.add("open");
+// ── Form ──
+function openForm(entry=null){
+  editId=entry?entry.id:null;
+  document.getElementById("fTitle").textContent=entry?"エントリ編集":"新規エントリ";
+  document.getElementById("fCat").value=entry?.category||"economics";
+  document.getElementById("fStage").value=entry?.stage||"seed";
+  document.getElementById("fKw").value=entry?.keyword||"";
+  document.getElementById("fBody").value=entry?.body||"";
+  document.getElementById("fBranches").value=(entry?.branches||[]).filter(Boolean).join(", ");
+  document.getElementById("fSources").value=(entry?.sources||[]).filter(s=>s&&s.title).map(s=>`${s.title}|${s.url||""}`).join("\n");
+  document.getElementById("fSession").value=entry?.session||"";
+  document.getElementById("fSessionUrl").value=entry?.sessionUrl||"";
+  document.getElementById("formOv").classList.add("open");
 }
-function closeSync() {
-  document.getElementById("syncOverlay").classList.remove("open");
-}
+function closeForm(){document.getElementById("formOv").classList.remove("open");editId=null;}
 
-async function syncLoad() {
-  const gistId = document.getElementById("syncGistId").value.trim();
-  const pat    = document.getElementById("syncPat").value.trim();
-  if (!gistId || !pat) { document.getElementById("syncStatus").textContent="Gist ID と PAT が必要です"; return; }
-  document.getElementById("syncStatus").textContent = "読込中…";
-  try {
-    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers:{ Authorization:`token ${pat}`, Accept:"application/vnd.github.v3+json" }
+function saveForm(){
+  const kw=document.getElementById("fKw").value.trim();
+  if(!kw){toast("キーワードは必須です");return;}
+  const branches=document.getElementById("fBranches").value.split(/[,、，]+/).map(s=>s.trim()).filter(Boolean);
+  const sources=document.getElementById("fSources").value.split("\n").map(line=>{
+    const [t,...r]=line.split("|");
+    return {title:t.trim(),url:(r.join("|")||"").trim()};
+  }).filter(s=>s.title);
+  const now=new Date().toISOString().slice(0,10);
+  if(editId){
+    entries=entries.map(e=>e.id===editId?{...e,
+      category:document.getElementById("fCat").value,
+      stage:document.getElementById("fStage").value,
+      keyword:kw,body:document.getElementById("fBody").value.trim(),
+      branches,sources,
+      session:document.getElementById("fSession").value.trim(),
+      sessionUrl:document.getElementById("fSessionUrl").value.trim(),
+      updatedAt:now
+    }:e);
+    toast("更新しました");
+  } else {
+    entries.unshift({
+      id:"rbt_"+Date.now()+"_"+Math.random().toString(36).slice(2,5),
+      category:document.getElementById("fCat").value,
+      stage:document.getElementById("fStage").value,
+      keyword:kw,body:document.getElementById("fBody").value.trim(),
+      branches,sources,
+      session:document.getElementById("fSession").value.trim(),
+      sessionUrl:document.getElementById("fSessionUrl").value.trim(),
+      createdAt:now,updatedAt:now
     });
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-    const raw  = data.files?.[GIST_FILE]?.content;
-    if (!raw) throw new Error("ファイルが見つかりません");
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed.entries)) {
-      entries = parsed.entries;
-      saveLocal();
-      render();
-      localStorage.setItem(LS_GIST_ID, gistId);
-      localStorage.setItem(LS_GIST_PAT, pat);
-      document.getElementById("syncStatus").textContent = `✓ ${entries.length}件 読込完了`;
-      toast("Gistから読込しました");
-    } else { throw new Error("データ形式が違います"); }
-  } catch(e) {
-    document.getElementById("syncStatus").textContent = "エラー: " + e.message;
+    toast("追加しました");
   }
+  saveLocal(); closeForm();
+  if(currentView==="tree") renderTree(); else renderCards();
 }
 
-async function syncSave() {
-  let gistId = document.getElementById("syncGistId").value.trim();
-  const pat  = document.getElementById("syncPat").value.trim();
-  if (!pat) { document.getElementById("syncStatus").textContent="PATが必要です"; return; }
-  document.getElementById("syncStatus").textContent = "保存中…";
-  const payload = JSON.stringify({ version:1, updatedAt:new Date().toISOString(), entries }, null, 2);
-  try {
-    if (gistId) {
-      // update
-      const res = await fetch(`https://api.github.com/gists/${gistId}`, {
-        method:"PATCH",
-        headers:{ Authorization:`token ${pat}`, "Content-Type":"application/json" },
-        body: JSON.stringify({ files:{ [GIST_FILE]:{ content:payload } } })
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status);
+function deleteEntry(id){
+  if(!confirm("削除しますか？"))return;
+  entries=entries.filter(e=>e.id!==id);
+  saveLocal(); closeDetail();
+  if(currentView==="tree") renderTree(); else renderCards();
+  toast("削除しました");
+}
+
+// ── Gist ──
+function openSync(){
+  document.getElementById("sGistId").value=localStorage.getItem(LS_GIST_ID)||"";
+  document.getElementById("sPat").value=localStorage.getItem(LS_GIST_PAT)||"";
+  document.getElementById("syncSt").textContent="接続情報を入力してください";
+  document.getElementById("syncOv").classList.add("open");
+}
+function closeSync(){document.getElementById("syncOv").classList.remove("open");}
+
+async function syncLoad(){
+  const gistId=document.getElementById("sGistId").value.trim();
+  const pat=document.getElementById("sPat").value.trim();
+  if(!gistId||!pat){document.getElementById("syncSt").textContent="Gist ID と PAT が必要です";return;}
+  document.getElementById("syncSt").textContent="読込中…";
+  try{
+    const res=await fetch(`https://api.github.com/gists/${gistId}`,{headers:{Authorization:`token ${pat}`}});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    const raw=data.files?.[GIST_FILE]?.content;
+    if(!raw) throw new Error("ファイルが見つかりません");
+    const parsed=JSON.parse(raw);
+    if(!Array.isArray(parsed.entries)) throw new Error("データ形式エラー");
+    entries=parsed.entries;
+    saveLocal();
+    localStorage.setItem(LS_GIST_ID,gistId); localStorage.setItem(LS_GIST_PAT,pat);
+    document.getElementById("syncSt").textContent=`✓ ${entries.length}件 読込完了`;
+    if(currentView==="tree") renderTree(); else renderCards();
+    toast("Gistから読込しました");
+  }catch(e){document.getElementById("syncSt").textContent="エラー: "+e.message;}
+}
+
+async function syncSave(){
+  let gistId=document.getElementById("sGistId").value.trim();
+  const pat=document.getElementById("sPat").value.trim();
+  if(!pat){document.getElementById("syncSt").textContent="PATが必要です";return;}
+  document.getElementById("syncSt").textContent="保存中…";
+  const payload=JSON.stringify({version:1,updatedAt:new Date().toISOString(),entries},null,2);
+  try{
+    if(gistId){
+      const res=await fetch(`https://api.github.com/gists/${gistId}`,{method:"PATCH",
+        headers:{Authorization:`token ${pat}`,"Content-Type":"application/json"},
+        body:JSON.stringify({files:{[GIST_FILE]:{content:payload}}})});
+      if(!res.ok) throw new Error("HTTP "+res.status);
     } else {
-      // create
-      const res = await fetch("https://api.github.com/gists", {
-        method:"POST",
-        headers:{ Authorization:`token ${pat}`, "Content-Type":"application/json" },
-        body: JSON.stringify({
-          description:"RB-Tree Archive Data",
-          public: false,
-          files:{ [GIST_FILE]:{ content:payload } }
-        })
-      });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const data = await res.json();
-      gistId = data.id;
-      document.getElementById("syncGistId").value = gistId;
+      const res=await fetch("https://api.github.com/gists",{method:"POST",
+        headers:{Authorization:`token ${pat}`,"Content-Type":"application/json"},
+        body:JSON.stringify({description:"RB-Tree Archive",public:false,files:{[GIST_FILE]:{content:payload}}})});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const d=await res.json(); gistId=d.id;
+      document.getElementById("sGistId").value=gistId;
     }
-    localStorage.setItem(LS_GIST_ID, gistId);
-    localStorage.setItem(LS_GIST_PAT, pat);
-    document.getElementById("syncStatus").textContent = `✓ 保存完了 Gist ID: ${gistId}`;
+    localStorage.setItem(LS_GIST_ID,gistId); localStorage.setItem(LS_GIST_PAT,pat);
+    document.getElementById("syncSt").textContent=`✓ 保存完了  ID: ${gistId}`;
     toast("Gistへ保存しました");
-  } catch(e) {
-    document.getElementById("syncStatus").textContent = "エラー: " + e.message;
-  }
+  }catch(e){document.getElementById("syncSt").textContent="エラー: "+e.message;}
 }
 
-// ── ローカル保存 ──
-function saveLocal() {
-  localStorage.setItem(LS_DATA, JSON.stringify(entries));
-}
-function loadLocal() {
-  try { return JSON.parse(localStorage.getItem(LS_DATA)||"[]"); } catch { return []; }
-}
+// ── Storage ──
+function saveLocal(){localStorage.setItem(LS_DATA,JSON.stringify(entries));}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS_DATA)||"[]");}catch{return[];}}
 
-// ── フィルター ──
-function updateFilterUI() {
-  document.querySelectorAll("[data-cat]").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.cat === filter.cat);
+// ── Events ──
+function bindUI(){
+  document.getElementById("btnTree").addEventListener("click",()=>setView("tree"));
+  document.getElementById("btnCards").addEventListener("click",()=>setView("cards"));
+  document.getElementById("searchInput").addEventListener("input",e=>{
+    filter.q=e.target.value;
+    if(currentView==="tree") renderTree(); else renderCards();
   });
-  document.querySelectorAll("[data-stage]").forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.stage === filter.stage);
-  });
-}
-
-// ── イベントバインド ──
-function bindEvents() {
-  document.getElementById("searchInput").addEventListener("input", e => {
-    filter.q = e.target.value;
-    render();
-  });
-
-  document.querySelectorAll("[data-cat]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      filter.cat = btn.dataset.cat;
-      updateFilterUI();
-      renderCards();
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      filter.cat=tab.dataset.cat;
+      renderTabs();
+      if(currentView==="tree") renderTree(); else renderCards();
     });
   });
-
-  document.querySelectorAll("[data-stage]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      filter.stage = btn.dataset.stage;
-      updateFilterUI();
-      renderCards();
-    });
+  document.getElementById("addBtnH").addEventListener("click",()=>openForm());
+  document.getElementById("addBtnC").addEventListener("click",()=>openForm());
+  document.getElementById("detailClose").addEventListener("click",closeDetail);
+  document.getElementById("mCloseBtn").addEventListener("click",closeDetail);
+  document.getElementById("detailOv").addEventListener("click",e=>{
+    if(e.target===document.getElementById("detailOv")) closeDetail();
   });
-
-  document.getElementById("addBtn").addEventListener("click", () => openForm());
-
-  // 詳細モーダル
-  document.getElementById("detailClose").addEventListener("click", closeDetail);
-  document.getElementById("modalCloseBtn").addEventListener("click", closeDetail);
-  document.getElementById("detailOverlay").addEventListener("click", e => {
-    if (e.target === document.getElementById("detailOverlay")) closeDetail();
+  document.getElementById("mEditBtn").addEventListener("click",()=>{
+    const e=entries.find(x=>x.id===selectedId);
+    closeDetail(); if(e) openForm(e);
   });
-  document.getElementById("modalEditBtn").addEventListener("click", () => {
-    const e = entries.find(x=>x.id===selectedId);
-    closeDetail();
-    if (e) openForm(e);
+  document.getElementById("mDeleteBtn").addEventListener("click",()=>deleteEntry(selectedId));
+  document.getElementById("fCancelBtn").addEventListener("click",closeForm);
+  document.getElementById("fSaveBtn").addEventListener("click",saveForm);
+  document.getElementById("formOv").addEventListener("click",e=>{
+    if(e.target===document.getElementById("formOv")) closeForm();
   });
-  document.getElementById("modalDeleteBtn").addEventListener("click", () => deleteEntry(selectedId));
-
-  // フォーム
-  document.getElementById("formCancelBtn").addEventListener("click", closeForm);
-  document.getElementById("formSaveBtn").addEventListener("click", saveForm);
-  document.getElementById("formOverlay").addEventListener("click", e => {
-    if (e.target === document.getElementById("formOverlay")) closeForm();
+  document.getElementById("syncOpenBtn").addEventListener("click",openSync);
+  document.getElementById("sCancelBtn").addEventListener("click",closeSync);
+  document.getElementById("sLoadBtn").addEventListener("click",syncLoad);
+  document.getElementById("sSaveBtn").addEventListener("click",syncSave);
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"){closeDetail();closeForm();closeSync();}
   });
-
-  // Gist同期
-  document.getElementById("syncOpenBtn").addEventListener("click", openSync);
-  document.getElementById("syncCancelBtn").addEventListener("click", closeSync);
-  document.getElementById("syncLoadBtn").addEventListener("click", syncLoad);
-  document.getElementById("syncSaveBtn").addEventListener("click", syncSave);
-
-  // キーボード
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") {
-      closeDetail(); closeForm(); closeSync();
-    }
-  });
+  window.addEventListener("resize",()=>{ if(currentView==="tree") renderTree(); });
 }
 
-// ── ユーティリティ ──
-function esc(s) {
-  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+// ── Util ──
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById("toast");
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
+let _toastT;
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg; el.classList.add("show");
+  clearTimeout(_toastT); _toastT=setTimeout(()=>el.classList.remove("show"),2600);
 }
 
 init();
