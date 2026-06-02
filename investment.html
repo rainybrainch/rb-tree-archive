@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RB-Tree Economics — 経済の樹</title>
+<title>RB-Tree Investment — 投資の樹</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:    #060c08;
-  --bg2:   #0c1810;
+  --bg:    #040a06;
+  --bg2:   #081208;
   --line:  rgba(255,255,255,.09);
-  --text:  #d4e8d0;
-  --muted: rgba(180,210,180,.52);
+  --text:  #c8f0d8;
+  --muted: rgba(200,240,216,.52);
   --faint: rgba(255,255,255,.18);
-  --acc:   #c9a84c;
-  --acc2:  #8a6f2a;
+  --acc:   #57c87c;
+  --acc2:  #1a5a30;
   --font:  "Noto Sans JP",sans-serif;
   --serif: "Noto Serif JP",serif;
   color-scheme:dark;
@@ -73,8 +73,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
   flex:1;overflow:auto;position:relative;cursor:grab;
   scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.15) transparent;
   background:
-    radial-gradient(ellipse at 50% 0%, #c9a84c0d, transparent 55%),
-    radial-gradient(ellipse at 15% 90%, #c9a84c06, transparent 45%),
+    radial-gradient(ellipse at 50% 0%, #57c87c0d, transparent 55%),
+    radial-gradient(ellipse at 15% 90%, #57c87c06, transparent 45%),
     radial-gradient(ellipse at 85% 85%, rgba(87,200,124,.04), transparent 40%),
     var(--bg);
 }
@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 /* ── SIDE PANEL ── */
 .side-panel{
   width:0;flex-shrink:0;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#0c1810;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#081208;
   border-left:1px solid rgba(255,255,255,.07);
   display:flex;flex-direction:column;
   transition:width .28s cubic-bezier(.4,0,.2,1);
@@ -194,21 +194,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 
 <!-- HEADER -->
 <header class="header">
-  <div class="logo"><span class="logo-mark">🌳</span>RB-Tree</div>
+  <div class="logo"><span class="logo-mark">📈</span>RB-Tree</div>
   <nav class="subject-tabs">
-    <a href="economics.html" class="tab-active">🌳 Economics</a>
+    <a href="economics.html">🌳 Economics</a>
     <a href="politics.html">🏛 Politics</a>
-    <a href="investment.html">📈 Investment</a>
+    <a href="investment.html" class="tab-active">📈 Investment</a>
   </nav>
   <div class="h-right">
-    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/economy.html" target="_blank">📡 配信</a>
+    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/investment.html" target="_blank">📡 配信</a>
     <a class="btn-sm" href="index.html">Archive 一覧</a>
   </div>
 </header>
 
 <!-- SUBHEADER -->
 <div class="subheader">
-  <span class="subj-label">Economics — 経済の樹</span>
+  <span class="subj-label">Investment — 投資の樹</span>
   <div class="progress-wrap" style="margin-left:16px;">
     <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
     <span class="pb-label" id="pbLabel">0 / 26</span>
@@ -250,48 +250,48 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 
 <div class="toast" id="toast"></div>
 
-<script src="seeds/seeds-data.js"></script>
+<script src="seeds/investment-data.js"></script>
 <script src="seeds/seeds-data.js" onerror="void 0"></script>
 <script>
 (()=>{
 "use strict";
 
-const ARCHIVE_KEY = "rbt_data_v1";
-const STREAM_URL  = "https://rainybrainch.github.io/live/streams/economy.html";
-const SEED_PREFIX = "E";
-const DB_VAR      = "SEED_DB";
-const LEVEL_DESCS = {"ROOT":"経済の根","TRUNK":"動かす幹","BRANCH":"現実の枝","CROWN":"世界の樹冠","FOREST":"経済史の森"};
+const ARCHIVE_KEY = "rbt_invest_v1";
+const STREAM_URL  = "https://rainybrainch.github.io/live/streams/investment.html";
+const SEED_PREFIX = "I";
+const DB_VAR      = "INVESTMENT_DB";
+const LEVEL_DESCS = {"ROOT":"投資の根","TRUNK":"投資の幹","BRANCH":"現実の枝","CROWN":"高度な投資","FOREST":"投資の歴史"};
 const LEVEL_COLORS = {"ROOT":{c:"#c9a84c",r:"rgba(201,168,76,"},"TRUNK":{c:"#57c87c",r:"rgba(87,200,124,"},"BRANCH":{c:"#5aafcf",r:"rgba(90,175,207,"},"CROWN":{c:"#b68cdf",r:"rgba(182,140,223,"},"FOREST":{c:"#e07878",r:"rgba(224,120,120,"}};
 const LEVEL_ICONS = {ROOT:"🌱",TRUNK:"🌿",BRANCH:"🍃",CROWN:"🌳",FOREST:"🌲"};
 const LEVELS = ["ROOT","TRUNK","BRANCH","CROWN","FOREST"];
 
 const SEEDS = [
-  {num:1, name:"お金", level:"ROOT", sub:"通貨・信用・円。なぜ紙切れに価値があるのか。", ready:true},
-  {num:2, name:"銀行", level:"ROOT", sub:"預金・融資・信用創造。お金を社会に流す装置。", ready:true},
-  {num:3, name:"物価", level:"ROOT", sub:"インフレ・デフレ・需要と供給。価格水準の動き。", ready:true},
-  {num:4, name:"景気", level:"ROOT", sub:"好景気・不景気・景気循環。経済全体の調子。", ready:true},
-  {num:5, name:"GDP", level:"ROOT", sub:"国内総生産・経済成長。国の経済規模の指標。", ready:true},
-  {num:6, name:"金利", level:"TRUNK", sub:"利上げ・利下げ・政策金利。お金を借りるレンタル料。", ready:true},
-  {num:7, name:"中央銀行", level:"TRUNK", sub:"日本銀行・FRB・金融政策。物価を安定させる機関。", ready:true},
-  {num:8, name:"為替", level:"TRUNK", sub:"円高・円安・ドル円。通貨同士の交換レート。", ready:true},
-  {num:9, name:"国債", level:"TRUNK", sub:"政府の借金・利回り・長期金利。", ready:true},
-  {num:10, name:"雇用", level:"TRUNK", sub:"失業率・賃金・求人倍率。景気・消費をつなぐ指標。", ready:true},
-  {num:11, name:"エネルギー", level:"BRANCH", sub:"原油・天然ガス・資源価格。物価と企業コストに影響。", ready:true},
-  {num:12, name:"貿易", level:"BRANCH", sub:"輸出・輸入・貿易収支。世界経済とつながる仕組み。", ready:true},
-  {num:13, name:"人口", level:"BRANCH", sub:"少子高齢化・労働人口。経済成長と社会保障の基盤。", ready:true},
-  {num:14, name:"不動産", level:"BRANCH", sub:"住宅価格・金利・景気との関係。資産市場の代表。", ready:true},
-  {num:15, name:"AI・技術", level:"BRANCH", sub:"生産性・イノベーション・雇用代替。技術変化と経済。", ready:true},
-  {num:16, name:"米国経済", level:"CROWN", sub:"FRB・ドル・米国株。世界経済と金融市場の中心。", ready:true},
-  {num:17, name:"中国経済", level:"CROWN", sub:"製造・貿易・不動産。世界に大きな影響を持つ経済大国。", ready:true},
-  {num:18, name:"日本経済", level:"CROWN", sub:"低成長・少子高齢化・円安・財政。日本固有の課題。", ready:true},
-  {num:19, name:"EU経済", level:"CROWN", sub:"ユーロ・ECB。複数国の共通通貨圏。", ready:true},
-  {num:20, name:"新興国", level:"CROWN", sub:"高成長・通貨リスク・人口増加。", ready:true},
-  {num:21, name:"世界恐慌", level:"FOREST", sub:"1929年・株価暴落。金融危機が実体経済へ波及。", ready:true},
-  {num:22, name:"オイルショック", level:"FOREST", sub:"原油・スタグフレーション・供給ショック。", ready:true},
-  {num:23, name:"バブル経済", level:"FOREST", sub:"不動産・株価・信用膨張。資産価格の過剰膨張。", ready:true},
-  {num:24, name:"ITバブル", level:"FOREST", sub:"インターネット・NASDAQ・期待過剰。", ready:true},
-  {num:25, name:"リーマンショック", level:"FOREST", sub:"サブプライム・証券化・金融危機。", ready:true},
-  {num:26, name:"コロナショック", level:"FOREST", sub:"ロックダウン・給付金・インフレ。", ready:true}
+  {num:1, name:"株式", level:"ROOT", sub:"株・配当・株主権。企業の所有権の一部を買う。", ready:true},
+  {num:2, name:"債券", level:"ROOT", sub:"国債・社債・利回り。政府・企業への貸し付け。", ready:true},
+  {num:3, name:"投資信託", level:"ROOT", sub:"ファンド・運用・分散。専門家に運用を任せる仕組み。", ready:true},
+  {num:4, name:"リスクとリターン", level:"ROOT", sub:"期待収益・標準偏差・リスク許容度。投資の基本原理。", ready:true},
+  {num:5, name:"複利", level:"ROOT", sub:"利息の利息・72の法則・時間の価値。投資最大の武器。", ready:true},
+  {num:6, name:"分散投資", level:"TRUNK", sub:"卵を一つのかごに盛るな。相関係数・リスク低減。", ready:true},
+  {num:7, name:"アセットアロケーション", level:"TRUNK", sub:"株・債券・不動産・現金の配分。リターンの9割を決める。", ready:true},
+  {num:8, name:"インデックス投資", level:"TRUNK", sub:"S&P500・全世界株・低コスト。市場平均を買う戦略。", ready:true},
+  {num:9, name:"長期投資", level:"TRUNK", sub:"バイアンドホールド・時間分散・市場の上下を乗り越える。", ready:true},
+  {num:10, name:"NISA・iDeCo", level:"TRUNK", sub:"非課税・老後資産形成・年間投資枠。日本の税優遇制度。", ready:true},
+  {num:11, name:"テクニカル分析", level:"BRANCH", sub:"チャート・移動平均・RSI。過去の価格から未来を読む試み。", ready:true},
+  {num:12, name:"ファンダメンタル分析", level:"BRANCH", sub:"PER・PBR・ROE。企業の実力で株価を測る。", ready:true},
+  {num:13, name:"ETF", level:"BRANCH", sub:"上場投資信託・低コスト・流動性。株のように取引できる投信。", ready:true},
+  {num:14, name:"不動産・REIT", level:"BRANCH", sub:"REIT・家賃収入・レバレッジ。現物以外の不動産投資。", ready:true},
+  {num:15, name:"外国株・為替", level:"BRANCH", sub:"米国株・新興国・為替ヘッジ。国際分散と通貨リスク。", ready:true},
+  {num:16, name:"米国株・S&P500", level:"CROWN", sub:"S&P500・NYSE・NASDAQ。世界最大株式市場の特徴。", ready:true},
+  {num:17, name:"新興国投資", level:"CROWN", sub:"BRICs・高成長・通貨リスク・政治リスク。", ready:true},
+  {num:18, name:"バリュー・グロース", level:"CROWN", sub:"割安株・成長株・バフェット流。投資哲学の二大潮流。", ready:true},
+  {num:19, name:"ポートフォリオ理論", level:"CROWN", sub:"効率的フロンティア・シャープレシオ・MPT。現代投資理論の基礎。", ready:true},
+  {num:20, name:"オルタナティブ投資", level:"CROWN", sub:"ヘッジファンド・PE・コモディティ。伝統的資産以外への投資。", ready:true},
+  {num:21, name:"ブラックマンデー", level:"FOREST", sub:"1987年暴落・プログラム売買・株価-22%。歴史的一日の教訓。", ready:true},
+  {num:22, name:"バブルと暴落", level:"FOREST", sub:"投機・群衆心理・マナー則。繰り返される資産バブルのパターン。", ready:true},
+  {num:23, name:"リーマンと投資", level:"FOREST", sub:"金融危機・暴落と回復・長期保有の威力。歴史最大の試練。", ready:true},
+  {num:24, name:"コロナと市場", level:"FOREST", sub:"コロナ暴落・急回復・FRBの量的緩和。過去最速の回復劇。", ready:true},
+  {num:25, name:"FIRE運動", level:"FOREST", sub:"経済的自立・早期引退・4%ルール。新しい人生設計の考え方。", ready:true},
+  {num:26, name:"インフレと投資", level:"FOREST", sub:"インフレヘッジ・実物資産・株式の実質リターン。物価上昇への対策。", ready:true}
 ];
 
 // ── Status ──

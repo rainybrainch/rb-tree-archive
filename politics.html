@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RB-Tree Economics — 経済の樹</title>
+<title>RB-Tree Politics — 政治の樹</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:    #060c08;
-  --bg2:   #0c1810;
+  --bg:    #040810;
+  --bg2:   #080c1a;
   --line:  rgba(255,255,255,.09);
-  --text:  #d4e8d0;
-  --muted: rgba(180,210,180,.52);
+  --text:  #c8dff0;
+  --muted: rgba(200,223,240,.52);
   --faint: rgba(255,255,255,.18);
-  --acc:   #c9a84c;
-  --acc2:  #8a6f2a;
+  --acc:   #6bb6ff;
+  --acc2:  #2a5a8a;
   --font:  "Noto Sans JP",sans-serif;
   --serif: "Noto Serif JP",serif;
   color-scheme:dark;
@@ -73,8 +73,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
   flex:1;overflow:auto;position:relative;cursor:grab;
   scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.15) transparent;
   background:
-    radial-gradient(ellipse at 50% 0%, #c9a84c0d, transparent 55%),
-    radial-gradient(ellipse at 15% 90%, #c9a84c06, transparent 45%),
+    radial-gradient(ellipse at 50% 0%, #6bb6ff0d, transparent 55%),
+    radial-gradient(ellipse at 15% 90%, #6bb6ff06, transparent 45%),
     radial-gradient(ellipse at 85% 85%, rgba(87,200,124,.04), transparent 40%),
     var(--bg);
 }
@@ -92,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 /* ── SIDE PANEL ── */
 .side-panel{
   width:0;flex-shrink:0;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#0c1810;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#080c1a;
   border-left:1px solid rgba(255,255,255,.07);
   display:flex;flex-direction:column;
   transition:width .28s cubic-bezier(.4,0,.2,1);
@@ -194,21 +194,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 
 <!-- HEADER -->
 <header class="header">
-  <div class="logo"><span class="logo-mark">🌳</span>RB-Tree</div>
+  <div class="logo"><span class="logo-mark">🏛</span>RB-Tree</div>
   <nav class="subject-tabs">
-    <a href="economics.html" class="tab-active">🌳 Economics</a>
-    <a href="politics.html">🏛 Politics</a>
+    <a href="economics.html">🌳 Economics</a>
+    <a href="politics.html" class="tab-active">🏛 Politics</a>
     <a href="investment.html">📈 Investment</a>
   </nav>
   <div class="h-right">
-    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/economy.html" target="_blank">📡 配信</a>
+    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/politics.html" target="_blank">📡 配信</a>
     <a class="btn-sm" href="index.html">Archive 一覧</a>
   </div>
 </header>
 
 <!-- SUBHEADER -->
 <div class="subheader">
-  <span class="subj-label">Economics — 経済の樹</span>
+  <span class="subj-label">Politics — 政治の樹</span>
   <div class="progress-wrap" style="margin-left:16px;">
     <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
     <span class="pb-label" id="pbLabel">0 / 26</span>
@@ -250,48 +250,48 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 
 <div class="toast" id="toast"></div>
 
-<script src="seeds/seeds-data.js"></script>
+<script src="seeds/politics-data.js"></script>
 <script src="seeds/seeds-data.js" onerror="void 0"></script>
 <script>
 (()=>{
 "use strict";
 
-const ARCHIVE_KEY = "rbt_data_v1";
-const STREAM_URL  = "https://rainybrainch.github.io/live/streams/economy.html";
-const SEED_PREFIX = "E";
-const DB_VAR      = "SEED_DB";
-const LEVEL_DESCS = {"ROOT":"経済の根","TRUNK":"動かす幹","BRANCH":"現実の枝","CROWN":"世界の樹冠","FOREST":"経済史の森"};
+const ARCHIVE_KEY = "rbt_politics_v1";
+const STREAM_URL  = "https://rainybrainch.github.io/live/streams/politics.html";
+const SEED_PREFIX = "P";
+const DB_VAR      = "POLITICS_DB";
+const LEVEL_DESCS = {"ROOT":"民主主義の根","TRUNK":"国家の幹","BRANCH":"現代社会の枝","CROWN":"世界の政治","FOREST":"政治史の森"};
 const LEVEL_COLORS = {"ROOT":{c:"#c9a84c",r:"rgba(201,168,76,"},"TRUNK":{c:"#57c87c",r:"rgba(87,200,124,"},"BRANCH":{c:"#5aafcf",r:"rgba(90,175,207,"},"CROWN":{c:"#b68cdf",r:"rgba(182,140,223,"},"FOREST":{c:"#e07878",r:"rgba(224,120,120,"}};
 const LEVEL_ICONS = {ROOT:"🌱",TRUNK:"🌿",BRANCH:"🍃",CROWN:"🌳",FOREST:"🌲"};
 const LEVELS = ["ROOT","TRUNK","BRANCH","CROWN","FOREST"];
 
 const SEEDS = [
-  {num:1, name:"お金", level:"ROOT", sub:"通貨・信用・円。なぜ紙切れに価値があるのか。", ready:true},
-  {num:2, name:"銀行", level:"ROOT", sub:"預金・融資・信用創造。お金を社会に流す装置。", ready:true},
-  {num:3, name:"物価", level:"ROOT", sub:"インフレ・デフレ・需要と供給。価格水準の動き。", ready:true},
-  {num:4, name:"景気", level:"ROOT", sub:"好景気・不景気・景気循環。経済全体の調子。", ready:true},
-  {num:5, name:"GDP", level:"ROOT", sub:"国内総生産・経済成長。国の経済規模の指標。", ready:true},
-  {num:6, name:"金利", level:"TRUNK", sub:"利上げ・利下げ・政策金利。お金を借りるレンタル料。", ready:true},
-  {num:7, name:"中央銀行", level:"TRUNK", sub:"日本銀行・FRB・金融政策。物価を安定させる機関。", ready:true},
-  {num:8, name:"為替", level:"TRUNK", sub:"円高・円安・ドル円。通貨同士の交換レート。", ready:true},
-  {num:9, name:"国債", level:"TRUNK", sub:"政府の借金・利回り・長期金利。", ready:true},
-  {num:10, name:"雇用", level:"TRUNK", sub:"失業率・賃金・求人倍率。景気・消費をつなぐ指標。", ready:true},
-  {num:11, name:"エネルギー", level:"BRANCH", sub:"原油・天然ガス・資源価格。物価と企業コストに影響。", ready:true},
-  {num:12, name:"貿易", level:"BRANCH", sub:"輸出・輸入・貿易収支。世界経済とつながる仕組み。", ready:true},
-  {num:13, name:"人口", level:"BRANCH", sub:"少子高齢化・労働人口。経済成長と社会保障の基盤。", ready:true},
-  {num:14, name:"不動産", level:"BRANCH", sub:"住宅価格・金利・景気との関係。資産市場の代表。", ready:true},
-  {num:15, name:"AI・技術", level:"BRANCH", sub:"生産性・イノベーション・雇用代替。技術変化と経済。", ready:true},
-  {num:16, name:"米国経済", level:"CROWN", sub:"FRB・ドル・米国株。世界経済と金融市場の中心。", ready:true},
-  {num:17, name:"中国経済", level:"CROWN", sub:"製造・貿易・不動産。世界に大きな影響を持つ経済大国。", ready:true},
-  {num:18, name:"日本経済", level:"CROWN", sub:"低成長・少子高齢化・円安・財政。日本固有の課題。", ready:true},
-  {num:19, name:"EU経済", level:"CROWN", sub:"ユーロ・ECB。複数国の共通通貨圏。", ready:true},
-  {num:20, name:"新興国", level:"CROWN", sub:"高成長・通貨リスク・人口増加。", ready:true},
-  {num:21, name:"世界恐慌", level:"FOREST", sub:"1929年・株価暴落。金融危機が実体経済へ波及。", ready:true},
-  {num:22, name:"オイルショック", level:"FOREST", sub:"原油・スタグフレーション・供給ショック。", ready:true},
-  {num:23, name:"バブル経済", level:"FOREST", sub:"不動産・株価・信用膨張。資産価格の過剰膨張。", ready:true},
-  {num:24, name:"ITバブル", level:"FOREST", sub:"インターネット・NASDAQ・期待過剰。", ready:true},
-  {num:25, name:"リーマンショック", level:"FOREST", sub:"サブプライム・証券化・金融危機。", ready:true},
-  {num:26, name:"コロナショック", level:"FOREST", sub:"ロックダウン・給付金・インフレ。", ready:true}
+  {num:1, name:"選挙", level:"ROOT", sub:"投票・選挙制度・民主主義の根本。", ready:true},
+  {num:2, name:"政党", level:"ROOT", sub:"与党・野党・政策綱領。政治理念でつながる組織。", ready:true},
+  {num:3, name:"国会", level:"ROOT", sub:"衆議院・参議院・法律制定。国権の最高機関。", ready:true},
+  {num:4, name:"内閣", level:"ROOT", sub:"首相・閣議・行政権。政策を実行する最高機関。", ready:true},
+  {num:5, name:"憲法", level:"ROOT", sub:"三大原則・立憲主義・最高法規。権力を縛るルール。", ready:true},
+  {num:6, name:"予算・財政", level:"TRUNK", sub:"国債・社会保障費・財政再建。政策の優先順位を示す設計図。", ready:true},
+  {num:7, name:"外交", level:"TRUNK", sub:"日米同盟・ODA・国際交渉。国益を守る対外活動。", ready:true},
+  {num:8, name:"安全保障", level:"TRUNK", sub:"専守防衛・集団的自衛権・防衛費。国を守る仕組み。", ready:true},
+  {num:9, name:"地方自治", level:"TRUNK", sub:"都道府県・市区町村・地方交付税。地域の自主運営。", ready:true},
+  {num:10, name:"行政・官僚", level:"TRUNK", sub:"官僚制・縦割り行政・政治主導。政策を実行する機構。", ready:true},
+  {num:11, name:"メディア", level:"BRANCH", sub:"議題設定・SNS・フェイクニュース。情報と民主主義の関係。", ready:true},
+  {num:12, name:"世論・民意", level:"BRANCH", sub:"内閣支持率・ポピュリズム・利益集団。民意の形成と政治。", ready:true},
+  {num:13, name:"市民社会", level:"BRANCH", sub:"NGO・NPO・ロビイング。国家でも市場でもない活動領域。", ready:true},
+  {num:14, name:"国際機関", level:"BRANCH", sub:"国連・IMF・WTO。国境を越えた協調の仕組み。", ready:true},
+  {num:15, name:"条約・国際法", level:"BRANCH", sub:"条約・慣習法・主権。国家間のルールと強制力。", ready:true},
+  {num:16, name:"日本の政治", level:"CROWN", sub:"55年体制・政権交代・政治改革。日本固有の課題。", ready:true},
+  {num:17, name:"米国の政治", level:"CROWN", sub:"大統領制・二大政党・選挙人制度。世界最大の民主主義。", ready:true},
+  {num:18, name:"中国の政治", level:"CROWN", sub:"一党支配・習近平・全国人民代表大会。権威主義の現代型。", ready:true},
+  {num:19, name:"EU・欧州", level:"CROWN", sub:"欧州統合・Brexit・右翼ポピュリズム。超国家機関の実験。", ready:true},
+  {num:20, name:"民主主義の後退", level:"CROWN", sub:"選挙的権威主義・司法の独立・民主主義崩壊。現代の脅威。", ready:true},
+  {num:21, name:"戦後日本史", level:"FOREST", sub:"55年体制・安保闘争・政権交代。日本現代史の核心。", ready:true},
+  {num:22, name:"冷戦", level:"FOREST", sub:"米ソ対立・核抑止・代理戦争。二極構造が生んだ時代。", ready:true},
+  {num:23, name:"アラブの春", level:"FOREST", sub:"中東民主化・SNS革命・内戦。独裁打倒後の現実。", ready:true},
+  {num:24, name:"ポピュリズム", level:"FOREST", sub:"格差・エリート批判・トランプ。民主主義の変容。", ready:true},
+  {num:25, name:"核・軍縮", level:"FOREST", sub:"NPT・核抑止・核禁止条約。人類最大の安全保障課題。", ready:true},
+  {num:26, name:"気候変動", level:"FOREST", sub:"パリ協定・カーボンニュートラル・グリーン政治。", ready:true}
 ];
 
 // ── Status ──
