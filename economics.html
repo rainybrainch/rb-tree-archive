@@ -12,7 +12,7 @@
   --line:  rgba(100,180,120,.13);
   --text:  #d4e8d0;
   --muted: rgba(180,210,180,.52);
-  --faint: rgba(180,210,180,.28);
+  --faint: rgba(180,210,180,.22);
   --acc:   #c9a84c;
   --acc2:  #8a6f2a;
   --green: #57c87c;
@@ -21,364 +21,500 @@
   color-scheme: dark;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
 /* ── HEADER ── */
 .header{
-  position:sticky;top:0;z-index:30;
+  flex-shrink:0;
   display:flex;align-items:center;gap:12px;
   padding:0 20px;height:50px;
-  background:rgba(6,12,8,.96);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
+  background:rgba(6,12,8,.97);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);z-index:30;
 }
-.logo{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:14px;font-weight:700;}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:14px;font-weight:700;white-space:nowrap;}
 .logo-mark{font-size:20px;}
 .nav-sep{color:var(--faint);}
 .nav-cur{color:var(--acc);font-weight:900;font-size:13px;}
 .h-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
-.btn-sm{
-  padding:5px 13px;border-radius:7px;border:1px solid var(--line);
-  background:rgba(255,255,255,.05);font-size:11px;font-weight:900;
-  text-decoration:none;color:var(--muted);transition:all .15s;cursor:pointer;
-}
+.btn-sm{padding:5px 13px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:11px;font-weight:900;text-decoration:none;color:var(--muted);transition:all .15s;cursor:pointer;}
 .btn-sm:hover{background:rgba(255,255,255,.1);color:var(--text);}
 .btn-stream{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.1);color:var(--acc);}
 .btn-stream:hover{background:rgba(201,168,76,.2);}
 
-/* ── HERO ── */
-.hero{
-  padding:40px 20px 32px;max-width:1000px;margin:0 auto;
-  display:grid;gap:12px;
+/* ── SUBHEADER ── */
+.subheader{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:14px;
+  padding:0 20px;height:40px;
+  border-bottom:1px solid var(--line);
+  background:rgba(6,12,8,.9);
 }
-.hero-eyebrow{font-size:10px;font-weight:900;letter-spacing:.2em;color:var(--acc);text-transform:uppercase;}
-.hero-title{font-family:var(--serif);font-size:clamp(28px,4vw,44px);font-weight:700;line-height:1.1;}
-.hero-desc{color:var(--muted);font-size:13px;line-height:1.7;max-width:600px;}
-.hero-stats{display:flex;gap:20px;flex-wrap:wrap;}
-.stat{display:flex;flex-direction:column;gap:3px;}
-.stat-num{font-size:22px;font-weight:900;font-family:var(--serif);color:var(--acc);}
-.stat-label{font-size:10px;color:var(--faint);font-weight:700;letter-spacing:.08em;}
+.progress-wrap{display:flex;align-items:center;gap:10px;flex:1;max-width:320px;}
+.pb-track{flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,.07);}
+.pb-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .5s ease;}
+.pb-label{font-size:10px;font-weight:900;color:var(--muted);white-space:nowrap;}
+.stat-chips{display:flex;gap:8px;margin-left:auto;}
+.chip{font-size:10px;font-weight:900;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);}
+.chip.done{border-color:rgba(201,168,76,.35);color:var(--acc);background:rgba(201,168,76,.08);}
+.chip.wip{border-color:rgba(87,200,124,.3);color:var(--green);background:rgba(87,200,124,.06);}
 
-/* ── PROGRESS BAR ── */
-.progress-bar{
-  max-width:1000px;margin:0 auto;padding:0 20px 28px;
-  display:flex;align-items:center;gap:10px;
+/* ── TREE CANVAS ── */
+.tree-wrap{
+  flex:1;overflow:auto;position:relative;cursor:grab;
+  scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.15) transparent;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(201,168,76,.06), transparent 60%),
+    radial-gradient(ellipse at 20% 100%, rgba(87,200,124,.04), transparent 50%),
+    var(--bg);
 }
-.pb-track{flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;}
-.pb-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .4s ease;}
-.pb-label{font-size:11px;font-weight:900;color:var(--muted);white-space:nowrap;}
+.tree-wrap:active{cursor:grabbing;}
+.tree-wrap::-webkit-scrollbar{width:5px;height:5px;}
+.tree-wrap::-webkit-scrollbar-thumb{background:rgba(201,168,76,.18);border-radius:999px;}
 
-/* ── MAIN ── */
-.main{max-width:1000px;margin:0 auto;padding:0 20px 60px;display:grid;gap:28px;}
-
-/* ── LEVEL BLOCK ── */
-.level-block{}
-.level-head{
-  display:flex;align-items:center;gap:12px;
-  padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:14px;
+/* ── SVG NODES ── */
+.node-bg{
+  fill:rgba(10,20,12,.88);
+  stroke:rgba(201,168,76,.28);stroke-width:1.5;
+  rx:9;ry:9;
+  transition:stroke .15s,filter .15s;
 }
-.level-icon{font-size:22px;}
-.level-name{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--text);}
-.level-en{font-size:10px;color:var(--muted);letter-spacing:.1em;margin-left:4px;}
-.level-desc{font-size:11px;color:var(--faint);margin-left:auto;}
-.level-count{font-size:11px;font-weight:900;color:var(--muted);}
+.node-group{cursor:pointer;}
+.node-group:hover .node-bg{stroke:rgba(201,168,76,.8);filter:drop-shadow(0 0 10px rgba(201,168,76,.3));}
+.node-group.done .node-bg{stroke:rgba(201,168,76,.55);fill:rgba(201,168,76,.07);}
+.node-group.wip .node-bg{stroke:rgba(87,200,124,.55);fill:rgba(87,200,124,.05);}
+.node-group.tbd{cursor:default;opacity:.42;}
+.node-group.tbd .node-bg{stroke:rgba(255,255,255,.1);}
+.node-num{fill:rgba(201,168,76,.55);font-size:9px;font-family:"Noto Sans JP",sans-serif;font-weight:700;}
+.node-name{fill:#d4e8d0;font-size:12px;font-family:"Noto Serif JP",serif;font-weight:700;dominant-baseline:central;}
+.node-status{font-size:8px;font-family:"Noto Sans JP",sans-serif;font-weight:900;}
+.node-status.done{fill:#c9a84c;}
+.node-status.wip{fill:#57c87c;}
+.node-status.none{fill:rgba(180,210,180,.3);}
+.node-group.done .node-check{display:block;}
+.tree-edge{fill:none;stroke:rgba(201,168,76,.18);stroke-width:1.5;}
+.tree-edge.key{stroke:rgba(201,168,76,.35);stroke-width:2;}
 
-/* ── SEED GRID ── */
-.seed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;}
+/* ── LEVEL LABELS ── */
+.level-label{font-family:"Noto Sans JP",sans-serif;font-size:10px;font-weight:900;letter-spacing:.14em;fill:rgba(201,168,76,.4);}
+.level-line{stroke:rgba(201,168,76,.08);stroke-width:1;stroke-dasharray:4 6;}
 
-/* ── SEED CARD ── */
-.seed-card{
-  display:flex;flex-direction:column;gap:8px;
-  padding:13px;border-radius:10px;
+/* ── TOOLTIP ── */
+.tooltip{
+  position:fixed;z-index:50;
+  padding:8px 13px;border-radius:9px;
+  background:rgba(10,20,12,.97);border:1px solid rgba(201,168,76,.3);
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+  font-size:11px;line-height:1.55;
+  pointer-events:none;opacity:0;transition:opacity .15s;
+  max-width:220px;
+}
+.tooltip.show{opacity:1;}
+.tip-name{font-family:"Noto Serif JP",serif;font-size:14px;font-weight:700;color:#d4e8d0;margin-bottom:3px;}
+.tip-level{font-size:9px;font-weight:900;letter-spacing:.1em;color:#c9a84c;}
+.tip-sub{font-size:11px;color:rgba(180,210,180,.6);margin-top:4px;line-height:1.5;}
+.tip-status{margin-top:5px;font-size:10px;font-weight:900;}
+.tip-action{margin-top:5px;font-size:10px;color:rgba(201,168,76,.7);}
+
+/* ── LEGEND ── */
+.legend{
+  position:absolute;bottom:16px;left:20px;z-index:10;
+  display:flex;flex-direction:column;gap:6px;
+  padding:10px 14px;border-radius:10px;
+  background:rgba(6,12,8,.88);backdrop-filter:blur(12px);
   border:1px solid var(--line);
-  background:rgba(10,20,12,.7);
-  cursor:pointer;transition:all .18s;
-  text-decoration:none;color:var(--text);
-  position:relative;overflow:hidden;
 }
-.seed-card:hover{border-color:rgba(201,168,76,.4);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.3);}
-.seed-card.done{border-color:rgba(201,168,76,.3);}
-.seed-card.done::after{
-  content:"✓";position:absolute;top:8px;right:9px;
-  font-size:10px;font-weight:900;color:var(--acc);
-}
-.seed-num{font-size:9px;font-weight:900;color:var(--faint);letter-spacing:.08em;}
-.seed-name{font-family:var(--serif);font-size:15px;font-weight:700;line-height:1.2;}
-.seed-sub{font-size:10px;color:var(--muted);line-height:1.5;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.seed-footer{display:flex;align-items:center;gap:6px;margin-top:auto;}
-.seed-stage-ico{font-size:13px;}
-.seed-stage-name{font-size:9px;color:var(--faint);font-weight:700;}
-.seed-status{
-  margin-left:auto;font-size:8px;font-weight:900;letter-spacing:.08em;
-  padding:2px 6px;border-radius:999px;
-}
-.seed-status.done{border:1px solid rgba(201,168,76,.35);color:var(--acc);background:rgba(201,168,76,.1);}
-.seed-status.wip{border:1px solid rgba(87,200,124,.3);color:var(--green);background:rgba(87,200,124,.08);}
-.seed-status.none{border:1px solid rgba(255,255,255,.08);color:var(--faint);background:transparent;}
-
-/* ── COMING SOON ── */
-.seed-card.tbd{opacity:.5;cursor:default;}
-.seed-card.tbd:hover{transform:none;box-shadow:none;border-color:var(--line);}
-
-/* ── FLOW ── */
-.flow{
-  display:flex;align-items:center;flex-wrap:wrap;gap:6px;
-  padding:14px 18px;border-radius:10px;
-  border:1px solid var(--line);background:rgba(10,20,12,.5);
-  font-size:12px;font-weight:700;
-}
-.flow-item{color:var(--muted);}
-.flow-item.key{color:var(--acc);font-weight:900;}
-.flow-arrow{color:var(--faint);}
-
-/* ── FOOTER ── */
-.page-footer{
-  max-width:1000px;margin:0 auto;padding:20px 20px 40px;
-  border-top:1px solid var(--line);
-  display:flex;align-items:center;gap:12px;
-  font-size:11px;color:var(--faint);
-}
-
-@media(max-width:600px){
-  .seed-grid{grid-template-columns:repeat(2,1fr);}
-  .hero-stats{gap:14px;}
-}
+.legend-title{font-size:9px;font-weight:900;letter-spacing:.12em;color:var(--faint);margin-bottom:3px;}
+.legend-item{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:900;color:var(--muted);}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.ld-root{background:rgba(201,168,76,.08);border:1.5px solid rgba(201,168,76,.28);}
+.ld-done{background:rgba(201,168,76,.15);border:1.5px solid rgba(201,168,76,.65);}
+.ld-wip{background:rgba(87,200,124,.1);border:1.5px solid rgba(87,200,124,.6);}
+.ld-tbd{background:rgba(255,255,255,.02);border:1.5px solid rgba(255,255,255,.1);opacity:.5;}
 </style>
 </head>
 <body>
 
 <header class="header">
-  <div class="logo">
-    <span class="logo-mark">🌳</span>
-    RB-Tree
-  </div>
+  <div class="logo"><span class="logo-mark">🌳</span>RB-Tree</div>
   <span class="nav-sep">/</span>
-  <span class="nav-cur">Economics</span>
+  <span class="nav-cur">Economics — 経済の樹</span>
   <div class="h-right">
-    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/economy.html" target="_blank">📡 配信ページ</a>
-    <a class="btn-sm" href="index.html">🌲 Archive 一覧</a>
+    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/economy.html" target="_blank">📡 配信</a>
+    <a class="btn-sm" href="index.html">Archive 一覧</a>
   </div>
 </header>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-eyebrow">RB-Tree Economics v1.0</div>
-  <h1 class="hero-title">経済の樹 — 26 Seed のロードマップ</h1>
-  <p class="hero-desc">
-    ROOT（根）から FOREST（経済史の森）まで。<br>
-    学習した Seed を記録しながら、経済の全体像を育てていく。
-  </p>
-  <div class="hero-stats">
-    <div class="stat">
-      <span class="stat-num" id="statTotal">26</span>
-      <span class="stat-label">TOTAL SEEDS</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num" id="statDone">0</span>
-      <span class="stat-label">COMPLETED</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num" id="statWip">0</span>
-      <span class="stat-label">IN PROGRESS</span>
-    </div>
+<div class="subheader">
+  <div class="progress-wrap">
+    <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
+    <span class="pb-label" id="pbLabel">0 / 26</span>
+  </div>
+  <div class="stat-chips">
+    <span class="chip done" id="chipDone">完了 0</span>
+    <span class="chip wip" id="chipWip">学習中 0</span>
+    <span class="chip" id="chipNone">未着手 26</span>
   </div>
 </div>
 
-<!-- PROGRESS -->
-<div class="progress-bar">
-  <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
-  <span class="pb-label" id="pbLabel">0 / 26 Seeds</span>
+<div class="tree-wrap" id="treeWrap">
+  <svg id="treeSvg" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
 
-<!-- CORE FLOW -->
-<div class="main">
-
-  <div class="flow">
-    <span class="flow-item key">お金</span><span class="flow-arrow">→</span>
-    <span class="flow-item key">銀行</span><span class="flow-arrow">→</span>
-    <span class="flow-item">物価</span><span class="flow-arrow">→</span>
-    <span class="flow-item key">金利</span><span class="flow-arrow">→</span>
-    <span class="flow-item key">中央銀行</span><span class="flow-arrow">→</span>
-    <span class="flow-item">為替</span><span class="flow-arrow">→</span>
-    <span class="flow-item">国債</span><span class="flow-arrow">→</span>
-    <span class="flow-item">雇用</span>
-    <span style="margin-left:auto;font-size:10px;color:var(--faint);">最初に学ぶ根幹ルート</span>
-  </div>
-
-  <!-- ROOT -->
-  <div class="level-block">
-    <div class="level-head">
-      <span class="level-icon">🌱</span>
-      <span class="level-name">ROOT<span class="level-en"> — 経済の根</span></span>
-      <span class="level-count" id="cnt-root"></span>
-    </div>
-    <div class="seed-grid" id="grid-root"></div>
-  </div>
-
-  <!-- TRUNK -->
-  <div class="level-block">
-    <div class="level-head">
-      <span class="level-icon">🌿</span>
-      <span class="level-name">TRUNK<span class="level-en"> — 経済を動かす幹</span></span>
-      <span class="level-count" id="cnt-trunk"></span>
-    </div>
-    <div class="seed-grid" id="grid-trunk"></div>
-  </div>
-
-  <!-- BRANCH -->
-  <div class="level-block">
-    <div class="level-head">
-      <span class="level-icon">🍃</span>
-      <span class="level-name">BRANCH<span class="level-en"> — 現実ニュースの枝</span></span>
-      <span class="level-count" id="cnt-branch"></span>
-    </div>
-    <div class="seed-grid" id="grid-branch"></div>
-  </div>
-
-  <!-- CROWN -->
-  <div class="level-block">
-    <div class="level-head">
-      <span class="level-icon">🌳</span>
-      <span class="level-name">CROWN<span class="level-en"> — 世界経済の樹冠</span></span>
-      <span class="level-count" id="cnt-crown"></span>
-    </div>
-    <div class="seed-grid" id="grid-crown"></div>
-  </div>
-
-  <!-- FOREST -->
-  <div class="level-block">
-    <div class="level-head">
-      <span class="level-icon">🌲</span>
-      <span class="level-name">FOREST<span class="level-en"> — 経済史の森</span></span>
-      <span class="level-count" id="cnt-forest"></span>
-    </div>
-    <div class="seed-grid" id="grid-forest"></div>
-  </div>
-
+<div class="legend">
+  <div class="legend-title">凡例</div>
+  <div class="legend-item"><span class="legend-dot ld-root"></span>未着手</div>
+  <div class="legend-item"><span class="legend-dot ld-done"></span>完了</div>
+  <div class="legend-item"><span class="legend-dot ld-wip"></span>学習中</div>
+  <div class="legend-item"><span class="legend-dot ld-tbd"></span>準備中</div>
 </div>
 
-<footer class="page-footer">
-  <span>RB-Tree Economics v1.0 — RAINYBRAIN</span>
-  <a href="index.html" style="color:var(--acc);text-decoration:none;margin-left:auto;">← Archive 一覧へ</a>
-</footer>
+<div class="tooltip" id="tooltip">
+  <div class="tip-level" id="tipLevel"></div>
+  <div class="tip-name" id="tipName"></div>
+  <div class="tip-sub" id="tipSub"></div>
+  <div class="tip-status" id="tipStatus"></div>
+  <div class="tip-action" id="tipAction"></div>
+</div>
 
 <script>
 (() => {
 "use strict";
 
 const ARCHIVE_KEY = "rbt_data_v1";
-const ARCHIVE_BASE = "https://rainybrainch.github.io/rb-tree-archive/";
+const BASE = "https://rainybrainch.github.io/rb-tree-archive/";
 
 const SEEDS = [
-  {num:1,  name:"お金",       level:"ROOT",   kw:"お金",          sub:"通貨・信用・円。なぜ紙切れに価値があるのか。",          url:"seeds/01-okane.html",          ready:true},
-  {num:2,  name:"銀行",       level:"ROOT",   kw:"銀行",          sub:"預金・融資・信用創造。お金を社会に流す装置。",            url:"seeds/02-ginko.html",          ready:false},
-  {num:3,  name:"物価",       level:"ROOT",   kw:"物価",          sub:"インフレ・デフレ・需要と供給。価格水準の動き。",          url:"seeds/03-bukka.html",          ready:false},
-  {num:4,  name:"景気",       level:"ROOT",   kw:"景気",          sub:"好景気・不景気・景気循環。経済全体の調子。",              url:"seeds/04-keiki.html",          ready:false},
-  {num:5,  name:"GDP",        level:"ROOT",   kw:"GDP",           sub:"国内総生産・経済成長。国の経済規模の指標。",              url:"seeds/05-gdp.html",            ready:false},
-  {num:6,  name:"金利",       level:"TRUNK",  kw:"金利",          sub:"利上げ・利下げ・政策金利。お金を借りるレンタル料。",      url:"seeds/06-kinri.html",          ready:true},
-  {num:7,  name:"中央銀行",   level:"TRUNK",  kw:"中央銀行",      sub:"日本銀行・FRB・金融政策。物価と金融を安定させる機関。",   url:"seeds/07-chuo-ginko.html",     ready:false},
-  {num:8,  name:"為替",       level:"TRUNK",  kw:"為替",          sub:"円高・円安・ドル円。通貨同士の交換レート。",              url:"seeds/08-kawase.html",         ready:false},
-  {num:9,  name:"国債",       level:"TRUNK",  kw:"国債",          sub:"政府の借金・利回り・長期金利。",                         url:"seeds/09-kokusai.html",        ready:false},
-  {num:10, name:"雇用",       level:"TRUNK",  kw:"雇用",          sub:"失業率・賃金・求人倍率。景気・消費をつなぐ指標。",        url:"seeds/10-koyo.html",           ready:false},
-  {num:11, name:"エネルギー", level:"BRANCH", kw:"エネルギー",    sub:"原油・天然ガス・資源価格。物価と企業コストに影響。",      url:"seeds/11-energy.html",         ready:false},
-  {num:12, name:"貿易",       level:"BRANCH", kw:"貿易",          sub:"輸出・輸入・貿易収支。世界経済とつながる仕組み。",        url:"seeds/12-boeki.html",          ready:false},
-  {num:13, name:"人口",       level:"BRANCH", kw:"人口",          sub:"少子高齢化・労働人口。経済成長と社会保障の基盤。",        url:"seeds/13-jinko.html",          ready:false},
-  {num:14, name:"不動産",     level:"BRANCH", kw:"不動産",        sub:"住宅価格・金利・景気との関係。資産市場の代表。",          url:"seeds/14-fudosan.html",        ready:false},
-  {num:15, name:"AI・技術",   level:"BRANCH", kw:"AI・技術革新",  sub:"生産性・イノベーション・雇用代替。技術変化と経済。",      url:"seeds/15-ai.html",             ready:false},
-  {num:16, name:"米国経済",   level:"CROWN",  kw:"アメリカ経済",  sub:"FRB・ドル・米国株。世界経済と金融市場の中心。",          url:"seeds/16-us.html",             ready:false},
-  {num:17, name:"中国経済",   level:"CROWN",  kw:"中国経済",      sub:"製造・貿易・不動産。世界に大きな影響を持つ経済大国。",    url:"seeds/17-china.html",          ready:false},
-  {num:18, name:"日本経済",   level:"CROWN",  kw:"日本経済",      sub:"低成長・少子高齢化・円安・財政。日本固有の課題。",        url:"seeds/18-japan.html",          ready:false},
-  {num:19, name:"EU経済",     level:"CROWN",  kw:"EU経済",        sub:"ユーロ・ECB。複数国の共通通貨圏。",                      url:"seeds/19-eu.html",             ready:false},
-  {num:20, name:"新興国",     level:"CROWN",  kw:"新興国",        sub:"高成長・通貨リスク・人口増加。",                         url:"seeds/20-emerging.html",       ready:false},
-  {num:21, name:"世界恐慌",   level:"FOREST", kw:"世界恐慌",      sub:"1929年・株価暴落。金融危機が実体経済へ波及した事例。",   url:"seeds/21-great-depression.html",ready:false},
-  {num:22, name:"オイルショック",level:"FOREST",kw:"オイルショック",sub:"原油・スタグフレーション・供給ショック。",             url:"seeds/22-oil-shock.html",      ready:false},
-  {num:23, name:"バブル経済", level:"FOREST", kw:"バブル経済",    sub:"不動産・株価・信用膨張。資産価格の過剰膨張。",            url:"seeds/23-bubble.html",         ready:false},
-  {num:24, name:"ITバブル",   level:"FOREST", kw:"ITバブル",      sub:"インターネット・NASDAQ・期待過剰。",                     url:"seeds/24-it-bubble.html",      ready:false},
-  {num:25, name:"リーマン",   level:"FOREST", kw:"リーマンショック",sub:"サブプライム・証券化・金融危機。",                    url:"seeds/25-lehman.html",         ready:false},
-  {num:26, name:"コロナ",     level:"FOREST", kw:"コロナショック",sub:"ロックダウン・給付金・インフレ。感染症が経済を止めた事例。",url:"seeds/26-covid.html",        ready:false},
+  {num:1,  name:"お金",       level:"ROOT",   kw:"お金",          sub:"通貨・信用・円。なぜ紙切れに価値があるのか。",              url:"seeds/01-okane.html",           ready:true},
+  {num:2,  name:"銀行",       level:"ROOT",   kw:"銀行",          sub:"預金・融資・信用創造。お金を社会に流す装置。",              url:"seeds/02-ginko.html",           ready:false},
+  {num:3,  name:"物価",       level:"ROOT",   kw:"物価",          sub:"インフレ・デフレ・需要と供給。価格水準の動き。",            url:"seeds/03-bukka.html",           ready:false},
+  {num:4,  name:"景気",       level:"ROOT",   kw:"景気",          sub:"好景気・不景気・景気循環。経済全体の調子。",                url:"seeds/04-keiki.html",           ready:false},
+  {num:5,  name:"GDP",        level:"ROOT",   kw:"GDP",           sub:"国内総生産・経済成長。国の経済規模の指標。",                url:"seeds/05-gdp.html",             ready:false},
+  {num:6,  name:"金利",       level:"TRUNK",  kw:"金利",          sub:"利上げ・利下げ・政策金利。お金を借りるレンタル料。",        url:"seeds/06-kinri.html",           ready:true},
+  {num:7,  name:"中央銀行",   level:"TRUNK",  kw:"中央銀行",      sub:"日本銀行・FRB・金融政策。物価を安定させる機関。",          url:"seeds/07-chuo-ginko.html",      ready:false},
+  {num:8,  name:"為替",       level:"TRUNK",  kw:"為替",          sub:"円高・円安・ドル円。通貨同士の交換レート。",               url:"seeds/08-kawase.html",          ready:false},
+  {num:9,  name:"国債",       level:"TRUNK",  kw:"国債",          sub:"政府の借金・利回り・長期金利。",                          url:"seeds/09-kokusai.html",         ready:false},
+  {num:10, name:"雇用",       level:"TRUNK",  kw:"雇用",          sub:"失業率・賃金・求人倍率。景気・消費をつなぐ指標。",          url:"seeds/10-koyo.html",            ready:false},
+  {num:11, name:"エネルギー", level:"BRANCH", kw:"エネルギー",    sub:"原油・天然ガス・資源価格。物価と企業コストに影響。",        url:"seeds/11-energy.html",          ready:false},
+  {num:12, name:"貿易",       level:"BRANCH", kw:"貿易",          sub:"輸出・輸入・貿易収支。世界経済とつながる仕組み。",          url:"seeds/12-boeki.html",           ready:false},
+  {num:13, name:"人口",       level:"BRANCH", kw:"人口",          sub:"少子高齢化・労働人口。経済成長と社会保障の基盤。",          url:"seeds/13-jinko.html",           ready:false},
+  {num:14, name:"不動産",     level:"BRANCH", kw:"不動産",        sub:"住宅価格・金利・景気との関係。資産市場の代表。",            url:"seeds/14-fudosan.html",         ready:false},
+  {num:15, name:"AI・技術",   level:"BRANCH", kw:"AI・技術革新",  sub:"生産性・イノベーション・雇用代替。技術変化と経済。",        url:"seeds/15-ai.html",              ready:false},
+  {num:16, name:"米国経済",   level:"CROWN",  kw:"アメリカ経済",  sub:"FRB・ドル・米国株。世界経済と金融市場の中心。",            url:"seeds/16-us.html",              ready:false},
+  {num:17, name:"中国経済",   level:"CROWN",  kw:"中国経済",      sub:"製造・貿易・不動産。世界に大きな影響を持つ経済大国。",      url:"seeds/17-china.html",           ready:false},
+  {num:18, name:"日本経済",   level:"CROWN",  kw:"日本経済",      sub:"低成長・少子高齢化・円安・財政。日本固有の課題。",          url:"seeds/18-japan.html",           ready:false},
+  {num:19, name:"EU経済",     level:"CROWN",  kw:"EU経済",        sub:"ユーロ・ECB。複数国の共通通貨圏。",                       url:"seeds/19-eu.html",              ready:false},
+  {num:20, name:"新興国",     level:"CROWN",  kw:"新興国",        sub:"高成長・通貨リスク・人口増加。",                          url:"seeds/20-emerging.html",        ready:false},
+  {num:21, name:"世界恐慌",   level:"FOREST", kw:"世界恐慌",      sub:"1929年・株価暴落。金融危機が実体経済へ波及。",            url:"seeds/21-great-depression.html",ready:false},
+  {num:22, name:"オイル\nショック", level:"FOREST", kw:"オイルショック", sub:"原油・スタグフレーション・供給ショック。",          url:"seeds/22-oil-shock.html",       ready:false},
+  {num:23, name:"バブル\n経済",level:"FOREST",kw:"バブル経済",    sub:"不動産・株価・信用膨張。資産価格の過剰膨張。",              url:"seeds/23-bubble.html",          ready:false},
+  {num:24, name:"IT\nバブル", level:"FOREST", kw:"ITバブル",      sub:"インターネット・NASDAQ・期待過剰。",                      url:"seeds/24-it-bubble.html",       ready:false},
+  {num:25, name:"リーマン\nショック",level:"FOREST",kw:"リーマンショック",sub:"サブプライム・証券化・金融危機。",              url:"seeds/25-lehman.html",          ready:false},
+  {num:26, name:"コロナ\nショック",level:"FOREST",kw:"コロナショック",sub:"ロックダウン・給付金・インフレ。",                  url:"seeds/26-covid.html",           ready:false},
 ];
 
-const STAGE_MAP = {
-  seed:"🌱",branch:"🌿",leaf:"🍃",tree:"🌳",forest:"🌲"
-};
-
-// ── Read Archive ──
-function getArchiveMap(){
+// ── Archive status ──
+function getStatus(){
   const map={};
   try{
     const arr=JSON.parse(localStorage.getItem(ARCHIVE_KEY)||"[]");
     arr.filter(e=>e.category==="economics"||e.category==="economy").forEach(e=>{
-      const kw=(e.keyword||"").trim();
-      SEEDS.forEach(s=>{if(s.kw===kw||s.name===kw){map[s.num]={stage:e.stage,date:e.updatedAt||e.createdAt};}});
+      SEEDS.forEach(s=>{
+        if(s.kw===e.keyword||s.name.replace(/\n/,"")===e.keyword){
+          const s2=e.stage||"seed";
+          map[s.num]=(s2==="forest"||s2==="tree")?"done":"wip";
+        }
+      });
     });
   }catch{}
   return map;
 }
 
-// ── Render ──
-function render(){
-  const archiveMap=getArchiveMap();
-  const levels=["ROOT","TRUNK","BRANCH","CROWN","FOREST"];
-  const gridIds={"ROOT":"grid-root","TRUNK":"grid-trunk","BRANCH":"grid-branch","CROWN":"grid-crown","FOREST":"grid-forest"};
-  const cntIds={"ROOT":"cnt-root","TRUNK":"cnt-trunk","BRANCH":"cnt-branch","CROWN":"cnt-crown","FOREST":"cnt-forest"};
+// ── Layout constants ──
+const NW = 98, NH = 48, NR = 9;
+const PAD_X = 60, PAD_Y = 70;
+const LEVEL_GAP = 150;
+const LEVELS = ["ROOT","TRUNK","BRANCH","CROWN","FOREST"];
+const LEVEL_ICONS = {ROOT:"🌱",TRUNK:"🌿",BRANCH:"🍃",CROWN:"🌳",FOREST:"🌲"};
+const LEVEL_DESCS = {ROOT:"経済の根",TRUNK:"動かす幹",BRANCH:"現実の枝",CROWN:"世界の樹冠",FOREST:"経済史の森"};
 
-  let totalDone=0,totalWip=0;
-
-  levels.forEach(lv=>{
-    const seeds=SEEDS.filter(s=>s.level===lv);
-    const grid=document.getElementById(gridIds[lv]);
-    const cntEl=document.getElementById(cntIds[lv]);
-    if(!grid)return;
-    let lvDone=0;
-    let html="";
-    seeds.forEach(s=>{
-      const rec=archiveMap[s.num];
-      let statusCls="none",statusTxt="未着手";
-      if(rec){
-        if(rec.stage==="forest"||rec.stage==="tree"){statusCls="done";statusTxt="完了";lvDone++;totalDone++;}
-        else{statusCls="wip";statusTxt="学習中";totalWip++;}
-      }
-      const stageIco=rec?STAGE_MAP[rec.stage]||"🌱":"🌱";
-      const stageTxt=rec?rec.stage:"—";
-      if(s.ready){
-        html+=`<a class="seed-card ${statusCls==="done"?"done":""}" href="${s.url}">
-          <div class="seed-num">SEED ${String(s.num).padStart(2,"0")}</div>
-          <div class="seed-name">${s.name}</div>
-          <div class="seed-sub">${s.sub}</div>
-          <div class="seed-footer">
-            <span class="seed-stage-ico">${stageIco}</span>
-            <span class="seed-stage-name">${stageTxt}</span>
-            <span class="seed-status ${statusCls}">${statusTxt}</span>
-          </div>
-        </a>`;
-      } else {
-        html+=`<div class="seed-card tbd">
-          <div class="seed-num">SEED ${String(s.num).padStart(2,"0")}</div>
-          <div class="seed-name">${s.name}</div>
-          <div class="seed-sub">${s.sub}</div>
-          <div class="seed-footer">
-            <span class="seed-status none">準備中</span>
-          </div>
-        </div>`;
-      }
-    });
-    grid.innerHTML=html;
-    if(cntEl)cntEl.textContent=`${lvDone}/${seeds.length}`;
+function layout(){
+  const groups = {};
+  LEVELS.forEach((lv,li)=>{
+    const seeds = SEEDS.filter(s=>s.level===lv);
+    groups[lv] = {seeds, y: PAD_Y + li * LEVEL_GAP, li};
   });
 
-  // Stats
-  const done=document.getElementById("statDone");
-  const wip=document.getElementById("statWip");
-  const fill=document.getElementById("pbFill");
-  const lbl=document.getElementById("pbLabel");
-  if(done)done.textContent=totalDone;
-  if(wip)wip.textContent=totalWip;
-  if(fill)fill.style.width=Math.round(totalDone/26*100)+"%";
-  if(lbl)lbl.textContent=`${totalDone} / 26 Seeds 完了`;
+  // Calculate SVG width based on widest level
+  const maxCount = Math.max(...LEVELS.map(lv=>groups[lv].seeds.length));
+  const svgW = Math.max(860, PAD_X*2 + maxCount*(NW+20) - 20);
+
+  // Assign x to each seed
+  LEVELS.forEach(lv=>{
+    const g = groups[lv];
+    const n = g.seeds.length;
+    const totalW = n*NW + (n-1)*20;
+    const startX = (svgW - totalW)/2;
+    g.seeds.forEach((s,i)=>{
+      s._x = startX + i*(NW+20);
+      s._y = g.y;
+      s._cx = s._x + NW/2;
+      s._cy = s._y + NH/2;
+    });
+  });
+
+  return {groups, svgW};
 }
 
-render();
+// ── SVG helpers ──
+const SVG_NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs={}, text){
+  const e = document.createElementNS(SVG_NS, tag);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  if(text!==undefined) e.textContent=text;
+  return e;
+}
+
+function bezier(x1,y1,x2,y2){
+  const my = (y1+y2)/2;
+  return `M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`;
+}
+
+// ── Build SVG ──
+function buildTree(){
+  const statusMap = getStatus();
+  const {groups, svgW} = layout();
+  const svgH = PAD_Y + (LEVELS.length-1)*LEVEL_GAP + NH + PAD_Y*1.5;
+
+  const svg = document.getElementById("treeSvg");
+  svg.innerHTML="";
+  svg.setAttribute("width", svgW);
+  svg.setAttribute("height", svgH);
+  svg.setAttribute("viewBox", `0 0 ${svgW} ${svgH}`);
+
+  // Background grid lines (subtle)
+  const defs = el("defs");
+  svg.appendChild(defs);
+
+  // Level background bands
+  LEVELS.forEach((lv,li)=>{
+    const g = groups[lv];
+    const band = el("rect",{
+      x:0, y: g.y - 32,
+      width: svgW, height: NH + 64,
+      fill: li%2===0 ? "rgba(255,255,255,.012)" : "transparent"
+    });
+    svg.appendChild(band);
+  });
+
+  // ── Edges (drawn first, below nodes) ──
+  // Connect each level to the next
+  for(let li=0; li<LEVELS.length-1; li++){
+    const lvA = LEVELS[li], lvB = LEVELS[li+1];
+    const gA = groups[lvA], gB = groups[lvB];
+
+    // For each node in the upper level, draw a connector to each node in the lower level
+    // But to avoid cluttered edges, draw from center of level A to each node in level B
+    const aCenterX = gA.seeds.reduce((s,n)=>s+n._cx,0)/gA.seeds.length;
+    const aBottomY = gA.y + NH;
+    const bTopY    = gB.y;
+
+    // Mid-point Y (halfway between levels)
+    const midY = (aBottomY + bTopY)/2;
+
+    // Vertical line from level A center down to midpoint
+    const trunk = el("line",{
+      x1:aCenterX, y1:aBottomY,
+      x2:aCenterX, y2:midY,
+      stroke:"rgba(201,168,76,.22)", "stroke-width":"1.5",
+      "stroke-dasharray":"4 0"
+    });
+    svg.appendChild(trunk);
+
+    // From midpoint, draw branches to each node in level B
+    gB.seeds.forEach(s=>{
+      const path = el("path",{
+        d:`M ${aCenterX} ${midY} C ${aCenterX} ${midY+30}, ${s._cx} ${bTopY-30}, ${s._cx} ${bTopY}`,
+        class:"tree-edge"
+      });
+      svg.appendChild(path);
+    });
+  }
+
+  // Key flow path: お金 → 銀行 → 物価/金利 highlight
+  // Horizontal connectors within ROOT (learning order)
+  const rootSeeds = groups["ROOT"].seeds;
+  for(let i=0;i<rootSeeds.length-1;i++){
+    const a=rootSeeds[i], b=rootSeeds[i+1];
+    const arrow=el("path",{
+      d:`M ${a._x+NW} ${a._cy} L ${b._x} ${b._cy}`,
+      fill:"none", stroke:"rgba(201,168,76,.18)", "stroke-width":"1",
+      "marker-end":"url(#arrowhead)"
+    });
+    svg.appendChild(arrow);
+  }
+
+  // Arrowhead marker
+  const marker = el("marker",{id:"arrowhead",markerWidth:"7",markerHeight:"7",refX:"6",refY:"3.5",orient:"auto"});
+  const markerPath = el("polygon",{points:"0 0, 7 3.5, 0 7",fill:"rgba(201,168,76,.3)"});
+  marker.appendChild(markerPath);
+  defs.appendChild(marker);
+
+  // ── Level labels ──
+  LEVELS.forEach((lv,li)=>{
+    const g=groups[lv];
+    const labelG = el("g");
+
+    // Left label
+    const licon = el("text",{
+      x:14, y:g.y+NH/2+1,
+      "dominant-baseline":"central","text-anchor":"start",
+      class:"level-label"
+    }, `${LEVEL_ICONS[lv]} ${lv}`);
+    labelG.appendChild(licon);
+
+    // Right label (description)
+    const ldesc = el("text",{
+      x:svgW-14, y:g.y+NH/2+1,
+      "dominant-baseline":"central","text-anchor":"end",
+      class:"level-label"
+    }, LEVEL_DESCS[lv]);
+    labelG.appendChild(ldesc);
+
+    svg.appendChild(labelG);
+  });
+
+  // ── Nodes ──
+  let totalDone=0, totalWip=0;
+  SEEDS.forEach(s=>{
+    const status = statusMap[s.num] || "none";
+    if(status==="done") totalDone++;
+    else if(status==="wip") totalWip++;
+
+    const g = el("g",{class:`node-group ${status} ${s.ready?"":"tbd"}`});
+
+    // Node rectangle
+    const rect = el("rect",{
+      x:s._x, y:s._y, width:NW, height:NH, rx:NR, ry:NR,
+      class:"node-bg"
+    });
+    g.appendChild(rect);
+
+    // Seed number
+    const numTxt = el("text",{
+      x:s._x+8, y:s._y+11,
+      class:"node-num"
+    }, String(s.num).padStart(2,"0"));
+    g.appendChild(numTxt);
+
+    // Seed name (handle newlines)
+    const nameParts = s.name.split("\n");
+    if(nameParts.length===1){
+      const nameTxt=el("text",{x:s._x+NW/2,y:s._y+NH/2+1,"dominant-baseline":"central","text-anchor":"middle",class:"node-name"},s.name);
+      g.appendChild(nameTxt);
+    } else {
+      nameParts.forEach((part,pi)=>{
+        const nameTxt=el("text",{
+          x:s._x+NW/2,
+          y:s._y+NH/2+(pi-nameParts.length/2+0.5)*14,
+          "dominant-baseline":"central","text-anchor":"middle",
+          class:"node-name"
+        },part);
+        g.appendChild(nameTxt);
+      });
+    }
+
+    // Status indicator
+    const statusTxt = {done:"✓ 完了", wip:"● 学習中", none:""}[status];
+    if(statusTxt){
+      const stEl=el("text",{
+        x:s._x+NW-6, y:s._y+NH-7,
+        "text-anchor":"end",
+        class:`node-status ${status}`
+      },statusTxt);
+      g.appendChild(stEl);
+    }
+
+    // Ready badge
+    if(!s.ready){
+      const tbdEl=el("text",{
+        x:s._x+NW-6, y:s._y+NH-7,
+        "text-anchor":"end",
+        class:"node-status none"
+      },"準備中");
+      g.appendChild(tbdEl);
+    }
+
+    // Interaction
+    if(s.ready){
+      g.addEventListener("click",()=>{ window.open(s.url,"_blank"); });
+    }
+    g.addEventListener("mouseenter",(e)=>showTip(e,s,status));
+    g.addEventListener("mousemove",(e)=>moveTip(e));
+    g.addEventListener("mouseleave",()=>hideTip());
+
+    svg.appendChild(g);
+  });
+
+  // Update stats
+  const done=document.getElementById("chipDone");
+  const wip=document.getElementById("chipWip");
+  const none=document.getElementById("chipNone");
+  const fill=document.getElementById("pbFill");
+  const lbl=document.getElementById("pbLabel");
+  if(done) done.textContent=`完了 ${totalDone}`;
+  if(wip)  wip.textContent=`学習中 ${totalWip}`;
+  if(none) none.textContent=`未着手 ${26-totalDone-totalWip}`;
+  if(fill) fill.style.width=Math.round(totalDone/26*100)+"%";
+  if(lbl)  lbl.textContent=`${totalDone} / 26`;
+
+  // Center scroll
+  setTimeout(()=>{
+    const wrap=document.getElementById("treeWrap");
+    if(wrap) wrap.scrollLeft=(svgW-wrap.clientWidth)/2;
+  },50);
+}
+
+// ── Tooltip ──
+const tip = document.getElementById("tooltip");
+function showTip(e,s,status){
+  document.getElementById("tipLevel").textContent=`${LEVEL_ICONS[s.level]} ${s.level} — ${LEVEL_DESCS[s.level]}`;
+  document.getElementById("tipName").textContent=s.name.replace(/\n/,"");
+  document.getElementById("tipSub").textContent=s.sub;
+  document.getElementById("tipStatus").textContent={done:"✓ 完了",wip:"● 学習中",none:""}[status];
+  document.getElementById("tipStatus").style.color={done:"#c9a84c",wip:"#57c87c",none:"rgba(180,210,180,.4)"}[status];
+  document.getElementById("tipAction").textContent=s.ready?"クリックで開く →":"（準備中）";
+  moveTip(e);
+  tip.classList.add("show");
+}
+function moveTip(e){
+  const tw=tip.offsetWidth, th=tip.offsetHeight;
+  let x=e.clientX+14, y=e.clientY-10;
+  if(x+tw>window.innerWidth-10) x=e.clientX-tw-14;
+  if(y+th>window.innerHeight-10) y=e.clientY-th-10;
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function hideTip(){ tip.classList.remove("show"); }
+
+// ── Drag-to-pan ──
+(function(){
+  const wrap=document.getElementById("treeWrap");
+  let dragging=false,startX,startY,scrollLeft,scrollTop;
+  wrap.addEventListener("mousedown",(e)=>{
+    if(e.target.closest(".node-group"))return;
+    dragging=true;startX=e.pageX-wrap.offsetLeft;startY=e.pageY-wrap.offsetTop;
+    scrollLeft=wrap.scrollLeft;scrollTop=wrap.scrollTop;
+  });
+  wrap.addEventListener("mousemove",(e)=>{
+    if(!dragging)return;
+    e.preventDefault();
+    wrap.scrollLeft=scrollLeft-(e.pageX-wrap.offsetLeft-startX);
+    wrap.scrollTop=scrollTop-(e.pageY-wrap.offsetTop-startY);
+  });
+  wrap.addEventListener("mouseup",()=>dragging=false);
+  wrap.addEventListener("mouseleave",()=>dragging=false);
+})();
+
+buildTree();
 })();
 </script>
 </body>
