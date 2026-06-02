@@ -269,8 +269,9 @@ hr.div{border:0;border-top:1px solid var(--line);margin:2px 0;}
 <div class="s"><div class="s-head"><span class="s-icon">🌳</span><span class="s-title">Tree — 知識の接続（因果フロー）</span></div>
 <div class="s-body">
   <div class="fld"><div class="flbl">フロー 1</div><div class="flow-ed"><textarea id="fTree1" placeholder="A&#10;↓&#10;B&#10;↓&#10;C"></textarea></div></div>
-  <div class="fld"><div class="flbl">フロー 2（任意）</div><div class="flow-ed"><textarea id="fTree2" placeholder="D&#10;↓&#10;E"></textarea></div></div>
-  <div class="fld"><div class="flbl">フロー 3（任意）</div><div class="flow-ed"><textarea id="fTree3" placeholder="F&#10;↓&#10;G"></textarea></div></div>
+  <div class="fld" id="tree2wrap"><div class="flbl">フロー 2</div><div class="flow-ed"><textarea id="fTree2" placeholder="D&#10;↓&#10;E"></textarea></div></div>
+  <div class="fld" id="tree3wrap"><div class="flbl">フロー 3</div><div class="flow-ed"><textarea id="fTree3" placeholder="F&#10;↓&#10;G"></textarea></div></div>
+  <button id="addFlowBtn" class="btn-add" onclick="toggleExtraFlows()" style="display:none;">+ フローを追加</button>
 </div></div>
 
 <div class="s"><div class="s-head"><span class="s-icon">🌎</span><span class="s-title">現実との接続</span></div>
@@ -383,6 +384,14 @@ function hydrate(){
   renderList("preSeedList","preSeedItems");renderList("relSeedList","relSeedItems");
   renderList("relTermList","relTermItems");
   setV("fTree1",st.tree1);setV("fTree2",st.tree2);setV("fTree3",st.tree3);
+  // Hide extra flow sections if empty
+  const t2=_$("tree2wrap"),t3=_$("tree3wrap"),addBtn=_$("addFlowBtn");
+  if(t2&&t3&&addBtn){
+    const hasExtra=(st.tree2||"").trim()||(st.tree3||"").trim();
+    t2.style.display=hasExtra?"grid":"none";
+    t3.style.display=(st.tree3||"").trim()?"grid":"none";
+    addBtn.style.display=hasExtra?"none":"flex";
+  }
   renderList("realList","realItems");renderList("miscList","miscItems");
   renderQA();
   setV("fFvid",st.fFvid);setV("fFart",st.fFart);setV("fFgame",st.fFgame);setV("fFother",st.fFother);
@@ -538,7 +547,14 @@ function loadSt(){try{return JSON.parse(localStorage.getItem(SK)||"null");}catch
 function save(){try{localStorage.setItem(SK,JSON.stringify(st));}catch{}}
 function showToast(msg){const e=_$("toast");e.textContent=msg;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2600);}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
-const G={setStage,addItem,updList,delItem,addSun,updSun,delSun,addStop,updStop,delStop,addGloss,updGloss,delGloss,addQA,updQA,delQA,saveAll,saveToArchive};
+function toggleExtraFlows(){
+  const t2=_$("tree2wrap"),t3=_$("tree3wrap"),btn=_$("addFlowBtn");
+  if(t2){t2.style.display="grid";}
+  if(t3){t3.style.display="grid";}
+  if(btn){btn.style.display="none";}
+  _$("fTree2")?.focus();
+}
+const G={setStage,addItem,updList,delItem,addSun,updSun,delSun,addStop,updStop,delStop,addGloss,updGloss,delGloss,addQA,updQA,delQA,saveAll,saveToArchive,toggleExtraFlows};
 Object.assign(window,G);
 })();
 </script>

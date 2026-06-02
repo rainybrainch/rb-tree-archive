@@ -160,6 +160,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
   <svg id="treeSvg" xmlns="http://www.w3.org/2000/svg"></svg>
 </div>
 
+<script src="seeds/seeds-data.js"></script>
 <div class="legend">
   <div class="legend-title">凡例</div>
   <div class="legend-item"><span class="legend-dot ld-root"></span>未着手</div>
@@ -478,11 +479,13 @@ function buildTree(){
 // ── Tooltip ──
 const tip = document.getElementById("tooltip");
 function showTip(e,s,status){
+  const sk="E"+String(s.num).padStart(3,"0");
+  const db=window.SEED_DB&&window.SEED_DB[sk];
   document.getElementById("tipLevel").textContent=`${LEVEL_ICONS[s.level]} ${s.level} — ${LEVEL_DESCS[s.level]}`;
   document.getElementById("tipName").textContent=s.name.replace(/\n/,"");
-  document.getElementById("tipSub").textContent=s.sub;
-  document.getElementById("tipStatus").textContent={done:"✓ 完了",wip:"● 学習中",none:""}[status];
-  document.getElementById("tipStatus").style.color={done:"#c9a84c",wip:"#57c87c",none:"rgba(180,210,180,.4)"}[status];
+  document.getElementById("tipSub").textContent=db?.tagline||s.sub;
+  document.getElementById("tipStatus").textContent={done:"✓ 完了",wip:"● 学習中",none:"未着手"}[status];
+  document.getElementById("tipStatus").style.color={done:"#c9a84c",wip:"#57c87c",none:"rgba(180,210,180,.3)"}[status];
   document.getElementById("tipAction").textContent=s.ready?"クリックで開く →":"（準備中）";
   moveTip(e);
   tip.classList.add("show");
