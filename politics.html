@@ -2,252 +2,181 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>RB-Tree Politics — 政治の樹</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:    #040810;
-  --bg2:   #080c1a;
-  --line:  rgba(255,255,255,.09);
-  --text:  #c8dff0;
-  --muted: rgba(200,223,240,.52);
-  --faint: rgba(255,255,255,.18);
-  --acc:   #6bb6ff;
-  --acc2:  #2a5a8a;
-  --font:  "Noto Sans JP",sans-serif;
-  --serif: "Noto Serif JP",serif;
+  --bg:#040810;--bg2:#080c18;--acc:#6bb6ff;--acc2:#2a5a8a;
+  --text:#c8dff0;--muted:rgba(107,182,255,.5);--faint:rgba(107,182,255,.25);
+  --font:"Noto Sans JP",sans-serif;--serif:"Noto Serif JP",serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden;display:flex;flex-direction:column;}
 /* ── HEADER ── */
-.header{
-  flex-shrink:0;display:flex;align-items:center;gap:12px;
-  padding:0 18px;height:52px;
-  background:rgba(4,8,6,.97);backdrop-filter:blur(18px);
+.hd{
+  flex-shrink:0;height:52px;display:flex;align-items:center;gap:10px;padding:0 18px;
+  background:rgba(4,8,4,.97);backdrop-filter:blur(18px);
   border-bottom:1px solid rgba(255,255,255,.07);z-index:30;
 }
-.logo{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:15px;font-weight:700;white-space:nowrap;letter-spacing:.02em;}
-.logo-mark{font-size:22px;}
-.subject-tabs{display:flex;gap:2px;margin-left:8px;}
-.subject-tabs a{
-  padding:5px 12px;border-radius:7px;font-size:11px;font-weight:900;
-  color:var(--muted);text-decoration:none;letter-spacing:.06em;
-  transition:all .15s;border:1px solid transparent;
-}
-.subject-tabs a:hover{color:var(--text);background:rgba(255,255,255,.06);}
-.subject-tabs a.tab-active{
-  color:var(--acc);background:rgba(201,168,76,.1);
-  border-color:rgba(201,168,76,.3);
-}
-.h-right{margin-left:auto;display:flex;gap:8px;align-items:center;}
-.btn-sm{padding:5px 13px;border-radius:7px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:11px;font-weight:900;text-decoration:none;color:var(--muted);transition:all .15s;cursor:pointer;}
-.btn-sm:hover{background:rgba(255,255,255,.09);color:var(--text);}
-.btn-stream{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.09);color:var(--acc);}
-.btn-stream:hover{background:rgba(201,168,76,.18);}
-
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:15px;font-weight:700;}
+.tabs{display:flex;gap:3px;margin-left:6px;}
+.tabs a{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:900;
+  color:rgba(255,255,255,.4);text-decoration:none;transition:all .15s;border:1px solid transparent;}
+.tabs a:hover{color:var(--text);background:rgba(255,255,255,.06);}
+.tabs a.tab-active{color:var(--acc);background:rgba(107,182,255,.1);border-color:rgba(107,182,255,.3);}
+.hd-right{margin-left:auto;display:flex;gap:7px;}
+.btn{padding:5px 13px;border-radius:7px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);font-size:11px;font-weight:900;
+  text-decoration:none;color:rgba(255,255,255,.45);transition:all .15s;}
+.btn:hover{color:var(--text);background:rgba(255,255,255,.09);}
+.btn-acc{border-color:rgba(107,182,255,.3);background:rgba(107,182,255,.09);color:var(--acc);}
+.btn-acc:hover{background:rgba(107,182,255,.18);}
 /* ── SUBHEADER ── */
-.subheader{
-  flex-shrink:0;display:flex;align-items:center;gap:14px;
-  padding:0 18px;height:38px;
-  border-bottom:1px solid rgba(255,255,255,.05);
-  background:rgba(4,8,6,.88);
+.sub{
+  flex-shrink:0;height:38px;display:flex;align-items:center;gap:14px;padding:0 18px;
+  border-bottom:1px solid rgba(255,255,255,.05);background:rgba(4,8,4,.88);
 }
-.progress-wrap{display:flex;align-items:center;gap:10px;flex:1;max-width:360px;}
-.pb-track{flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;}
-.pb-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .6s ease;}
-.pb-label{font-size:10px;font-weight:900;color:var(--muted);white-space:nowrap;}
-.stat-chips{display:flex;gap:6px;margin-left:auto;}
-.chip{font-size:10px;font-weight:900;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);}
-.chip.done{border-color:rgba(201,168,76,.35);color:var(--acc);background:rgba(201,168,76,.08);}
-.chip.wip{border-color:rgba(87,200,124,.3);color:#57c87c;background:rgba(87,200,124,.07);}
-.subj-label{font-size:11px;font-weight:900;color:var(--muted);letter-spacing:.1em;}
-
-/* ── LAYOUT ── */
-.body-wrap{flex:1;display:flex;overflow:hidden;}
-
-/* ── TREE CANVAS ── */
-.tree-wrap{
-  flex:1;overflow:auto;position:relative;cursor:grab;
-  scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.15) transparent;
+.pb-wrap{display:flex;align-items:center;gap:8px;flex:1;max-width:380px;margin-left:4px;}
+.pb-track{flex:1;height:5px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;}
+.pb-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .6s;}
+.pb-lbl{font-size:10px;font-weight:900;color:var(--muted);white-space:nowrap;}
+.chips{display:flex;gap:5px;margin-left:auto;}
+.chip{font-size:10px;font-weight:900;padding:3px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.38);}
+.chip.d{border-color:rgba(107,182,255,.38);color:var(--acc);background:rgba(107,182,255,.08);}
+.chip.w{border-color:rgba(87,200,124,.32);color:#57c87c;background:rgba(87,200,124,.07);}
+/* ── BODY ── */
+.body{flex:1;display:flex;overflow:hidden;}
+/* ── TREE ── */
+.tree{
+  flex:1;overflow:auto;cursor:grab;position:relative;
+  scrollbar-width:thin;scrollbar-color:rgba(107,182,255,.15) transparent;
   background:
-    radial-gradient(ellipse at 50% 0%, #6bb6ff0d, transparent 55%),
-    radial-gradient(ellipse at 15% 90%, #6bb6ff06, transparent 45%),
-    radial-gradient(ellipse at 85% 85%, rgba(87,200,124,.04), transparent 40%),
+    radial-gradient(ellipse at 50% 0%,rgba(107,182,255,.08),transparent 50%),
+    radial-gradient(ellipse at 20% 100%,rgba(107,182,255,.04),transparent 40%),
     var(--bg);
 }
-.tree-wrap::before{
-  content:"";position:absolute;inset:0;
+.tree::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
   background:
-    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px) 0 0 / 56px 56px,
-    linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px) 0 0 / 56px 56px;
-  pointer-events:none;
+    linear-gradient(rgba(107,182,255,.015) 1px,transparent 1px) 0 0/64px 64px,
+    linear-gradient(90deg,rgba(107,182,255,.015) 1px,transparent 1px) 0 0/64px 64px;
 }
-.tree-wrap:active{cursor:grabbing;}
-.tree-wrap::-webkit-scrollbar{width:5px;height:5px;}
-.tree-wrap::-webkit-scrollbar-thumb{background:rgba(201,168,76,.18);border-radius:999px;}
-
-/* ── SIDE PANEL ── */
-.side-panel{
-  width:0;flex-shrink:0;overflow:hidden;
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)),#080c1a;
+.tree:active{cursor:grabbing;}
+/* ── PANEL ── */
+.panel{
+  width:0;overflow:hidden;flex-shrink:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.015)),#080c18;
   border-left:1px solid rgba(255,255,255,.07);
   display:flex;flex-direction:column;
-  transition:width .28s cubic-bezier(.4,0,.2,1);
-  z-index:10;
+  transition:width .26s cubic-bezier(.4,0,.2,1);
 }
-.side-panel.open{width:340px;}
-.sp-head{
-  flex-shrink:0;padding:14px 16px;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  background:rgba(255,255,255,.025);
-  display:flex;align-items:flex-start;gap:10px;
-}
-.sp-level-badge{
-  font-size:9px;font-weight:900;letter-spacing:.12em;
-  padding:3px 9px;border-radius:999px;
-  border:1px solid var(--acc);color:var(--acc);
-  background:rgba(201,168,76,.08);
-  white-space:nowrap;flex-shrink:0;margin-top:2px;
-}
-.sp-title{font-family:var(--serif);font-size:18px;font-weight:700;line-height:1.2;flex:1;}
-.sp-close{
-  background:0;border:1px solid var(--line);border-radius:6px;
-  font-size:12px;color:var(--muted);cursor:pointer;padding:3px 8px;
-  transition:all .15s;flex-shrink:0;
-}
-.sp-close:hover{color:var(--text);}
-.sp-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin;}
-.sp-tagline{
-  font-family:var(--serif);font-size:13px;line-height:1.7;
+.panel.open{width:340px;}
+.ph{flex-shrink:0;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.025);display:flex;align-items:flex-start;gap:10px;}
+.ph-badge{font-size:9px;font-weight:900;letter-spacing:.12em;padding:3px 9px;border-radius:999px;
+  border:1px solid var(--acc);color:var(--acc);background:rgba(107,182,255,.08);
+  white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.ph-title{font-family:var(--serif);font-size:18px;font-weight:700;flex:1;line-height:1.2;}
+.ph-close{background:0;border:1px solid rgba(255,255,255,.1);border-radius:6px;
+  font-size:12px;color:rgba(255,255,255,.45);cursor:pointer;padding:3px 9px;transition:all .15s;flex-shrink:0;}
+.ph-close:hover{color:var(--text);}
+.pb{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:13px;
+  scrollbar-width:thin;}
+.tagline{font-family:var(--serif);font-size:13px;line-height:1.7;
   border-left:3px solid var(--acc);padding:7px 12px;
-  background:rgba(201,168,76,.04);border-radius:0 8px 8px 0;
-}
-.sp-sec{display:flex;flex-direction:column;gap:5px;}
-.sp-sec-lbl{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:rgba(201,168,76,.55);padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.06);}
-.sp-q{font-size:11px;color:var(--muted);padding:5px 8px;background:rgba(255,255,255,.025);border-radius:6px;line-height:1.5;border-left:2px solid rgba(201,168,76,.22);}
-.sp-stop{
-  font-size:11px;color:var(--muted);padding:6px 10px;
+  background:rgba(107,182,255,.04);border-radius:0 8px 8px 0;}
+.sec{display:flex;flex-direction:column;gap:5px;}
+.sec-lbl{font-size:9px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(107,182,255,.5);padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.06);}
+.rq{font-size:11px;color:var(--muted);padding:5px 8px;background:rgba(255,255,255,.025);
+  border-radius:6px;line-height:1.5;border-left:2px solid rgba(107,182,255,.2);}
+.sp{font-size:11px;color:var(--muted);padding:6px 10px;
   background:rgba(255,255,255,.02);border-radius:7px;
   border:1px solid rgba(255,255,255,.06);line-height:1.4;
-  cursor:pointer;transition:all .15s;
-  display:flex;align-items:flex-start;gap:6px;
-}
-.sp-stop:hover{background:rgba(224,120,120,.07);border-color:rgba(224,120,120,.25);color:var(--text);}
-.sp-stop::before{content:"⏸";font-size:10px;flex-shrink:0;margin-top:1px;}
-.sp-kw-row{display:flex;flex-wrap:wrap;gap:5px;}
-.sp-kw{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid rgba(201,168,76,.22);background:rgba(201,168,76,.07);color:var(--acc);}
-.sp-actions{display:flex;gap:8px;padding-top:4px;}
-.sp-btn{flex:1;padding:9px;border-radius:8px;font-size:11px;font-weight:900;cursor:pointer;transition:all .15s;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);}
-.sp-btn.done{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.12);color:var(--acc);}
-.sp-btn.wip{border-color:rgba(87,200,124,.35);background:rgba(87,200,124,.1);color:#57c87c;}
-.sp-btn:hover{filter:brightness(1.15);}
-.sp-link{
-  display:flex;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;transition:all .15s;text-align:left;width:100%;
+  display:flex;align-items:flex-start;gap:6px;}
+.sp:hover{background:rgba(224,120,120,.07);border-color:rgba(224,120,120,.25);color:var(--text);}
+.sp::before{content:"⏸";font-size:10px;flex-shrink:0;margin-top:1px;}
+.kws{display:flex;flex-wrap:wrap;gap:5px;}
+.kw{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;
+  border:1px solid rgba(107,182,255,.22);background:rgba(107,182,255,.07);color:var(--acc);}
+.acts{display:flex;gap:7px;}
+.act{flex:1;padding:9px;border-radius:8px;font-size:11px;font-weight:900;
+  cursor:pointer;transition:all .15s;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);color:rgba(255,255,255,.45);}
+.act.done{border-color:rgba(107,182,255,.42);background:rgba(107,182,255,.12);color:var(--acc);}
+.act.wip{border-color:rgba(87,200,124,.35);background:rgba(87,200,124,.1);color:#57c87c;}
+.act:hover{filter:brightness(1.15);}
+.p-link{display:flex;align-items:center;justify-content:center;gap:6px;
   padding:9px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:900;
-  border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.07);color:var(--acc);
-  transition:background .15s;
-}
-.sp-link:hover{background:rgba(201,168,76,.18);}
-
-/* ── SVG STYLES ── */
-.node-group{cursor:pointer;}
-.node-group:hover .node-bg{ filter:drop-shadow(0 0 12px currentColor); }
-.node-group.selected .node-bg{ stroke-width:2.5; }
-.tree-edge{fill:none;stroke:rgba(255,255,255,.1);stroke-width:1.5;}
-.tree-edge.level-root{stroke:rgba(201,168,76,.25);}
-.tree-edge.level-trunk{stroke:rgba(87,200,124,.2);}
-.tree-edge.level-branch{stroke:rgba(90,175,207,.2);}
-.tree-edge.level-crown{stroke:rgba(182,140,223,.2);}
-.tree-edge.level-forest{stroke:rgba(224,120,120,.2);}
-.node-num{font-size:8px;font-family:"Noto Sans JP",sans-serif;font-weight:700;}
-.node-name{font-family:"Noto Serif JP",serif;font-weight:700;dominant-baseline:central;}
-.level-label-txt{font-family:"Noto Sans JP",sans-serif;font-size:9px;font-weight:900;letter-spacing:.16em;opacity:.45;}
-
-/* ── LEGEND ── */
-.legend{
-  position:absolute;bottom:16px;left:16px;z-index:10;
-  display:flex;flex-direction:column;gap:5px;
-  padding:10px 13px;border-radius:10px;
-  background:rgba(4,8,6,.88);backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.07);
-}
-.legend-title{font-size:8px;font-weight:900;letter-spacing:.14em;color:rgba(255,255,255,.25);margin-bottom:2px;text-transform:uppercase;}
-.legend-item{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:900;color:var(--muted);}
-.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
-
+  border:1px solid rgba(107,182,255,.3);background:rgba(107,182,255,.07);color:var(--acc);transition:background .15s;}
+.p-link:hover{background:rgba(107,182,255,.18);}
 /* ── TOAST ── */
-.toast{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-  padding:8px 18px;border-radius:999px;
-  background:rgba(4,8,6,.95);border:1px solid rgba(201,168,76,.35);
-  color:var(--acc);font-size:12px;font-weight:900;
-  pointer-events:none;z-index:100;white-space:nowrap;
-  opacity:0;transition:opacity .25s;
-}
-.toast.show{opacity:1;}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+  padding:7px 18px;border-radius:999px;background:rgba(4,8,4,.95);
+  border:1px solid rgba(107,182,255,.35);color:var(--acc);font-size:12px;font-weight:900;
+  pointer-events:none;z-index:100;opacity:0;transition:opacity .22s;white-space:nowrap;}
+.toast.on{opacity:1;}
+/* ── LEGEND ── */
+.legend{position:absolute;bottom:14px;left:14px;z-index:8;
+  padding:9px 13px;border-radius:10px;
+  background:rgba(4,8,4,.9);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.07);
+  display:flex;flex-direction:column;gap:4px;}
+.lg-title{font-size:8px;font-weight:900;letter-spacing:.14em;color:rgba(255,255,255,.25);margin-bottom:2px;text-transform:uppercase;}
+.lg-row{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:900;color:var(--muted);}
+.lg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
-<header class="header">
-  <div class="logo"><span class="logo-mark">🏛</span>RB-Tree</div>
-  <nav class="subject-tabs">
+<header class="hd">
+  <div class="logo"><span style="font-size:22px;">🏛</span>RB-Tree</div>
+  <nav class="tabs">
     <a href="economics.html">🌳 Economics</a>
     <a href="politics.html" class="tab-active">🏛 Politics</a>
     <a href="investment.html">📈 Investment</a>
   </nav>
-  <div class="h-right">
-    <a class="btn-sm btn-stream" href="https://rainybrainch.github.io/live/streams/politics.html" target="_blank">📡 配信</a>
-    <a class="btn-sm" href="index.html">Archive 一覧</a>
+  <div class="hd-right">
+    <a class="btn btn-acc" href="https://rainybrainch.github.io/live/streams/politics.html" target="_blank">📡 配信</a>
+    <a class="btn" href="index.html">Archive 一覧</a>
   </div>
 </header>
-
-<!-- SUBHEADER -->
-<div class="subheader">
-  <span class="subj-label">Politics — 政治の樹</span>
-  <div class="progress-wrap" style="margin-left:16px;">
+<div class="sub">
+  <span style="font-size:11px;font-weight:900;color:var(--muted);letter-spacing:.08em;">Politics</span>
+  <div class="pb-wrap">
     <div class="pb-track"><div class="pb-fill" id="pbFill" style="width:0%"></div></div>
-    <span class="pb-label" id="pbLabel">0 / 26</span>
+    <span class="pb-lbl" id="pbLbl">0 / 26</span>
   </div>
-  <div class="stat-chips">
-    <span class="chip done" id="chipDone">完了 0</span>
-    <span class="chip wip"  id="chipWip">学習中 0</span>
-    <span class="chip"      id="chipNone">未着手 26</span>
+  <div class="chips">
+    <span class="chip d" id="cDone">完了 0</span>
+    <span class="chip w" id="cWip">学習中 0</span>
+    <span class="chip"   id="cNone">未着手 26</span>
   </div>
 </div>
-
-<!-- BODY -->
-<div class="body-wrap">
-
-  <!-- TREE -->
-  <div class="tree-wrap" id="treeWrap">
-    <svg id="treeSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="body">
+  <div class="tree" id="tree">
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
     <div class="legend">
-      <div class="legend-title">凡例</div>
-      <div class="legend-item"><span class="legend-dot" style="background:rgba(201,168,76,.12);border:1.5px solid rgba(201,168,76,.35);"></span>未着手</div>
-      <div class="legend-item"><span class="legend-dot" style="background:rgba(201,168,76,.22);border:1.5px solid rgba(201,168,76,.75);"></span>完了 ✓</div>
-      <div class="legend-item"><span class="legend-dot" style="background:rgba(87,200,124,.15);border:1.5px solid rgba(87,200,124,.65);"></span>学習中</div>
+      <div class="lg-title">凡例</div>
+      <div class="lg-row"><span class="lg-dot" style="background:rgba(107,182,255,.1);border:1.5px solid rgba(107,182,255,.32);"></span>未着手</div>
+      <div class="lg-row"><span class="lg-dot" style="background:rgba(107,182,255,.22);border:1.5px solid rgba(107,182,255,.75);"></span>完了 ✓</div>
+      <div class="lg-row"><span class="lg-dot" style="background:rgba(87,200,124,.15);border:1.5px solid rgba(87,200,124,.65);"></span>学習中</div>
     </div>
   </div>
-
-  <!-- SIDE PANEL -->
-  <aside class="side-panel" id="sidePanel">
-    <div class="sp-head">
+  <aside class="panel" id="panel">
+    <div class="ph">
       <div style="flex:1;min-width:0;">
-        <div class="sp-level-badge" id="spLevel">ROOT</div>
-        <div class="sp-title" id="spTitle" style="margin-top:6px;">—</div>
+        <div class="ph-badge" id="pLevel">ROOT</div>
+        <div class="ph-title" id="pTitle" style="margin-top:6px;">—</div>
       </div>
-      <button class="sp-close" onclick="closePanel()">✕</button>
+      <button class="ph-close" onclick="closePanel()">✕</button>
     </div>
-    <div class="sp-body" id="spBody"></div>
+    <div class="pb" id="pBody"></div>
   </aside>
-
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script src="seeds/politics-data.js"></script>
@@ -255,387 +184,338 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);height:100vh
 <script>
 (()=>{
 "use strict";
-
-const ARCHIVE_KEY = "rbt_politics_v1";
-const STREAM_URL  = "https://rainybrainch.github.io/live/streams/politics.html";
-const SEED_PREFIX = "P";
-const DB_VAR      = "POLITICS_DB";
-const LEVEL_DESCS = {"ROOT":"民主主義の根","TRUNK":"国家の幹","BRANCH":"現代社会の枝","CROWN":"世界の政治","FOREST":"政治史の森"};
-const LEVEL_COLORS = {"ROOT":{c:"#c9a84c",r:"rgba(201,168,76,"},"TRUNK":{c:"#57c87c",r:"rgba(87,200,124,"},"BRANCH":{c:"#5aafcf",r:"rgba(90,175,207,"},"CROWN":{c:"#b68cdf",r:"rgba(182,140,223,"},"FOREST":{c:"#e07878",r:"rgba(224,120,120,"}};
-const LEVEL_ICONS = {ROOT:"🌱",TRUNK:"🌿",BRANCH:"🍃",CROWN:"🌳",FOREST:"🌲"};
-const LEVELS = ["ROOT","TRUNK","BRANCH","CROWN","FOREST"];
-
-const SEEDS = [
-  {num:1, name:"選挙", level:"ROOT", sub:"投票・選挙制度・民主主義の根本。", ready:true},
-  {num:2, name:"政党", level:"ROOT", sub:"与党・野党・政策綱領。政治理念でつながる組織。", ready:true},
-  {num:3, name:"国会", level:"ROOT", sub:"衆議院・参議院・法律制定。国権の最高機関。", ready:true},
-  {num:4, name:"内閣", level:"ROOT", sub:"首相・閣議・行政権。政策を実行する最高機関。", ready:true},
-  {num:5, name:"憲法", level:"ROOT", sub:"三大原則・立憲主義・最高法規。権力を縛るルール。", ready:true},
-  {num:6, name:"予算・財政", level:"TRUNK", sub:"国債・社会保障費・財政再建。政策の優先順位を示す設計図。", ready:true},
-  {num:7, name:"外交", level:"TRUNK", sub:"日米同盟・ODA・国際交渉。国益を守る対外活動。", ready:true},
-  {num:8, name:"安全保障", level:"TRUNK", sub:"専守防衛・集団的自衛権・防衛費。国を守る仕組み。", ready:true},
-  {num:9, name:"地方自治", level:"TRUNK", sub:"都道府県・市区町村・地方交付税。地域の自主運営。", ready:true},
-  {num:10, name:"行政・官僚", level:"TRUNK", sub:"官僚制・縦割り行政・政治主導。政策を実行する機構。", ready:true},
-  {num:11, name:"メディア", level:"BRANCH", sub:"議題設定・SNS・フェイクニュース。情報と民主主義の関係。", ready:true},
-  {num:12, name:"世論・民意", level:"BRANCH", sub:"内閣支持率・ポピュリズム・利益集団。民意の形成と政治。", ready:true},
-  {num:13, name:"市民社会", level:"BRANCH", sub:"NGO・NPO・ロビイング。国家でも市場でもない活動領域。", ready:true},
-  {num:14, name:"国際機関", level:"BRANCH", sub:"国連・IMF・WTO。国境を越えた協調の仕組み。", ready:true},
-  {num:15, name:"条約・国際法", level:"BRANCH", sub:"条約・慣習法・主権。国家間のルールと強制力。", ready:true},
-  {num:16, name:"日本の政治", level:"CROWN", sub:"55年体制・政権交代・政治改革。日本固有の課題。", ready:true},
-  {num:17, name:"米国の政治", level:"CROWN", sub:"大統領制・二大政党・選挙人制度。世界最大の民主主義。", ready:true},
-  {num:18, name:"中国の政治", level:"CROWN", sub:"一党支配・習近平・全国人民代表大会。権威主義の現代型。", ready:true},
-  {num:19, name:"EU・欧州", level:"CROWN", sub:"欧州統合・Brexit・右翼ポピュリズム。超国家機関の実験。", ready:true},
-  {num:20, name:"民主主義の後退", level:"CROWN", sub:"選挙的権威主義・司法の独立・民主主義崩壊。現代の脅威。", ready:true},
-  {num:21, name:"戦後日本史", level:"FOREST", sub:"55年体制・安保闘争・政権交代。日本現代史の核心。", ready:true},
-  {num:22, name:"冷戦", level:"FOREST", sub:"米ソ対立・核抑止・代理戦争。二極構造が生んだ時代。", ready:true},
-  {num:23, name:"アラブの春", level:"FOREST", sub:"中東民主化・SNS革命・内戦。独裁打倒後の現実。", ready:true},
-  {num:24, name:"ポピュリズム", level:"FOREST", sub:"格差・エリート批判・トランプ。民主主義の変容。", ready:true},
-  {num:25, name:"核・軍縮", level:"FOREST", sub:"NPT・核抑止・核禁止条約。人類最大の安全保障課題。", ready:true},
-  {num:26, name:"気候変動", level:"FOREST", sub:"パリ協定・カーボンニュートラル・グリーン政治。", ready:true}
+const AK="rbt_politics_v1";
+const STREAM="https://rainybrainch.github.io/live/streams/politics.html";
+const PFX="P";
+const DBVAR="POLITICS_DB";
+const LDESCS={"ROOT":"民主主義の根","TRUNK":"国家の幹","BRANCH":"現代社会の枝","CROWN":"世界の政治","FOREST":"政治史の森"};
+const LC={"ROOT":{c:"#c9a84c",r:"rgba(201,168,76,"},"TRUNK":{c:"#57c87c",r:"rgba(87,200,124,"},"BRANCH":{c:"#5aafcf",r:"rgba(90,175,207,"},"CROWN":{c:"#b68cdf",r:"rgba(182,140,223,"},"FOREST":{c:"#e07878",r:"rgba(224,120,120,"}};
+const LI={"ROOT":"🌱","TRUNK":"🌿","BRANCH":"🍃","CROWN":"🌳","FOREST":"🌲"};
+const LEVELS=["ROOT","TRUNK","BRANCH","CROWN","FOREST"];
+const SEEDS=[
+  {num:1,name:"選挙",level:"ROOT",sub:"投票・選挙制度・民主主義の根本。",parent:null,ready:true},
+  {num:2,name:"政党",level:"ROOT",sub:"与党・野党・政策綱領。政治理念でつながる組織。",parent:null,ready:true},
+  {num:3,name:"国会",level:"ROOT",sub:"衆議院・参議院・法律制定。国権の最高機関。",parent:null,ready:true},
+  {num:4,name:"内閣",level:"ROOT",sub:"首相・閣議・行政権。政策を実行する最高機関。",parent:null,ready:true},
+  {num:5,name:"憲法",level:"ROOT",sub:"三大原則・立憲主義・最高法規。権力を縛るルール。",parent:null,ready:true},
+  {num:6,name:"予算・財政",level:"TRUNK",sub:"国債・社会保障費・財政再建。政策の優先順位を示す設計図。",parent:4,ready:true},
+  {num:7,name:"外交",level:"TRUNK",sub:"日米同盟・ODA・国際交渉。国益を守る対外活動。",parent:5,ready:true},
+  {num:8,name:"安全保障",level:"TRUNK",sub:"専守防衛・集団的自衛権・防衛費。国を守る仕組み。",parent:5,ready:true},
+  {num:9,name:"地方自治",level:"TRUNK",sub:"都道府県・市区町村・地方交付税。地域の自主運営。",parent:3,ready:true},
+  {num:10,name:"行政・官僚",level:"TRUNK",sub:"官僚制・縦割り行政・政治主導。政策を実行する機構。",parent:4,ready:true},
+  {num:11,name:"メディア",level:"BRANCH",sub:"議題設定・SNS・フェイクニュース。情報と民主主義の関係。",parent:1,ready:true},
+  {num:12,name:"世論・民意",level:"BRANCH",sub:"内閣支持率・ポピュリズム・利益集団。民意の形成と政治。",parent:2,ready:true},
+  {num:13,name:"市民社会",level:"BRANCH",sub:"NGO・NPO・ロビイング。国家でも市場でもない活動領域。",parent:9,ready:true},
+  {num:14,name:"国際機関",level:"BRANCH",sub:"国連・IMF・WTO。国境を越えた協調の仕組み。",parent:7,ready:true},
+  {num:15,name:"条約・国際法",level:"BRANCH",sub:"条約・慣習法・主権。国家間のルールと強制力。",parent:8,ready:true},
+  {num:16,name:"日本の政治",level:"CROWN",sub:"55年体制・政権交代・政治改革。日本固有の課題。",parent:6,ready:true},
+  {num:17,name:"米国の政治",level:"CROWN",sub:"大統領制・二大政党・選挙人制度。世界最大の民主主義。",parent:14,ready:true},
+  {num:18,name:"中国の政治",level:"CROWN",sub:"一党支配・習近平・全国人民代表大会。権威主義の現代型。",parent:14,ready:true},
+  {num:19,name:"EU・欧州",level:"CROWN",sub:"欧州統合・Brexit・右翼ポピュリズム。超国家機関の実験。",parent:15,ready:true},
+  {num:20,name:"民主主義の
+後退",level:"CROWN",sub:"選挙的権威主義・司法の独立・民主主義崩壊。現代の脅威。",parent:12,ready:true},
+  {num:21,name:"戦後日本史",level:"FOREST",sub:"55年体制・安保闘争・政権交代。日本現代史の核心。",parent:16,ready:true},
+  {num:22,name:"冷戦",level:"FOREST",sub:"米ソ対立・核抑止・代理戦争。二極構造が生んだ時代。",parent:17,ready:true},
+  {num:23,name:"アラブの春",level:"FOREST",sub:"中東民主化・SNS革命・内戦。独裁打倒後の現実。",parent:18,ready:true},
+  {num:24,name:"ポピュリズム",level:"FOREST",sub:"格差・エリート批判・トランプ。民主主義の変容。",parent:20,ready:true},
+  {num:25,name:"核・軍縮",level:"FOREST",sub:"NPT・核抑止・核禁止条約。人類最大の安全保障課題。",parent:19,ready:true},
+  {num:26,name:"気候変動と
+政治",level:"FOREST",sub:"パリ協定・カーボンニュートラル・グリーン政治。",parent:13,ready:true}
 ];
 
 // ── Status ──
-function getStatus(){
-  const map={};
+const statusMap={};
+function loadStatus(){
   try{
-    const arr=JSON.parse(localStorage.getItem(ARCHIVE_KEY)||"[]");
-    arr.forEach(e=>{
-      SEEDS.forEach(s=>{
-        if(s.name===e.keyword||s.name.replace(/\n/g,"")===e.keyword){
-          map[s.num]=(e.stage==="forest"||e.stage==="tree")?"done":"wip";
-        }
+    (JSON.parse(localStorage.getItem(AK)||"[]")).forEach(e=>{
+      SEEDS.forEach(s=>{if(s.name.replace(/\n/g,"")===e.keyword||s.name===e.keyword)
+        statusMap[s.num]=(e.stage==="forest"||e.stage==="tree")?"done":"wip";
       });
     });
   }catch{}
-  return map;
 }
-
-function setStatus(num, st){
-  let arr=[];
-  try{ arr=JSON.parse(localStorage.getItem(ARCHIVE_KEY)||"[]"); }catch{}
-  const s=SEEDS.find(x=>x.num===num);
-  if(!s) return;
-  const idx=arr.findIndex(e=>e.keyword===s.name||e.keyword===s.name.replace(/\n/g,""));
-  const entry={keyword:s.name,category:ARCHIVE_KEY,stage:st==="done"?"forest":"seed",updatedAt:new Date().toISOString()};
-  if(idx>=0) arr[idx]={...arr[idx],...entry};
-  else arr.unshift(entry);
-  localStorage.setItem(ARCHIVE_KEY,JSON.stringify(arr));
+function saveStatus(num,st){
+  const s=SEEDS.find(x=>x.num===num); if(!s) return;
+  let arr=[]; try{arr=JSON.parse(localStorage.getItem(AK)||"[]");}catch{}
+  const kw=s.name.replace(/\n/g,"");
+  const idx=arr.findIndex(e=>e.keyword===kw);
+  const entry={keyword:kw,category:AK,stage:st==="done"?"forest":"seed",updatedAt:new Date().toISOString()};
+  if(idx>=0) arr[idx]={...arr[idx],...entry}; else arr.unshift(entry);
+  localStorage.setItem(AK,JSON.stringify(arr));
 }
+loadStatus();
 
-// ── Layout ──
-const NW=110, NH=52, NR=10;
-const PAD_X=60, PAD_Y=72, LEVEL_GAP=160;
+// ── Tree Layout ──
+const NW=112, NH=54, NR=11, H_GAP=28, V_GAP=100, PAD=60;
 
-function layoutSeeds(){
-  const groups={};
-  LEVELS.forEach((lv,li)=>{
-    const seeds=SEEDS.filter(s=>s.level===lv);
-    groups[lv]={seeds,y:PAD_Y+li*LEVEL_GAP,li};
+function buildLayout(){
+  const childrenOf={};
+  SEEDS.forEach(s=>{childrenOf[s.num]=[];});
+  SEEDS.forEach(s=>{if(s.parent!=null) childrenOf[s.parent].push(s.num);});
+  const roots=SEEDS.filter(s=>s.parent==null).map(s=>s.num);
+
+  // Calculate subtree leaf count (for width)
+  const leafW={};
+  function calcW(n){
+    const ch=childrenOf[n];
+    if(!ch.length){ leafW[n]=NW+H_GAP; return leafW[n]; }
+    leafW[n]=ch.reduce((s,c)=>s+calcW(c),0);
+    return leafW[n];
+  }
+  roots.forEach(r=>calcW(r));
+
+  // Assign X (center parent over children)
+  const px={};
+  function assignX(n,left){
+    const ch=childrenOf[n];
+    if(!ch.length){ px[n]=left; return left+NW+H_GAP; }
+    let cl=left;
+    ch.forEach(c=>{ cl=assignX(c,cl); });
+    const fc=ch[0],lc=ch[ch.length-1];
+    px[n]=(px[fc]+px[lc]+NW)/2-NW/2;
+    return cl;
+  }
+  let rl=PAD;
+  roots.forEach(r=>{ rl=assignX(r,rl); });
+
+  // Y positions by level
+  const levelY={};
+  LEVELS.forEach((lv,i)=>{ levelY[lv]=PAD+i*(NH+V_GAP); });
+
+  SEEDS.forEach(s=>{
+    s._x=px[s.num]; s._y=levelY[s.level];
+    s._cx=s._x+NW/2; s._cy=s._y+NH/2;
   });
-  const maxN=Math.max(...LEVELS.map(lv=>groups[lv].seeds.length));
-  const svgW=Math.max(900, PAD_X*2+maxN*(NW+22)-22);
-  LEVELS.forEach(lv=>{
-    const g=groups[lv];
-    const n=g.seeds.length;
-    const totalW=n*NW+(n-1)*22;
-    const startX=(svgW-totalW)/2;
-    g.seeds.forEach((s,i)=>{s._x=startX+i*(NW+22);s._y=g.y;s._cx=s._x+NW/2;s._cy=s._y+NH/2;});
-  });
-  return {groups,svgW};
+  const svgW=Math.max(rl+PAD, 900);
+  const svgH=PAD+4*(NH+V_GAP)+NH+PAD;
+  return {svgW,svgH,childrenOf,roots,levelY};
 }
 
-const SVG_NS="http://www.w3.org/2000/svg";
-function el(tag,attrs={},text){
-  const e=document.createElementNS(SVG_NS,tag);
-  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
-  if(text!==undefined) e.textContent=text;
+const SVG="http://www.w3.org/2000/svg";
+function el(tag,a={},t){
+  const e=document.createElementNS(SVG,tag);
+  Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v));
+  if(t!=null)e.textContent=t;
   return e;
 }
 
-let selectedNum=null;
-const statusMap=getStatus();
+let selNum=null;
 
-function buildTree(){
-  const {groups,svgW}=layoutSeeds();
-  const svgH=PAD_Y+(LEVELS.length-1)*LEVEL_GAP+NH+PAD_Y*1.5;
-  const svg=document.getElementById("treeSvg");
+function build(){
+  const {svgW,svgH,childrenOf,roots,levelY}=buildLayout();
+  const svg=document.getElementById("svg");
   svg.innerHTML="";
   svg.setAttribute("width",svgW);
   svg.setAttribute("height",svgH);
   svg.setAttribute("viewBox",`0 0 ${svgW} ${svgH}`);
 
   const defs=el("defs");
+  // Gradients per level
+  LEVELS.forEach(lv=>{
+    const lc=LC[lv];
+    ["","_done"].forEach(suf=>{
+      const o1=suf?"0.32":"0.18", o2=suf?"0.14":"0.07";
+      const g=el("linearGradient",{id:`g_${lv}${suf}`,x1:"0",y1:"0",x2:"0",y2:"1"});
+      g.appendChild(el("stop",{offset:"0%","stop-color":lc.c,"stop-opacity":o1}));
+      g.appendChild(el("stop",{offset:"100%","stop-color":lc.c,"stop-opacity":o2}));
+      defs.appendChild(g);
+    });
+  });
+  // Arrowhead
+  const mk=el("marker",{id:"arr",markerWidth:"7",markerHeight:"7",refX:"6",refY:"3.5",orient:"auto"});
+  mk.appendChild(el("polygon",{points:"0 0,7 3.5,0 7",fill:"rgba(201,168,76,.3)"}));
+  defs.appendChild(mk);
   svg.appendChild(defs);
 
-  // Gradient defs for each level
-  LEVELS.forEach(lv=>{
-    const lc=LEVEL_COLORS[lv];
-    const grd=el("linearGradient",{id:`grad_${lv}`,x1:"0",y1:"0",x2:"0",y2:"1"});
-    const s1=el("stop",{offset:"0%","stop-color":lc.c,"stop-opacity":"0.18"});
-    const s2=el("stop",{offset:"100%","stop-color":lc.c,"stop-opacity":"0.06"});
-    grd.appendChild(s1); grd.appendChild(s2);
-    defs.appendChild(grd);
-    // done gradient
-    const grdDone=el("linearGradient",{id:`grad_done_${lv}`,x1:"0",y1:"0",x2:"0",y2:"1"});
-    const ds1=el("stop",{offset:"0%","stop-color":lc.c,"stop-opacity":"0.32"});
-    const ds2=el("stop",{offset:"100%","stop-color":lc.c,"stop-opacity":"0.14"});
-    grdDone.appendChild(ds1); grdDone.appendChild(ds2);
-    defs.appendChild(grdDone);
-  });
-
-  // Arrowhead
-  const marker=el("marker",{id:"arr",markerWidth:"7",markerHeight:"7",refX:"6",refY:"3.5",orient:"auto"});
-  marker.appendChild(el("polygon",{points:"0 0,7 3.5,0 7",fill:"rgba(201,168,76,.28)"}));
-  defs.appendChild(marker);
-
-  // Level bands
+  // Level bands & labels
   LEVELS.forEach((lv,li)=>{
-    const g=groups[lv];
-    const lc=LEVEL_COLORS[lv];
-    if(li%2===0){
-      svg.appendChild(el("rect",{x:0,y:g.y-36,width:svgW,height:NH+72,fill:"rgba(255,255,255,.008)"}));
-    }
-    // Dashed level line
-    svg.appendChild(el("line",{
-      x1:0,y1:g.y-2,x2:svgW,y2:g.y-2,
-      stroke:lc.r+".07)",
-      "stroke-width":"1","stroke-dasharray":"5 8"
-    }));
-  });
-
-  // Edges
-  for(let li=0;li<LEVELS.length-1;li++){
-    const lvA=LEVELS[li],lvB=LEVELS[li+1];
-    const gA=groups[lvA],gB=groups[lvB];
-    const lc=LEVEL_COLORS[lvB];
-    const aCx=gA.seeds.reduce((s,n)=>s+n._cx,0)/gA.seeds.length;
-    const aBot=gA.y+NH, bTop=gB.y;
-    const mid=(aBot+bTop)/2;
-    svg.appendChild(el("line",{x1:aCx,y1:aBot,x2:aCx,y2:mid,stroke:lc.r+".2)","stroke-width":"1.5"}));
-    gB.seeds.forEach(s=>{
-      svg.appendChild(el("path",{
-        d:`M ${aCx} ${mid} C ${aCx} ${mid+35}, ${s._cx} ${bTop-35}, ${s._cx} ${bTop}`,
-        fill:"none",stroke:lc.r+".18)","stroke-width":"1.5"
-      }));
-    });
-  }
-
-  // ROOT horizontal flow arrows
-  const rootSeeds=groups["ROOT"].seeds;
-  for(let i=0;i<rootSeeds.length-1;i++){
-    const a=rootSeeds[i],b=rootSeeds[i+1];
-    svg.appendChild(el("path",{
-      d:`M ${a._x+NW+4} ${a._cy} L ${b._x-4} ${b._cy}`,
-      fill:"none",stroke:"rgba(201,168,76,.22)","stroke-width":"1.2",
-      "marker-end":"url(#arr)"
-    }));
-  }
-
-  // Level labels
-  LEVELS.forEach((lv,li)=>{
-    const g=groups[lv];
-    const lc=LEVEL_COLORS[lv];
+    const lc=LC[lv]; const y=levelY[lv];
+    // Band
+    svg.appendChild(el("rect",{x:0,y:y-12,width:svgW,height:NH+24,fill:li%2?"rgba(255,255,255,.007)":"transparent"}));
+    // Dashed separator
+    if(li>0) svg.appendChild(el("line",{x1:0,y1:y-16,x2:svgW,y2:y-16,stroke:lc.r+".1)","stroke-width":"1","stroke-dasharray":"6 10"}));
+    // Left label chip
     const lg=el("g");
-    lg.appendChild(el("text",{x:12,y:g.y+NH/2,"dominant-baseline":"central","text-anchor":"start","fill":lc.r+".5)","font-size":"9","font-family":"Noto Sans JP","font-weight":"900","letter-spacing":"2"},
-      `${LEVEL_ICONS[lv]} ${lv}`));
-    lg.appendChild(el("text",{x:svgW-12,y:g.y+NH/2,"dominant-baseline":"central","text-anchor":"end","fill":lc.r+".38)","font-size":"9","font-family":"Noto Sans JP","font-weight":"700","letter-spacing":"1"},
-      LEVEL_DESCS[lv]));
+    lg.appendChild(el("rect",{x:8,y:y+NH/2-9,width:72,height:18,rx:9,fill:lc.r+".1)",stroke:lc.r+".28)","stroke-width":"1"}));
+    lg.appendChild(el("text",{x:44,y:y+NH/2,"dominant-baseline":"central","text-anchor":"middle",
+      fill:lc.c,"font-size":"9","font-family":"Noto Sans JP","font-weight":"900","letter-spacing":"1"},
+      `${LI[lv]} ${lv}`));
+    // Right label
+    lg.appendChild(el("text",{x:svgW-12,y:y+NH/2,"dominant-baseline":"central","text-anchor":"end",
+      fill:lc.r+".4)","font-size":"9","font-family":"Noto Sans JP","font-weight":"700"},
+      LDESCS[lv]));
     svg.appendChild(lg);
   });
 
-  // Nodes
-  let totalDone=0,totalWip=0;
+  // ── EDGES (drawn below nodes) ──
+  SEEDS.forEach(s=>{
+    if(s.parent==null) return;
+    const p=SEEDS.find(x=>x.num===s.parent); if(!p) return;
+    const lc=LC[s.level];
+    const x1=p._cx, y1=p._y+NH;
+    const x2=s._cx, y2=s._y;
+    const my=(y1+y2)/2;
+    // Curved bezier branch
+    svg.appendChild(el("path",{
+      d:`M${x1},${y1} C${x1},${my},${x2},${my},${x2},${y2}`,
+      fill:"none",stroke:lc.r+".22)","stroke-width":"1.8",
+      "stroke-linecap":"round"
+    }));
+  });
+
+  // ROOT horizontal flow arrows
+  const rootSeeds=SEEDS.filter(s=>s.parent==null);
+  for(let i=0;i<rootSeeds.length-1;i++){
+    const a=rootSeeds[i],b=rootSeeds[i+1];
+    svg.appendChild(el("path",{
+      d:`M${a._x+NW+4},${a._cy} L${b._x-4},${b._cy}`,
+      fill:"none",stroke:"rgba(201,168,76,.2)","stroke-width":"1.2","marker-end":"url(#arr)"
+    }));
+  }
+
+  // ── NODES ──
+  let nDone=0,nWip=0;
   SEEDS.forEach(s=>{
     const st=statusMap[s.num]||"none";
-    if(st==="done") totalDone++;
-    else if(st==="wip") totalWip++;
-    const lc=LEVEL_COLORS[s.level];
-    const isSelected=selectedNum===s.num;
-    const g=el("g",{class:`node-group${isSelected?" selected":""}`});
-    if(!s.ready) g.setAttribute("opacity","0.38");
+    if(st==="done")nDone++; else if(st==="wip")nWip++;
+    const lc=LC[s.level];
+    const isSel=selNum===s.num;
+    const g=el("g",{});
 
-    // Shadow / glow rect (behind)
-    if(st==="done"||isSelected){
-      const glow=el("rect",{x:s._x-3,y:s._y-3,width:NW+6,height:NH+6,rx:NR+2,ry:NR+2,fill:"none",
-        stroke:lc.c,"stroke-width":"1","opacity":"0.4"});
-      g.appendChild(glow);
+    // Glow (selected or done)
+    if(isSel||st==="done"){
+      svg.appendChild(el("rect",{
+        x:s._x-4,y:s._y-4,width:NW+8,height:NH+8,rx:NR+3,ry:NR+3,
+        fill:"none",stroke:lc.c,"stroke-width":isSel?"2":"1","opacity":"0.45"
+      }));
     }
 
     // Main rect
-    const fillUrl=st==="done"?`url(#grad_done_${s.level})`:`url(#grad_${s.level})`;
-    const strokeCol=st==="done"?lc.r+"0.65)":st==="wip"?"rgba(87,200,124,.55)":lc.r+"0.3)";
-    const strokeW=isSelected?"2.5":"1.5";
-    const rect=el("rect",{x:s._x,y:s._y,width:NW,height:NH,rx:NR,ry:NR,fill:fillUrl,
-      stroke:strokeCol,"stroke-width":strokeW});
-    g.appendChild(rect);
+    const fill=`url(#g_${s.level}${st==="done"?"_done":""})`;
+    const strk=st==="done"?lc.r+"0.7)":st==="wip"?"rgba(87,200,124,.55)":lc.r+"0.32)";
+    g.appendChild(el("rect",{x:s._x,y:s._y,width:NW,height:NH,rx:NR,ry:NR,fill,stroke:strk,"stroke-width":isSel?"2.5":"1.5"}));
 
     // Left accent bar
-    const accent=el("rect",{x:s._x,y:s._y+6,width:3,height:NH-12,rx:1.5,ry:1.5,fill:lc.r+"0.7)"});
-    g.appendChild(accent);
+    g.appendChild(el("rect",{x:s._x,y:s._y+7,width:4,height:NH-14,rx:2,fill:lc.r+"0.75)"}));
 
     // Seed number
-    g.appendChild(el("text",{x:s._x+9,y:s._y+11,fill:lc.r+"0.6)","font-size":"8","font-family":"Noto Sans JP","font-weight":"700"},
+    g.appendChild(el("text",{x:s._x+10,y:s._y+12,fill:lc.r+"0.65)","font-size":"8","font-family":"Noto Sans JP","font-weight":"700"},
       String(s.num).padStart(2,"0")));
 
     // Seed name
-    const nameParts=s.name.split("\n");
-    const nameY=nameParts.length>1?s._cy-6:s._cy;
-    nameParts.forEach((part,pi)=>{
+    const parts=s.name.split("\n");
+    parts.forEach((part,pi)=>{
+      const ny=parts.length===1?s._cy:s._cy+(pi-0.5)*13;
       g.appendChild(el("text",{
-        x:s._x+NW/2, y:nameY+(pi*(14)),
+        x:s._x+NW/2,y:ny,
         "dominant-baseline":"central","text-anchor":"middle",
-        fill:st==="done"?lc.c:"#f0e8d8","font-size":"12",
-        "font-family":"Noto Serif JP","font-weight":"700"
+        fill:st==="done"?lc.c:"#f0eedd","font-size":"12","font-family":"Noto Serif JP","font-weight":"700"
       },part));
     });
 
-    // Status badge
-    if(st==="done"){
-      g.appendChild(el("text",{x:s._x+NW-6,y:s._y+NH-7,"text-anchor":"end",fill:lc.r+"0.85)","font-size":"8","font-weight":"900","font-family":"Noto Sans JP"},"✓ 完了"));
-    } else if(st==="wip"){
-      g.appendChild(el("text",{x:s._x+NW-6,y:s._y+NH-7,"text-anchor":"end",fill:"rgba(87,200,124,.8)","font-size":"8","font-weight":"900","font-family":"Noto Sans JP"},"● 学習中"));
-    }
+    // Status
+    if(st==="done") g.appendChild(el("text",{x:s._x+NW-6,y:s._y+NH-7,"text-anchor":"end",fill:lc.r+"0.85)","font-size":"8","font-family":"Noto Sans JP","font-weight":"900"},"✓"));
+    else if(st==="wip") g.appendChild(el("text",{x:s._x+NW-6,y:s._y+NH-7,"text-anchor":"end",fill:"rgba(87,200,124,.8)","font-size":"8","font-family":"Noto Sans JP","font-weight":"900"},"●"));
 
-    if(s.ready){
-      g.addEventListener("click",()=>openPanel(s.num));
-    }
+    g.style.cursor="pointer";
+    g.addEventListener("click",()=>openPanel(s.num));
     svg.appendChild(g);
   });
 
   // Stats
-  const f=n=>document.getElementById(n);
-  if(f("chipDone")) f("chipDone").textContent=`完了 ${totalDone}`;
-  if(f("chipWip"))  f("chipWip").textContent=`学習中 ${totalWip}`;
-  if(f("chipNone")) f("chipNone").textContent=`未着手 ${26-totalDone-totalWip}`;
-  if(f("pbFill"))   f("pbFill").style.width=Math.round(totalDone/26*100)+"%";
-  if(f("pbLabel"))  f("pbLabel").textContent=`${totalDone} / 26`;
+  const f=id=>document.getElementById(id);
+  f("cDone").textContent=`完了 ${nDone}`;
+  f("cWip").textContent=`学習中 ${nWip}`;
+  f("cNone").textContent=`未着手 ${26-nDone-nWip}`;
+  f("pbFill").style.width=Math.round(nDone/26*100)+"%";
+  f("pbLbl").textContent=`${nDone} / 26`;
 
   setTimeout(()=>{
-    const wrap=document.getElementById("treeWrap");
-    if(wrap) wrap.scrollLeft=(svgW-wrap.clientWidth)/2;
+    const t=document.getElementById("tree");
+    t.scrollLeft=(svgW-t.clientWidth)/2;
+    t.scrollTop=0;
   },60);
 }
 
-// ── Side Panel ──
+// ── Panel ──
 function openPanel(num){
-  selectedNum=num;
-  const s=SEEDS.find(x=>x.num===num);
-  if(!s) return;
-  const db=window[DB_VAR]&&window[DB_VAR][SEED_PREFIX+String(num).padStart(3,"0")];
-  const lc=LEVEL_COLORS[s.level];
+  selNum=num;
+  const s=SEEDS.find(x=>x.num===num); if(!s) return;
+  const lc=LC[s.level];
+  const db=window[DBVAR]&&window[DBVAR][PFX+String(num).padStart(3,"0")];
   const st=statusMap[num]||"none";
-
-  document.getElementById("spLevel").textContent=`${LEVEL_ICONS[s.level]} ${s.level} — ${LEVEL_DESCS[s.level]}`;
-  document.getElementById("spLevel").style.borderColor=lc.c;
-  document.getElementById("spLevel").style.color=lc.c;
-  document.getElementById("spTitle").textContent=s.name.replace(/\n/g,"");
-
-  const body=document.getElementById("spBody");
+  document.getElementById("pLevel").textContent=LI[s.level]+" "+s.level+" — "+LDESCS[s.level];
+  document.getElementById("pLevel").style.cssText=`border-color:${lc.c};color:${lc.c};background:${lc.r}.09);`;
+  document.getElementById("pTitle").textContent=s.name.replace(/\n/g," ");
+  const body=document.getElementById("pBody");
   body.innerHTML="";
-
   // Tagline
-  const tl=db?.tagline||s.sub;
-  const tlDiv=document.createElement("div");
-  tlDiv.className="sp-tagline"; tlDiv.style.borderLeftColor=lc.c;
-  tlDiv.textContent=tl; body.appendChild(tlDiv);
-
+  const tl=document.createElement("div"); tl.className="tagline";
+  tl.style.borderLeftColor=lc.c;
+  tl.textContent=db?.tagline||s.sub; body.appendChild(tl);
   // Root questions
   if(db?.rootQuestions?.length){
-    const sec=document.createElement("div"); sec.className="sp-sec";
-    const lbl=document.createElement("div"); lbl.className="sp-sec-lbl"; lbl.textContent="ROOT QUESTION"; sec.appendChild(lbl);
-    db.rootQuestions.slice(0,3).forEach(q=>{
-      const d=document.createElement("div"); d.className="sp-q"; d.textContent="❓ "+q; sec.appendChild(d);
-    }); body.appendChild(sec);
+    const sec=document.createElement("div"); sec.className="sec";
+    const lbl=document.createElement("div"); lbl.className="sec-lbl"; lbl.textContent="ROOT QUESTION"; sec.appendChild(lbl);
+    db.rootQuestions.slice(0,3).forEach(q=>{const d=document.createElement("div");d.className="rq";d.textContent="❓ "+q;sec.appendChild(d);});
+    body.appendChild(sec);
   }
-
   // Stop points
   if(db?.stopPoints?.length){
-    const sec=document.createElement("div"); sec.className="sp-sec";
-    const lbl=document.createElement("div"); lbl.className="sp-sec-lbl"; lbl.textContent="⏸ ストップポイント"; sec.appendChild(lbl);
+    const sec=document.createElement("div"); sec.className="sec";
+    const lbl=document.createElement("div"); lbl.className="sec-lbl"; lbl.textContent="⏸ ストップポイント"; sec.appendChild(lbl);
     db.stopPoints.slice(0,5).forEach(p=>{
-      const d=document.createElement("button"); d.className="sp-stop";
-      d.textContent=p;
-      d.onclick=()=>{window.open(STREAM_URL+"?seed="+num,"_blank");};
-      sec.appendChild(d);
-    }); body.appendChild(sec);
+      const btn=document.createElement("button"); btn.className="sp"; btn.textContent=p;
+      btn.onclick=()=>window.open(STREAM+"?seed="+num,"_blank");
+      sec.appendChild(btn);
+    });
+    body.appendChild(sec);
   }
-
-  // Glossary
+  // Keywords
   if(db?.glossTerms?.length){
-    const sec=document.createElement("div"); sec.className="sp-sec";
-    const lbl=document.createElement("div"); lbl.className="sp-sec-lbl"; lbl.textContent="📖 キーワード"; sec.appendChild(lbl);
-    const row=document.createElement("div"); row.className="sp-kw-row";
-    db.glossTerms.slice(0,7).forEach(t=>{
-      const w=typeof t==="string"?t:t.word;
-      const kw=document.createElement("span"); kw.className="sp-kw"; kw.textContent=w; row.appendChild(kw);
-    }); sec.appendChild(row); body.appendChild(sec);
+    const sec=document.createElement("div"); sec.className="sec";
+    const lbl=document.createElement("div"); lbl.className="sec-lbl"; lbl.textContent="📖 キーワード"; sec.appendChild(lbl);
+    const row=document.createElement("div"); row.className="kws";
+    db.glossTerms.slice(0,7).forEach(t=>{const k=document.createElement("span");k.className="kw";k.textContent=typeof t==="string"?t:t.word;row.appendChild(k);});
+    sec.appendChild(row); body.appendChild(sec);
   }
-
   // Actions
-  const actions=document.createElement("div"); actions.className="sp-actions";
-  const btnDone=document.createElement("button");
-  btnDone.className="sp-btn"+(st==="done"?" done":"");
-  btnDone.textContent=st==="done"?"✓ 完了済み":"✓ 完了にする";
-  btnDone.onclick=()=>{
-    statusMap[num]= statusMap[num]==="done"?"none":"done";
-    setStatus(num,statusMap[num]);
-    showToast(statusMap[num]==="done"?`「${s.name.replace(/\n/g,"")}」を完了にしました`:`完了を取り消しました`);
-    buildTree(); openPanel(num);
-  };
-  const btnWip=document.createElement("button");
-  btnWip.className="sp-btn"+(st==="wip"?" wip":"");
-  btnWip.textContent=st==="wip"?"● 学習中":"● 学習中にする";
-  btnWip.onclick=()=>{
-    statusMap[num]=statusMap[num]==="wip"?"none":"wip";
-    setStatus(num,statusMap[num]);
-    buildTree(); openPanel(num);
-  };
-  actions.appendChild(btnDone); actions.appendChild(btnWip);
-  body.appendChild(actions);
-
-  const lnk=document.createElement("a");
-  lnk.className="sp-link"; lnk.href=STREAM_URL+"?seed="+num; lnk.target="_blank";
-  lnk.textContent="📡 この Seed で配信ページを開く ↗";
-  body.appendChild(lnk);
-
-  document.getElementById("sidePanel").classList.add("open");
-  buildTree();
+  const acts=document.createElement("div"); acts.className="acts";
+  const bd=document.createElement("button"); bd.className="act"+(st==="done"?" done":"");
+  bd.textContent=st==="done"?"✓ 完了済み":"✓ 完了にする";
+  bd.onclick=()=>{statusMap[num]=statusMap[num]==="done"?"none":"done";saveStatus(num,statusMap[num]);showToast(statusMap[num]==="done"?`「${s.name.replace(/\n/g," ")}」を完了にしました`:"完了を取り消しました");build();openPanel(num);};
+  const bw=document.createElement("button"); bw.className="act"+(st==="wip"?" wip":"");
+  bw.textContent=st==="wip"?"● 学習中":"● 学習中にする";
+  bw.onclick=()=>{statusMap[num]=statusMap[num]==="wip"?"none":"wip";saveStatus(num,statusMap[num]);build();openPanel(num);};
+  acts.appendChild(bd); acts.appendChild(bw); body.appendChild(acts);
+  const lnk=document.createElement("a"); lnk.className="p-link";
+  lnk.href=STREAM+"?seed="+num; lnk.target="_blank";
+  lnk.textContent="📡 この Seed で配信ページを開く ↗"; body.appendChild(lnk);
+  document.getElementById("panel").classList.add("open");
+  build();
 }
 
 function closePanel(){
-  selectedNum=null;
-  document.getElementById("sidePanel").classList.remove("open");
-  buildTree();
+  selNum=null;
+  document.getElementById("panel").classList.remove("open");
+  build();
 }
 
-// ── Drag to pan ──
+// ── Drag ──
 (()=>{
-  const wrap=document.getElementById("treeWrap");
-  let drag=false,sx,sy,sl,st2;
-  wrap.addEventListener("mousedown",e=>{
-    if(e.target.closest(".node-group")||e.target.closest(".legend")) return;
-    drag=true;sx=e.pageX-wrap.offsetLeft;sy=e.pageY-wrap.offsetTop;
-    sl=wrap.scrollLeft;st2=wrap.scrollTop;
-  });
-  wrap.addEventListener("mousemove",e=>{
-    if(!drag) return; e.preventDefault();
-    wrap.scrollLeft=sl-(e.pageX-wrap.offsetLeft-sx);
-    wrap.scrollTop=st2-(e.pageY-wrap.offsetTop-sy);
-  });
-  wrap.addEventListener("mouseup",()=>drag=false);
-  wrap.addEventListener("mouseleave",()=>drag=false);
+  const t=document.getElementById("tree");
+  let dr=false,sx,sy,sl,st2;
+  t.addEventListener("mousedown",e=>{if(e.target.closest(".legend"))return;dr=true;sx=e.pageX-t.offsetLeft;sy=e.pageY-t.offsetTop;sl=t.scrollLeft;st2=t.scrollTop;});
+  t.addEventListener("mousemove",e=>{if(!dr)return;e.preventDefault();t.scrollLeft=sl-(e.pageX-t.offsetLeft-sx);t.scrollTop=st2-(e.pageY-t.offsetTop-sy);});
+  t.addEventListener("mouseup",()=>dr=false);
+  t.addEventListener("mouseleave",()=>dr=false);
 })();
 
 // ── Toast ──
-let toastTimer;
-function showToast(msg){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove("show"),2400);
-}
+let tt;
+function showToast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2400);}
 
-buildTree();
+build();
 })();
 </script>
 </body>
