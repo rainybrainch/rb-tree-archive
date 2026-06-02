@@ -342,6 +342,18 @@ const LEVEL_ICONS={ROOT:"🌱",TRUNK:"🌿",BRANCH:"🍃",CROWN:"🌳",FOREST:"�
 const LEVEL_DESCS={ROOT:"経済の根",TRUNK:"経済を動かす幹",BRANCH:"現実ニュースの枝",CROWN:"世界経済の樹冠",FOREST:"経済史の森"};
 document.getElementById("levelBadge").textContent=`${LEVEL_ICONS[seed.level]||""} ${seed.level} — ${LEVEL_DESCS[seed.level]||""}`;
 
+// 配信ページへのリンクをヘッダーに追加
+const hRight=document.querySelector(".h-right");
+if(hRight){
+  const streamLink=document.createElement("a");
+  streamLink.href=`https://rainybrainch.github.io/live/streams/economy.html?seed=${seed.num}`;
+  streamLink.target="_blank";
+  streamLink.rel="noopener";
+  streamLink.className="btn btn-acc";
+  streamLink.textContent="📡 配信ページで学ぶ";
+  hRight.insertBefore(streamLink,hRight.firstChild);
+}
+
 const SK=`rbt_seed_${seedId}_v1`;
 const DEF={
   stage:"seed",understanding:null,date:"",learner:"",
@@ -554,6 +566,11 @@ function toggleExtraFlows(){
   if(btn){btn.style.display="none";}
   _$("fTree2")?.focus();
 }
+// textarea 自動リサイズ
+function autoResize(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,400)+"px";}
+document.addEventListener("input",e=>{ if(e.target.tagName==="TEXTAREA") autoResize(e.target); });
+setTimeout(()=>{ document.querySelectorAll("textarea").forEach(autoResize); },150);
+
 const G={setStage,addItem,updList,delItem,addSun,updSun,delSun,addStop,updStop,delStop,addGloss,updGloss,delGloss,addQA,updQA,delQA,saveAll,saveToArchive,toggleExtraFlows};
 Object.assign(window,G);
 })();

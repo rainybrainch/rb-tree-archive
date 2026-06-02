@@ -446,9 +446,15 @@ function buildTree(){
       g.appendChild(tbdEl);
     }
 
-    // Interaction
+    // Interaction — click: streaming page / ctrl+click: seed-viewer
     if(s.ready){
-      g.addEventListener("click",()=>{ window.open(s.url,"_blank"); });
+      g.addEventListener("click",(e)=>{
+        if(e.ctrlKey||e.metaKey){
+          window.open(s.url,"_blank");
+        } else {
+          window.open(`https://rainybrainch.github.io/live/streams/economy.html?seed=${s.num}`,"_blank");
+        }
+      });
     }
     g.addEventListener("mouseenter",(e)=>showTip(e,s,status));
     g.addEventListener("mousemove",(e)=>moveTip(e));
@@ -486,7 +492,7 @@ function showTip(e,s,status){
   document.getElementById("tipSub").textContent=db?.tagline||s.sub;
   document.getElementById("tipStatus").textContent={done:"✓ 完了",wip:"● 学習中",none:"未着手"}[status];
   document.getElementById("tipStatus").style.color={done:"#c9a84c",wip:"#57c87c",none:"rgba(180,210,180,.3)"}[status];
-  document.getElementById("tipAction").textContent=s.ready?"クリックで開く →":"（準備中）";
+  document.getElementById("tipAction").textContent=s.ready?"クリック → 配信ページ / Ctrl+クリック → Archive詳細":"（準備中）";
   moveTip(e);
   tip.classList.add("show");
 }
