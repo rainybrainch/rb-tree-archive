@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seed-6 金利 — RB-Tree Economics</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #060c08;
+  --bg2:   #0c1810;
+  --panel: rgba(10,20,12,.94);
+  --line:  rgba(100,180,120,.13);
+  --text:  #d4e8d0;
+  --muted: rgba(180,210,180,.52);
+  --faint: rgba(180,210,180,.28);
+  --acc:   #c9a84c;
+  --acc2:  #8a6f2a;
+  --green: #57c87c;
+  --font:  "Noto Sans JP", sans-serif;
+  --serif: "Noto Serif JP", serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;line-height:1.6;}
+a{color:var(--acc);text-underline-offset:3px;}
+a:hover{opacity:.8;}
+button,input,textarea{font:inherit;color:inherit;}
+textarea{resize:vertical;}
+
+/* ── HEADER ── */
+.header{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:10px;
+  padding:0 20px;height:50px;
+  background:rgba(6,12,8,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-back{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:900;color:var(--muted);text-decoration:none;transition:color .15s;}
+.nav-back:hover{color:var(--text);}
+.nav-sep{color:var(--faint);font-size:12px;}
+.nav-crumb{font-size:12px;color:var(--muted);}
+.nav-crumb.active{color:var(--acc);font-weight:900;}
+.h-right{margin-left:auto;display:flex;gap:8px;}
+.btn-save{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid rgba(201,168,76,.4);background:rgba(201,168,76,.12);font-size:12px;font-weight:900;cursor:pointer;transition:background .15s;}
+.btn-save:hover{background:rgba(201,168,76,.22);}
+.btn-sm{padding:6px 13px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-size:12px;font-weight:900;text-decoration:none;color:var(--muted);transition:all .15s;}
+.btn-sm:hover{background:rgba(255,255,255,.1);color:var(--text);}
+
+/* ── HERO ── */
+.hero{padding:40px 20px 28px;max-width:860px;margin:0 auto;}
+.hero-meta{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.1em;}
+.badge-trunk{border:1px solid rgba(201,168,76,.4);background:rgba(201,168,76,.1);color:var(--acc);}
+.badge-level{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);}
+.hero-seed{display:flex;align-items:baseline;gap:12px;font-family:var(--serif);}
+.seed-num{font-size:14px;font-weight:700;color:var(--acc);letter-spacing:.1em;}
+.seed-title{font-size:clamp(36px,6vw,60px);font-weight:700;line-height:1.05;}
+.hero-en{font-size:13px;color:var(--muted);letter-spacing:.08em;margin-top:6px;}
+.hero-tagline{
+  margin-top:18px;padding:16px 20px;
+  border-left:3px solid var(--acc);
+  background:rgba(201,168,76,.06);border-radius:0 8px 8px 0;
+  font-family:var(--serif);font-size:clamp(18px,2.5vw,26px);font-weight:700;line-height:1.4;
+}
+.hero-tagline small{display:block;font-family:var(--font);font-size:12px;font-weight:400;color:var(--muted);margin-top:6px;}
+
+/* ── STAGE PROGRESS ── */
+.stage-progress{max-width:860px;margin:0 auto;padding:0 20px 28px;}
+.stage-bar{display:flex;gap:6px;}
+.stage-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 6px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:10px;font-weight:900;color:var(--muted);cursor:pointer;transition:all .15s;position:relative;}
+.stage-item:hover{background:rgba(201,168,76,.1);color:var(--text);}
+.stage-item.current{border-color:rgba(201,168,76,.6);background:rgba(201,168,76,.14);color:var(--text);}
+.stage-item.done{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.06);color:var(--acc);}
+.stage-ico{font-size:20px;line-height:1;}
+.stage-check{position:absolute;top:4px;right:6px;font-size:9px;font-weight:900;color:var(--acc);display:none;}
+.stage-item.done .stage-check{display:block;}
+
+/* ── MAIN ── */
+.main{max-width:860px;margin:0 auto;padding:0 20px 60px;display:grid;gap:20px;}
+
+/* ── SECTION ── */
+.section{border:1px solid var(--line);border-radius:12px;background:rgba(10,20,12,.6);backdrop-filter:blur(10px);overflow:hidden;}
+.section-head{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.025);}
+.section-icon{font-size:18px;line-height:1;}
+.section-title{font-size:13px;font-weight:900;letter-spacing:.04em;}
+.section-sub{font-size:10px;color:var(--muted);margin-left:auto;}
+.section-body{padding:16px 18px;}
+
+/* ── KW ── */
+.kw-group{margin-bottom:14px;}
+.kw-group:last-child{margin-bottom:0;}
+.kw-group-label{font-size:9px;font-weight:900;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;margin-bottom:6px;}
+.kw-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.kw-tag{padding:5px 12px;border-radius:999px;border:1px solid rgba(201,168,76,.25);background:rgba(201,168,76,.08);font-size:12px;font-weight:700;color:var(--acc);cursor:pointer;transition:all .15s;}
+.kw-tag:hover{background:rgba(201,168,76,.18);border-color:rgba(201,168,76,.5);}
+.kw-tag.connect{border-color:rgba(87,200,124,.25);background:rgba(87,200,124,.07);color:var(--green);}
+.kw-tag.connect:hover{background:rgba(87,200,124,.18);border-color:rgba(87,200,124,.5);}
+
+/* ── QUESTIONS ── */
+.q-list{display:grid;gap:10px;}
+.q-item{padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.025);font-size:13px;line-height:1.6;}
+.q-item::before{content:"Q. ";color:var(--acc);font-weight:900;}
+
+/* ── SUN ── */
+.sun-list{display:grid;gap:8px;}
+.sun-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.025);transition:border-color .15s;}
+.sun-item:hover{border-color:rgba(201,168,76,.3);}
+.sun-item.priority{border-color:rgba(201,168,76,.2);background:rgba(201,168,76,.04);}
+.sun-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.sun-info{flex:1;min-width:0;}
+.sun-label{font-size:12px;font-weight:700;line-height:1.4;margin-bottom:3px;}
+.sun-priority{font-size:9px;font-weight:900;letter-spacing:.08em;color:var(--acc);margin-bottom:3px;}
+.sun-link{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;}
+
+/* ── HYPOTHESIS ── */
+.hypo-list{display:grid;gap:9px;}
+.hypo-item{padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.025);font-size:12px;line-height:1.6;font-style:italic;color:var(--muted);}
+.hypo-item::before{content:"💭 ";font-style:normal;}
+
+/* ── STOP ── */
+.stop-list{display:grid;gap:12px;}
+.stop-block{border:1px solid var(--line);border-radius:9px;background:rgba(0,0,0,.18);overflow:hidden;}
+.stop-head{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02);font-size:11px;font-weight:900;color:var(--muted);}
+.stop-point{font-size:10px;color:var(--faint);}
+.stop-fields{display:grid;gap:0;}
+.stop-field{border-bottom:1px solid var(--line);}
+.stop-field:last-child{border-bottom:0;}
+.stop-field label{display:block;padding:6px 14px 3px;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+.stop-field textarea{width:100%;border:0;background:0;outline:0;padding:4px 14px 10px;font-size:12px;line-height:1.6;color:var(--text);min-height:52px;}
+.stop-field textarea::placeholder{color:var(--faint);}
+
+/* ── LEAF ── */
+.leaf-area{width:100%;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.22);padding:12px 14px;font-size:13px;line-height:1.75;color:var(--text);min-height:100px;outline:none;transition:border-color .18s;}
+.leaf-area:focus{border-color:rgba(201,168,76,.4);}
+.leaf-area::placeholder{color:var(--faint);}
+.leaf-preset{padding:10px 14px;border-radius:8px;border:1px solid rgba(201,168,76,.15);background:rgba(201,168,76,.04);font-size:12px;line-height:1.8;color:var(--muted);margin-bottom:10px;}
+.leaf-preset strong{color:var(--text);}
+
+/* ── BRANCH ── */
+.branch-section{display:grid;gap:14px;}
+.branch-group{}
+.branch-label{font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--faint);text-transform:uppercase;margin-bottom:7px;}
+.branch-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.branch-tag{padding:4px 11px;border-radius:999px;border:1px solid rgba(100,180,120,.25);background:rgba(100,180,120,.07);font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;}
+.branch-tag:hover{border-color:rgba(100,180,120,.6);background:rgba(100,180,120,.18);}
+
+/* ── TREE FLOWS ── */
+.tree-flows{display:grid;gap:10px;}
+.tree-flow{padding:12px 14px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.025);}
+.tree-flow-title{font-size:9px;font-weight:900;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:8px;}
+.tree-flow-steps{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:12px;font-weight:700;}
+.tf-item{color:var(--muted);}
+.tf-item.key{color:var(--acc);}
+.tf-arrow{color:var(--faint);font-size:14px;}
+
+/* ── MISCONCEPTIONS ── */
+.misc-list{display:grid;gap:8px;}
+.misc-item{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;border-radius:8px;border:1px solid rgba(224,120,112,.15);background:rgba(224,120,112,.04);font-size:12px;line-height:1.6;}
+.misc-x{color:#e07870;font-weight:900;flex-shrink:0;margin-top:1px;}
+
+/* ── QA ── */
+.qa-list{display:grid;gap:12px;}
+.qa-item{border:1px solid var(--line);border-radius:9px;overflow:hidden;}
+.qa-q{padding:11px 14px;background:rgba(201,168,76,.06);font-size:12px;font-weight:900;border-bottom:1px solid var(--line);}
+.qa-q::before{content:"Q. ";color:var(--acc);}
+.qa-a{padding:11px 14px;font-size:12px;line-height:1.65;color:var(--muted);}
+.qa-a::before{content:"A. ";color:var(--green);font-weight:900;}
+.qa-a ul{margin-top:6px;margin-left:20px;}
+.qa-a li{margin-bottom:3px;}
+
+/* ── NEXT SEEDS ── */
+.next-seeds{display:flex;flex-wrap:wrap;gap:9px;}
+.next-seed{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:9px;border:1px solid var(--line);background:rgba(10,20,12,.7);font-size:12px;font-weight:900;text-decoration:none;color:var(--text);transition:all .15s;}
+.next-seed:hover{border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.08);color:var(--acc);}
+.next-seed-num{font-size:9px;color:var(--muted);font-weight:700;}
+.next-seed-desc{font-size:10px;color:var(--muted);font-weight:400;}
+
+/* ── SAVE PANEL ── */
+.save-panel{border:1px solid rgba(201,168,76,.25);border-radius:12px;background:rgba(201,168,76,.06);padding:18px;}
+.save-panel-title{font-size:13px;font-weight:900;color:var(--acc);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.save-form{display:grid;gap:10px;}
+.save-row{display:grid;gap:5px;}
+.save-label{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--muted);}
+.save-input{width:100%;border:1px solid var(--line);border-radius:7px;background:rgba(0,0,0,.28);padding:8px 11px;font-size:12px;outline:none;transition:border-color .15s;}
+.save-input:focus{border-color:rgba(201,168,76,.4);}
+.save-actions{display:flex;gap:8px;align-items:center;margin-top:4px;}
+.save-btn{padding:9px 18px;border-radius:8px;border:1px solid rgba(201,168,76,.5);background:rgba(201,168,76,.18);font-size:12px;font-weight:900;cursor:pointer;transition:background .15s;}
+.save-btn:hover{background:rgba(201,168,76,.28);}
+.save-status{font-size:11px;color:var(--muted);}
+
+/* ── DIVIDER ── */
+hr{border:0;border-top:1px solid var(--line);margin:4px 0;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:9px 20px;border-radius:999px;background:rgba(6,12,8,.95);border:1px solid rgba(201,168,76,.35);color:var(--acc);font-size:12px;font-weight:900;pointer-events:none;z-index:100;opacity:0;transition:opacity .25s;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+@media(max-width:600px){
+  .stage-bar{flex-wrap:wrap;}
+  .stage-item{min-width:calc(50% - 4px);}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a class="nav-back" href="../economics.html">← Economics</a>
+  <span class="nav-sep">/</span>
+  <span class="nav-crumb">TRUNK</span>
+  <span class="nav-sep">/</span>
+  <span class="nav-crumb active">Seed-6 金利</span>
+  <div class="h-right">
+    <button class="btn-save" onclick="quickSave()">🌱 Archive に保存</button>
+    <a class="btn-sm" href="../economics.html">← 一覧</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="badge badge-trunk">🌿 TRUNK — 経済を動かす幹</span>
+    <span class="badge badge-level">Seed-6 / 26</span>
+    <span class="badge badge-level">Economics</span>
+  </div>
+  <div class="hero-seed">
+    <span class="seed-num">SEED 06</span>
+    <h1 class="seed-title">金利</h1>
+  </div>
+  <div class="hero-en">Interest Rate — The price of borrowing money</div>
+  <div class="hero-tagline">
+    金利とは、<strong>お金のレンタル料</strong>。
+    <small>株価・為替・国債・景気 — すべてに影響する経済の中心概念。</small>
+  </div>
+</div>
+
+<!-- STAGE PROGRESS -->
+<div class="stage-progress">
+  <div class="stage-bar" id="stageBar">
+    <div class="stage-item" data-s="seed" onclick="setStage('seed')"><span class="stage-ico">🌱</span><span>Seed</span><span class="stage-check">✓</span></div>
+    <div class="stage-item" data-s="branch" onclick="setStage('branch')"><span class="stage-ico">🌿</span><span>Branch</span><span class="stage-check">✓</span></div>
+    <div class="stage-item" data-s="leaf" onclick="setStage('leaf')"><span class="stage-ico">🍃</span><span>Leaf</span><span class="stage-check">✓</span></div>
+    <div class="stage-item" data-s="tree" onclick="setStage('tree')"><span class="stage-ico">🌳</span><span>Tree</span><span class="stage-check">✓</span></div>
+    <div class="stage-item" data-s="forest" onclick="setStage('forest')"><span class="stage-ico">🌲</span><span>Forest</span><span class="stage-check">✓</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- キーワード -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">🔑</span>
+      <span class="section-title">キーワード</span>
+    </div>
+    <div class="section-body">
+      <div class="kw-group">
+        <div class="kw-group-label">基礎</div>
+        <div class="kw-grid">
+          <span class="kw-tag">金利</span>
+          <span class="kw-tag">利息</span>
+          <span class="kw-tag">借金</span>
+          <span class="kw-tag">ローン</span>
+        </div>
+      </div>
+      <div class="kw-group">
+        <div class="kw-group-label">発展</div>
+        <div class="kw-grid">
+          <span class="kw-tag">利上げ</span>
+          <span class="kw-tag">利下げ</span>
+          <span class="kw-tag">政策金利</span>
+          <span class="kw-tag">長期金利</span>
+        </div>
+      </div>
+      <div class="kw-group">
+        <div class="kw-group-label">接続キーワード</div>
+        <div class="kw-grid">
+          <span class="kw-tag connect">インフレ</span>
+          <span class="kw-tag connect">日本銀行</span>
+          <span class="kw-tag connect">FRB</span>
+          <span class="kw-tag connect">為替</span>
+          <span class="kw-tag connect">国債</span>
+          <span class="kw-tag connect">株価</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 重要な問い -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">❓</span>
+      <span class="section-title">重要な問い</span>
+      <span class="section-sub">配信で止めるポイント</span>
+    </div>
+    <div class="section-body">
+      <div class="q-list">
+        <div class="q-item">なぜお金を借りると利息を払うのか？</div>
+        <div class="q-item">金利は誰が決めるのか？</div>
+        <div class="q-item">なぜ日銀が利上げするとニュースになるのか？</div>
+        <div class="q-item">なぜ金利が上がると株価が下がるのか？</div>
+        <div class="q-item">なぜ金利が上がると円高になりやすいのか？</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ☀ Sun -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">☀</span>
+      <span class="section-title">Sun — 知識の源</span>
+      <span class="section-sub">最優先から見る</span>
+    </div>
+    <div class="section-body">
+      <div class="sun-list">
+        <div class="sun-item priority">
+          <span class="sun-icon">🎯</span>
+          <div class="sun-info">
+            <div class="sun-priority">最優先</div>
+            <div class="sun-label">利上げとは？入門知識をわかりやすく解説</div>
+            <a class="sun-link" href="https://www.youtube.com/watch?v=RB_pX0AEGMY" target="_blank" rel="noopener">
+              youtube.com — 利上げとは？入門知識
+            </a>
+          </div>
+        </div>
+        <div class="sun-item">
+          <span class="sun-icon">▶</span>
+          <div class="sun-info">
+            <div class="sun-label">難しい金利の話をわかりやすく理解する</div>
+            <a class="sun-link" href="https://www.youtube.com/watch?v=N6aVpQo77FQ" target="_blank" rel="noopener">
+              youtube.com — 難しい金利の話
+            </a>
+          </div>
+        </div>
+        <div class="sun-item">
+          <span class="sun-icon">▶</span>
+          <div class="sun-info">
+            <div class="sun-label">金利とは？仕組みや注意点をわかりやすく解説</div>
+            <a class="sun-link" href="https://www.youtube.com/watch?v=hLaERTF2MZw" target="_blank" rel="noopener">
+              youtube.com — 金利とは？仕組み
+            </a>
+          </div>
+        </div>
+        <div class="sun-item">
+          <span class="sun-icon">🏛️</span>
+          <div class="sun-info">
+            <div class="sun-label">日本銀行（公式）</div>
+            <a class="sun-link" href="https://www.boj.or.jp" target="_blank" rel="noopener">boj.or.jp</a>
+          </div>
+        </div>
+        <div class="sun-item">
+          <span class="sun-icon">🏛️</span>
+          <div class="sun-info">
+            <div class="sun-label">金融庁（公式）</div>
+            <a class="sun-link" href="https://www.fsa.go.jp" target="_blank" rel="noopener">fsa.go.jp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 学習前の仮説 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">💭</span>
+      <span class="section-title">学習前の仮説</span>
+      <span class="section-sub">正しいか確かめながら見る</span>
+    </div>
+    <div class="section-body">
+      <div class="hypo-list">
+        <div class="hypo-item">金利って、銀行が勝手に決めてる？</div>
+        <div class="hypo-item">利上げすると、なんで景気悪くなるの？</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 30秒停止メモ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">⏸</span>
+      <span class="section-title">30秒停止メモ</span>
+      <span class="section-sub">自動保存</span>
+    </div>
+    <div class="section-body">
+      <div class="stop-list" id="stopList"></div>
+      <div style="margin-top:10px;">
+        <button onclick="addStop()" style="border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.05);padding:7px 14px;font-size:11px;font-weight:900;cursor:pointer;">+ Stop を追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🍃 Leaf -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">🍃</span>
+      <span class="section-title">Leaf — 自分の言葉でまとめる</span>
+      <span class="section-sub">自動保存</span>
+    </div>
+    <div class="section-body">
+      <div class="leaf-preset">
+        <strong>テンプレート（消して自分の言葉で書いてOK）</strong><br>
+        金利とは、お金を借りるために払う料金。<br>
+        金利が高いと借金しづらくなり、景気を冷ます方向に働く。<br>
+        金利が低いと借金しやすくなり、景気を刺激する方向に働く。
+      </div>
+      <textarea id="leafArea" class="leaf-area" rows="5"
+        placeholder="自分の言葉で書く。「金利とは…だと思った。なぜなら…」"></textarea>
+    </div>
+  </div>
+
+  <!-- Branch / Tree -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">🌿</span>
+      <span class="section-title">Branch — 関連 / Tree — つながり</span>
+    </div>
+    <div class="section-body">
+      <div class="branch-section">
+        <div class="branch-group">
+          <div class="branch-label">前のSeed（土台）</div>
+          <div class="branch-tags">
+            <a class="branch-tag" href="01-okane.html">お金</a>
+            <span class="branch-tag">銀行</span>
+            <span class="branch-tag">インフレ</span>
+          </div>
+        </div>
+        <div class="branch-group">
+          <div class="branch-label">次のSeed（金利から生える枝）</div>
+          <div class="branch-tags">
+            <span class="branch-tag">中央銀行</span>
+            <span class="branch-tag">為替</span>
+            <span class="branch-tag">国債</span>
+          </div>
+        </div>
+        <hr>
+        <div class="branch-group" style="margin-top:8px;">
+          <div class="branch-label">🌳 Tree — 知識のつながり（因果フロー）</div>
+          <div class="tree-flows">
+            <div class="tree-flow">
+              <div class="tree-flow-title">金利 → 景気の流れ</div>
+              <div class="tree-flow-steps">
+                <span class="tf-item key">インフレ</span><span class="tf-arrow">→</span>
+                <span class="tf-item">日銀</span><span class="tf-arrow">→</span>
+                <span class="tf-item key">利上げ</span><span class="tf-arrow">→</span>
+                <span class="tf-item">金利上昇</span><span class="tf-arrow">→</span>
+                <span class="tf-item">借金減少</span><span class="tf-arrow">→</span>
+                <span class="tf-item key">景気減速</span>
+              </div>
+            </div>
+            <div class="tree-flow">
+              <div class="tree-flow-title">金利 → 為替の流れ</div>
+              <div class="tree-flow-steps">
+                <span class="tf-item key">日米金利差</span><span class="tf-arrow">→</span>
+                <span class="tf-item">ドル買い</span><span class="tf-arrow">→</span>
+                <span class="tf-item">円売り</span><span class="tf-arrow">→</span>
+                <span class="tf-item key">円安</span>
+              </div>
+            </div>
+            <div class="tree-flow">
+              <div class="tree-flow-title">金利 → 株価の流れ</div>
+              <div class="tree-flow-steps">
+                <span class="tf-item key">金利上昇</span><span class="tf-arrow">→</span>
+                <span class="tf-item">国債利回り上昇</span><span class="tf-arrow">→</span>
+                <span class="tf-item">株式の魅力低下</span><span class="tf-arrow">→</span>
+                <span class="tf-item key">株価下落</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- よくある誤解 -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">⚠</span>
+      <span class="section-title">よくある誤解</span>
+    </div>
+    <div class="section-body">
+      <div class="misc-list">
+        <div class="misc-item"><span class="misc-x">✕</span>金利が高いと必ず景気が良い</div>
+        <div class="misc-item"><span class="misc-x">✕</span>利上げすると必ず株価暴落する</div>
+        <div class="misc-item"><span class="misc-x">✕</span>円安は悪いことだ</div>
+        <div class="misc-item"><span class="misc-x">✕</span>円高は善いことだ</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Q&A -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">✅</span>
+      <span class="section-title">理解確認 Q&amp;A</span>
+      <span class="section-sub">配信後に確認</span>
+    </div>
+    <div class="section-body">
+      <div class="qa-list">
+        <div class="qa-item">
+          <div class="qa-q">金利とは？</div>
+          <div class="qa-a">お金を借りるために払う料金（レンタル料）。</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">利上げとは？</div>
+          <div class="qa-a">中央銀行が政策金利を上げること。</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">なぜ利上げするのか？</div>
+          <div class="qa-a">インフレ（物価上昇）を抑えるため。</div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">利上げすると何が起きる？</div>
+          <div class="qa-a">
+            <ul>
+              <li>借金しにくくなる</li>
+              <li>景気が冷える</li>
+              <li>円高要因になる</li>
+            </ul>
+          </div>
+        </div>
+        <div class="qa-item">
+          <div class="qa-q">なぜ投資家は金利を見るのか？</div>
+          <div class="qa-a">株価・為替・国債・景気、すべてに影響するから。金利は経済の「温度計」。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 次のSeed -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-icon">🌱</span>
+      <span class="section-title">次に育てる Seed</span>
+      <span class="section-sub">金利から直接生える枝</span>
+    </div>
+    <div class="section-body">
+      <div class="next-seeds">
+        <a class="next-seed" href="07-chuo-ginko.html">
+          <div><div class="next-seed-num">SEED 07</div><div>中央銀行</div><div class="next-seed-desc">金利を動かす機関</div></div>→
+        </a>
+        <a class="next-seed" href="08-kawase.html">
+          <div><div class="next-seed-num">SEED 08</div><div>為替</div><div class="next-seed-desc">金利差が円安・円高を作る</div></div>→
+        </a>
+        <a class="next-seed" href="09-kokusai.html">
+          <div><div class="next-seed-num">SEED 09</div><div>国債</div><div class="next-seed-desc">金利と利回りが連動する</div></div>→
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Archive 保存 -->
+  <div class="save-panel">
+    <div class="save-panel-title">🌲 Archive に学びを保存する</div>
+    <div class="save-form">
+      <div class="save-row">
+        <label class="save-label">セッション動画 URL（配信後に貼る）</label>
+        <input id="sessionUrl" class="save-input" type="url" placeholder="https://youtube.com/...">
+      </div>
+      <div class="save-row">
+        <label class="save-label">追加メモ</label>
+        <textarea id="extraNotes" class="save-input" rows="3" placeholder="配信で出た追加キーワードや気づき…"></textarea>
+      </div>
+      <div class="save-actions">
+        <button class="save-btn" onclick="saveToArchive()">🌱 Archive に追加</button>
+        <span class="save-status" id="saveStatus"></span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+
+const STORAGE_KEY = "rbt_seed_06_v1";
+const ARCHIVE_KEY = "rbt_data_v1";
+
+const DEFAULT_STOPS = [
+  {point:"金利とは何か", note:"", question:"金利は何%なの？誰が決める？", todo:""},
+  {point:"利上げ",       note:"", question:"誰が利上げする？なぜする？",  todo:""},
+  {point:"利下げ",       note:"", question:"利下げしたら何が起きる？",    todo:""},
+  {point:"住宅ローン",   note:"", question:"家を買う人にどう影響する？",  todo:""},
+  {point:"企業への影響", note:"", question:"会社の借金にどう影響する？",  todo:""},
+  {point:"投資への影響", note:"", question:"株価にどう影響する？",        todo:""},
+];
+
+let state = {stage:"seed", stops:[...DEFAULT_STOPS], leaf:""};
+
+(function init(){
+  const saved = load();
+  if(saved) Object.assign(state, saved);
+  renderStage();
+  renderStops();
+  document.getElementById("leafArea").value = state.leaf || "";
+  document.getElementById("leafArea").addEventListener("input", e=>{ state.leaf=e.target.value; save(); });
+})();
+
+function setStage(s){ state.stage=s; save(); renderStage(); }
+function renderStage(){
+  const stages=["seed","branch","leaf","tree","forest"];
+  const idx=stages.indexOf(state.stage);
+  document.querySelectorAll(".stage-item").forEach((el,i)=>{
+    el.classList.remove("current","done");
+    if(i===idx) el.classList.add("current");
+    else if(i<idx) el.classList.add("done");
+  });
+}
+
+function renderStops(){
+  const c=document.getElementById("stopList"); if(!c)return;
+  c.innerHTML="";
+  state.stops.forEach((st,i)=>{
+    const d=document.createElement("div"); d.className="stop-block";
+    d.innerHTML=`<div class="stop-head"><span>⏸ Stop ${i+1}</span><span class="stop-point">${esc(st.point)}</span><button onclick="removeStop(${i})" style="margin-left:auto;border:0;background:0;color:var(--faint);cursor:pointer;font-size:12px;">✕</button></div>
+    <div class="stop-fields">
+      <div class="stop-field"><label>気づき</label><textarea placeholder="気づいたこと…" oninput="updStop(${i},'note',this.value)">${esc(st.note)}</textarea></div>
+      <div class="stop-field"><label>疑問</label><textarea placeholder="${esc(st.question)||'わからなかったこと…'}" oninput="updStop(${i},'question',this.value)">${esc(st.question)}</textarea></div>
+      <div class="stop-field"><label>調べること</label><textarea placeholder="次に調べるキーワード…" oninput="updStop(${i},'todo',this.value)">${esc(st.todo)}</textarea></div>
+    </div>`;
+    c.appendChild(d);
+  });
+}
+function addStop(){ state.stops.push({point:"",note:"",question:"",todo:""}); save(); renderStops(); }
+function removeStop(i){ state.stops.splice(i,1); save(); renderStops(); }
+function updStop(i,f,v){ state.stops[i][f]=v; save(); }
+
+function quickSave(){ saveToArchive(); }
+function saveToArchive(){
+  const leaf=(document.getElementById("leafArea")?.value||"").trim();
+  const sessionUrl=(document.getElementById("sessionUrl")?.value||"").trim();
+  const extra=(document.getElementById("extraNotes")?.value||"").trim();
+  const stopText=state.stops.filter(s=>s.note||s.question).map((s,i)=>`[Stop ${i+1}] ${s.point}\n気づき: ${s.note}\n疑問: ${s.question}`).join("\n\n");
+  const body=[leaf,extra,stopText].filter(Boolean).join("\n\n---\n\n")||"Seed-6 金利の学習記録";
+  const entry={
+    id:"rbt_s06_"+Date.now(),
+    category:"economics",stage:state.stage,
+    keyword:"金利",body,
+    branches:["利上げ","利下げ","政策金利","長期金利","インフレ","日本銀行","為替","国債","株価"],
+    sources:sessionUrl?[{url:sessionUrl,label:"配信"}]:[],
+    session:"RB-Tree Economics #006 — 金利",sessionUrl,
+    createdAt:new Date().toISOString().slice(0,10),
+    updatedAt:new Date().toISOString().slice(0,10)
+  };
+  try{
+    const arr=JSON.parse(localStorage.getItem(ARCHIVE_KEY)||"[]");
+    const idx=arr.findIndex(x=>x.id?.startsWith("rbt_s06_"));
+    if(idx>=0) arr[idx]=entry; else arr.unshift(entry);
+    localStorage.setItem(ARCHIVE_KEY,JSON.stringify(arr));
+    document.getElementById("saveStatus").textContent="✓ 保存完了";
+    showToast("🌱「金利」を Archive に保存しました");
+  }catch{ document.getElementById("saveStatus").textContent="保存失敗"; }
+}
+
+function load(){ try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");}catch{return null;} }
+function save(){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{} }
+function showToast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2800); }
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+window.setStage=setStage; window.addStop=addStop; window.removeStop=removeStop; window.updStop=updStop; window.quickSave=quickSave; window.saveToArchive=saveToArchive;
+})();
+</script>
+</body>
+</html>
