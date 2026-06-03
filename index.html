@@ -588,7 +588,7 @@ function filtered() {
 // ══════════════════════════════════
 //  TREE VIEW
 // ══════════════════════════════════
-const NW=148, NH=38, HGAP=18, VGAP=130, TOP=70, SIDE=60, ROOT_R=30;
+const NW=148, NH=38, HGAP=18, VGAP=130, TOP=70, SIDE=60, ROOT_R=30, GBOT=130;
 
 function buildConnections(list) {
   const byKw = {};
@@ -643,7 +643,7 @@ function renderTree() {
     STAGES.forEach(s=>{ byStage[s]=list.filter(e=>e.stage===s); });
     const maxPerRow = Math.max(1,...STAGES.map(s=>byStage[s].length));
     const w = Math.max(400, maxPerRow*(NW+HGAP)-HGAP+SIDE*2);
-    const h = TOP+STAGES.length*(NH+VGAP)+60;
+    const h = TOP+STAGES.length*(NH+VGAP)+GBOT;
     catLayouts.push({cat,list,cm,byStage,w,h});
   });
 
@@ -659,11 +659,14 @@ function renderTree() {
     const rgb = cm.rgb;
     const col = CAT_COLORS[cat];
 
-    // Category root
+    // Bottom-up: seed at ground, forest at canopy
     const rootX = offsetX + w/2;
-    const rootY = 30;
+    const rootY = h - ROOT_R - 20;        // virtual root circle near bottom
+    const groundY = h - GBOT + 20;        // ground line above root
+    // node Y: seed(si=0) at bottom, forest(si=4) at top
+    const seedBaseY = groundY - NH/2 - 14; // seed center Y
 
-    // Compute node positions
+    // Compute node positions (bottom-up)
     const pos = {};
     STAGES.forEach((stage,si)=>{
       const group = byStage[stage];
@@ -672,53 +675,65 @@ function renderTree() {
       group.forEach((e,i)=>{
         pos[e.id]={
           x: startX+i*(NW+HGAP)+NW/2,
-          y: TOP+ROOT_R*2+20+si*(NH+VGAP)+NH/2
+          y: seedBaseY - si*(NH+VGAP)   // higher si = higher on screen
         };
       });
     });
 
-    // Background gradient rect
+    // Background gradient (glow from bottom = root area)
     svgContent += `<defs>
-      <radialGradient id="bg_${cat}" cx="50%" cy="90%" r="60%">
-        <stop offset="0%" stop-color="${col}" stop-opacity="0.07"/>
+      <radialGradient id="bg_${cat}" cx="50%" cy="85%" r="55%">
+        <stop offset="0%" stop-color="${col}" stop-opacity="0.08"/>
         <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
       </radialGradient>
     </defs>
     <rect x="${offsetX}" y="0" width="${w}" height="${h}" rx="16" fill="url(#bg_${cat})" stroke="rgba(${rgb},.1)" stroke-width="1"/>`;
 
-    // Stage row labels (left side)
+    // Soil / ground area
+    svgContent += `<rect x="${offsetX}" y="${groundY}" width="${w}" height="${h-groundY}" rx="0 0 16 16" fill="rgba(${rgb},.04)"/>`;
+    svgContent += `<line x1="${offsetX}" y1="${groundY}" x2="${offsetX+w}" y2="${groundY}" stroke="rgba(${rgb},.3)" stroke-width="1.5"/>`;
+    // Ground dots
+    for(let gx=offsetX+20;gx<offsetX+w-10;gx+=36){
+      svgContent += `<circle cx="${gx+Math.sin(gx)*3}" cy="${groundY+8}" r="1.5" fill="rgba(${rgb},.22)"/>`;
+    }
+
+    // Stage row labels + bands
     STAGES.forEach((stage,si)=>{
-      const y = TOP+ROOT_R*2+20+si*(NH+VGAP);
-      svgContent += `<text x="${offsetX+8}" y="${y+NH/2+4}" class="tree-stage-label">${STAGE_META[stage].icon}</text>`;
-      if(byStage[stage].length>0){
-        svgContent += `<rect x="${offsetX}" y="${y-4}" width="${w}" height="${NH+8}" rx="4" class="tree-stage-row"/>`;
+      const cy = seedBaseY - si*(NH+VGAP);
+      const y  = cy - NH/2;
+      if(si%2===1){
+        svgContent += `<rect x="${offsetX}" y="${y-6}" width="${w}" height="${NH+12}" rx="4" class="tree-stage-row"/>`;
       }
+      svgContent += `<text x="${offsetX+10}" y="${cy+4}" class="tree-stage-label">${STAGE_META[stage].icon}</text>`;
     });
 
-    // Root node
+    // Root circle (trunk base) at bottom
     svgContent += `
+    <circle cx="${rootX}" cy="${rootY}" r="${ROOT_R+8}" fill="none" stroke="rgba(${rgb},.08)" stroke-width="1.5" stroke-dasharray="4 8"/>
     <circle cx="${rootX}" cy="${rootY}" r="${ROOT_R}" class="tree-root-circle" style="--cat-rgb:${rgb}"/>
     <text x="${rootX}" y="${rootY-4}" class="tree-root-text" style="font-size:11px">${cm.icon}</text>
     <text x="${rootX}" y="${rootY+9}" class="tree-root-text" style="font-size:10px">${cm.label}</text>`;
 
-    // Lines from root to first-stage nodes
+    // Edges: virtual root → seed nodes (going upward)
     const seedGroup = byStage["seed"];
     seedGroup.forEach(e=>{
       const p = pos[e.id];
       if(!p) return;
-      const x2=p.x, y2=p.y-NH/2;
-      const y1=rootY+ROOT_R;
+      const x2=p.x, y2=p.y+NH/2;   // seed bottom face
+      const y1=rootY-ROOT_R;          // root top
       const mid=(y1+y2)/2;
       svgContent += `<path d="M ${rootX} ${y1} C ${rootX} ${mid} ${x2} ${mid} ${x2} ${y2}" class="tree-edge" style="--cat-rgb:${rgb}"/>`;
+      svgContent += `<circle cx="${x2}" cy="${y2}" r="2.5" fill="rgba(${rgb},.55)"/>`;
     });
+    svgContent += `<circle cx="${rootX}" cy="${rootY-ROOT_R}" r="3" fill="rgba(${rgb},.7)"/>`;
 
-    // Inter-node connections
+    // Inter-node connections (upward: parent top → child bottom)
     const links = buildConnections(list);
     links.forEach(({from,to})=>{
       const p1=pos[from], p2=pos[to];
       if(!p1||!p2) return;
-      const x1=p1.x, y1=p1.y+NH/2;
-      const x2=p2.x, y2=p2.y-NH/2;
+      const x1=p1.x, y1=p1.y-NH/2;  // parent top face (upward)
+      const x2=p2.x, y2=p2.y+NH/2;  // child bottom face (downward)
       const mid=(y1+y2)/2;
       svgContent += `<path d="M ${x1} ${y1} C ${x1} ${mid} ${x2} ${mid} ${x2} ${y2}" class="tree-edge" style="--cat-rgb:${rgb}"/>`;
     });
