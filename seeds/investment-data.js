@@ -14,7 +14,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"株式投資のリスクは？",a:"価格変動リスク、企業倒産リスク、流動性リスクなど。元本保証がない。"},
     {q:"株主になるメリットは？",a:"値上がり益・配当収入・株主優待・議決権行使（企業への発言権）。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/teach/investors/index.html",note:"金融庁 投資の基本",priority:"最優先"},
+  ],
+  realItems:[
+    "トヨタ株1株保有でトヨタのオーナーになれる",
+    "配当は銀行利息と違い企業業績に連動",
+    "株主優待でお米・割引券がもらえる企業がある",
+  ],
 },
 
 "I002":{num:2,name:"債券",en:"Bonds",level:"ROOT",
@@ -30,7 +38,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"金利が上がると債券価格はなぜ下がるのか？",a:"新しい高金利の債券が発行されると既存の低金利債券は魅力が下がるため、価格が下落する。"},
     {q:"国債は本当にリスクゼロか？",a:"先進国の自国通貨建て国債は低リスクだが、金利リスク・インフレリスク・為替リスクはある。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.mof.go.jp/jgbs/individual/kojinmuke/",note:"財務省 個人向け国債",priority:"最優先"},
+  ],
+  realItems:[
+    "個人向け国債は1万円から買える",
+    "金利1%上昇で20年債は約17%下落",
+    "企業倒産で社債は紙切れになる可能性がある",
+  ],
 },
 
 "I003":{num:3,name:"投資信託",en:"Investment Trusts",level:"ROOT",
@@ -46,7 +62,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"投資信託初心者に適したのはどんな商品か？",a:"低コストのインデックスファンド（特に全世界株式・S&P500連動）が長期投資の定番。"},
     {q:"信託報酬0.1%と1%の差は長期でどうなるか？",a:"30年で0.9%/年の差は複利効果で元本の約30%近くの差になる。コストは最重要要素の一つ。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/policy/nisa2/about/tsumitate/guide/index.html",note:"金融庁 つみたてNISA選定基準",priority:"最優先"},
+  ],
+  realItems:[
+    "eMAXIS Slim全世界株は信託報酬0.057%",
+    "つみたてNISA対応投信はコスト・透明性審査済み",
+    "毎月分配型は元本を取り崩して分配する場合あり",
+  ],
 },
 
 "I004":{num:4,name:"リスクとリターン",en:"Risk & Return",level:"ROOT",
@@ -62,7 +86,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"リスクゼロで高リターンの投資はあるのか？",a:"ない。そう謳う商品は詐欺か重大な見落としがある。トレードオフは投資の鉄則。"},
     {q:"若いほどリスクを取れる理由は？",a:"時間があるので暴落からの回復を待てる。収入も続くため損失の影響が限定的。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/teach/investors/riskreturn.html",note:"金融庁 リスクとリターン",priority:"最優先"},
+  ],
+  realItems:[
+    "株式年平均7%の裏には最大60%下落もある",
+    "定期預金0.01%はゼロリスク・ゼロリターンの典型",
+    "20代は時間が最大のリスク緩和剤",
+  ],
 },
 
 "I005":{num:5,name:"複利",en:"Compound Interest",level:"ROOT",
@@ -78,7 +110,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"毎年5%で10万円を20年運用するといくらになるか？",a:"複利なら約26.5万円（単利なら20万円）。20年で約6.5万円の差が生まれる。"},
     {q:"複利を活かす最大のコツは？",a:"できるだけ早く始め、長く続け、引き出さないこと。時間が最大の資産。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/teach/investors/compound.html",note:"金融庁 複利の力",priority:"最優先"},
+  ],
+  realItems:[
+    "25歳から月3万円・年5%で65歳に約4500万円",
+    "72÷3=24年で2倍（年利3%の場合）",
+    "配当金を再投資しないと複利効果が消える",
+  ],
 },
 
 "I006":{num:6,name:"分散投資",en:"Diversification",level:"TRUNK",
@@ -93,7 +133,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"株だけ保有することの問題は？",a:"株式は同じ方向に動きやすく（相関が高い）、市場全体が下落すれば分散効果が消える。"},
     {q:"何銘柄あれば十分に分散できるか？",a:"個別株なら20〜30銘柄でかなりの分散効果。ただし全世界インデックスなら数千銘柄に自動分散。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.jpx.co.jp/learning/basics/portfolio/",note:"東証 ポートフォリオの基本",priority:"最優先"},
+  ],
+  realItems:[
+    "リーマン時に株+債券は株だけより下落3割抑制",
+    "月1万円を毎月積み立てる=時間分散（ドルコスト）",
+    "全世界株インデックスは50ヵ国・数千銘柄に自動分散",
+  ],
 },
 
 "I007":{num:7,name:"アセットアロケーション",en:"Asset Allocation",level:"TRUNK",
@@ -108,7 +156,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"一般的な年齢別の株式比率の目安は？",a:"「100-年齢」%を株式に。30歳なら70%株式、60歳なら40%株式が一つの目安。"},
     {q:"リバランスはなぜ必要か？",a:"株高が続くと株比率が増えリスクが高まる。売高買安の原則を実践できる仕組みでもある。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.am.mufg.jp/text/oshiete_fund_105.html",note:"三菱UFJ 資産配分入門",priority:"最優先"},
+  ],
+  realItems:[
+    "30歳なら株70%・債券30%が100-年齢ルールの目安",
+    "老後2000万円問題も資産配分が核心",
+    "年末に株の増えすぎた分を売って債券を買う=リバランス",
+  ],
 },
 
 "I008":{num:8,name:"インデックス投資",en:"Index Investing",level:"TRUNK",
@@ -123,7 +179,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"なぜ長期ではアクティブファンドの8割がインデックスに負けるのか？",a:"コストの差が複利で拡大し、市場効率性により継続的超過リターンを出し続けることが困難なため。"},
     {q:"S&P500と全世界株、どちらを選ぶべきか？",a:"正解はないが、全世界株は地域リスクが分散できる。S&P500は米国集中だが過去の実績は優秀。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/policy/nisa2/about/tsumitate/guide/index.html",note:"金融庁 つみたてNISA",priority:"最優先"},
+  ],
+  realItems:[
+    "VOOの経費率0.03%はアクティブの1/30以下",
+    "過去20年でS&P500連動の9割がアクティブに勝利",
+    "eMAXIS Slim全世界株式は月数百円から積立可能",
+  ],
 },
 
 "I009":{num:9,name:"長期投資",en:"Long-term Investing",level:"TRUNK",
@@ -138,7 +202,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"「今は高すぎて買えない」という感覚は正しいか？",a:"歴史的に「今は高い」は毎年言われてきた。タイミングを計るより定期積立の方が効果的と証明されている。"},
     {q:"暴落時に売らないための方法は？",a:"暴落を前提とした計画を事前に立てる。生活費は現金で確保しておく。歴史の回復を知っておく。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/teach/investors/longterm.html",note:"金融庁 長期投資",priority:"最優先"},
+  ],
+  realItems:[
+    "2008年リーマン後積立継続者は2013年に元本回復",
+    "100万円を30年・年7%で運用すると約760万円",
+    "タイミングより時間が味方をするという歴史的事実",
+  ],
 },
 
 "I010":{num:10,name:"NISA・iDeCo",en:"Tax-advantaged Accounts",level:"TRUNK",
@@ -153,7 +225,16 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"NISAとiDeCoどちらを先に始めるべきか？",a:"一般的にはNISAを先。iDeCoは引き出し制限があるため、生活費の確保後に始める方が安全。"},
     {q:"新NISAで何が変わったのか？",a:"2024年から生涯投資枠1800万円・年間360万円・無期限の非課税保有期間に大幅拡充された。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.fsa.go.jp/policy/nisa2/",note:"金融庁 新NISA公式",priority:"最優先"},
+    {type:"サイト",url:"https://www.ideco-koushiki.jp/",note:"iDeCo公式",priority:""},
+  ],
+  realItems:[
+    "新NISAの生涯1800万円枠は使っても翌年回復",
+    "年収600万でiDeCo月1.2万なら年2.7万円の税軽減",
+    "NISA口座は銀行でも証券でも開設できるが手数料が違う",
+  ],
 },
 
 "I011":{num:11,name:"テクニカル分析",en:"Technical Analysis",level:"BRANCH",
@@ -167,7 +248,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"テクニカル分析の弱点は？",a:"過去パターンが将来に繰り返す保証はない。多くの人が同じサインを見ると機能しなくなる。自己成就的な面も。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://kabutan.jp/info/howto/study/p3/",note:"株探 チャート読み方入門",priority:"最優先"},
+  ],
+  realItems:[
+    "ゴールデンクロス後に買うと出尽くしの場合が多い",
+    "テクニカルだけで勝ち続けるプロは少数派",
+    "RSI70超えはそろそろ下がりそうであって確実ではない",
+  ],
 },
 
 "I012":{num:12,name:"ファンダメンタル分析",en:"Fundamental Analysis",level:"BRANCH",
@@ -182,7 +271,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"PERが低ければ必ず買いか？",a:"必ずしも違う。業績悪化が続く場合は低PERでも「バリュートラップ」になる。成長性も合わせて判断が必要。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.nikkei.com/learning/per/",note:"日経 PER・PBR解説",priority:"最優先"},
+  ],
+  realItems:[
+    "PER15倍は利益の15年分を払っているという意味",
+    "トヨタのPBRが1倍割れで日本株の課題として注目",
+    "バフェットのバークシャーはROE平均20%超を長期維持",
+  ],
 },
 
 "I013":{num:13,name:"ETF",en:"ETFs",level:"BRANCH",
@@ -196,7 +293,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"VOOとVTIとVTの違いは？",a:"VOO=S&P500（米国大型500社）、VTI=米国全株（約4000社）、VT=全世界株（約9000社）。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.am.mufg.jp/text/oshiete_fund_108.html",note:"ETFとは（三菱UFJ）",priority:"最優先"},
+  ],
+  realItems:[
+    "VOO1株約500ドルでS&P500の全500社に投資できる",
+    "東証ETF「1306」は日本株全体（TOPIX連動）",
+    "レバレッジ2倍ETFは長期保有で予想外の損失が出やすい",
+  ],
 },
 
 "I014":{num:14,name:"不動産・REIT",en:"Real Estate & REIT",level:"BRANCH",
@@ -210,7 +315,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"REITと現物不動産投資の違いは？",a:"REITは少額・流動性高・管理不要だが価格変動する。現物は高額・流動性低いが安定した賃料収入が得やすい。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://j-reit.jp/learn/",note:"J-REIT協会 REIT入門",priority:"最優先"},
+  ],
+  realItems:[
+    "J-REITは1口10万円以下で商業施設・倉庫に投資可能",
+    "金利上昇でREIT利回りが相対的に下がる",
+    "都市部賃貸の表面利回りは3〜4%、実質は2〜3%が多い",
+  ],
 },
 
 "I015":{num:15,name:"外国株・為替",en:"Foreign Stocks & FX",level:"BRANCH",
@@ -224,7 +337,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"円安になると米国株（ドル建て）の円換算リターンはどうなるか？",a:"円安になれば同じドルリターンでも円換算では増加する。逆に円高になれば目減りする。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.boj.or.jp/statistics/market/forex/index.htm",note:"日銀 為替統計",priority:""},
+  ],
+  realItems:[
+    "円が150から120円になると米国株の円換算が20%減",
+    "為替ヘッジコストは日米金利差に等しく2023年は年4〜5%",
+    "外国税額控除で米国株配当の二重課税を一部取り戻せる",
+  ],
 },
 
 "I016":{num:16,name:"米国株・S&P500",en:"US Stocks & S&P500",level:"CROWN",
@@ -238,7 +359,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"なぜ米国株は長期的に強かったのか？",a:"イノベーション・人口増加・ドル基軸通貨・資本市場の成熟・企業の株主重視文化が背景。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.nikkei.com/topic/20230424/",note:"日経 S&P500解説",priority:"最優先"},
+  ],
+  realItems:[
+    "S&P500は1957年設定以来、年平均約10%のリターン",
+    "マグニフィセント7がS&P500の約30%超を占める",
+    "FRBが0.25%利上げすると翌日株価が平均1〜2%動く傾向",
+  ],
 },
 
 "I017":{num:17,name:"新興国投資",en:"Emerging Markets",level:"CROWN",
@@ -252,7 +381,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"中国株はなぜ不安定なのか？",a:"政府による企業規制・アリババ等への締め付け、台湾問題、不動産危機、米国との対立などリスクが重なっている。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.msci.com/our-solutions/indexes/emerging-markets",note:"MSCIエマージング指数",priority:""},
+  ],
+  realItems:[
+    "インドの人口が2023年に中国を抜き世界1位",
+    "中国株はアリババへの政府規制で2021年に半値以下",
+    "タイ・インドネシア等のETFも少額から投資可能",
+  ],
 },
 
 "I018":{num:18,name:"バリュー・グロース",en:"Value vs Growth",level:"CROWN",
@@ -266,7 +403,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"なぜ金利上昇でグロース株が下落しやすいのか？",a:"将来の利益を現在価値に割り引く際、金利が高いほど現在価値が下がるため。成長期待が遠い将来にあるほど影響大。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.berkshirehathaway.com/letters/letters.html",note:"バフェットの株主への手紙",priority:"最優先"},
+  ],
+  realItems:[
+    "バフェットはコカ・コーラを1988年から保有し続け30倍超",
+    "2022年の金利上昇でNASDAQは約35%下落しバリュー株が優位に",
+    "PER1000倍のテスラもPER15倍のトヨタも状況次第で投資できる",
+  ],
 },
 
 "I019":{num:19,name:"ポートフォリオ理論",en:"Modern Portfolio Theory",level:"CROWN",
@@ -280,7 +425,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"MPTの最大の問題点は何か？",a:"リターンと相関係数が正規分布に従うと仮定しているが、実際は「テールリスク（極端な事象）」が多い。"}
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.portfolio-visualizer.com/",note:"ポートフォリオ計算ツール",priority:"最優先"},
+  ],
+  realItems:[
+    "株60%・債券40%のシャープレシオは株100%より通常高い",
+    "2022年は株も債券も同時下落しMPTの逆相関が一時破綻",
+    "マーコウィッツ理論はExcelで計算できるが実践は難しい",
+  ],
 },
 
 "I020":{num:20,name:"オルタナティブ投資",en:"Alternative Investments",level:"CROWN",
@@ -294,7 +447,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"金（ゴールド）への投資意義は何か？",a:"インフレヘッジ、有事の安全資産、株との低相関による分散効果。ただし利息・配当を生まない。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://gold.tanaka.co.jp/learn/",note:"田中貴金属 金投資入門",priority:"最優先"},
+  ],
+  realItems:[
+    "個人でも田中貴金属で金を1gから購入できる",
+    "金ETFはGLDなど米国株口座で購入可能",
+    "ビットコインを機関投資家が少量オルタナとして組み入れ始めた",
+  ],
 },
 
 "I021":{num:21,name:"ブラックマンデー",en:"Black Monday 1987",level:"FOREST",
@@ -308,7 +469,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"ブラックマンデー後の回復はどうだったか？",a:"下落後2年で完全回復。長期保有者は「何も起きなかった」レベルだった。パニック売りがいかに損かを示す事例。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.jpx.co.jp/regulation/secutiry/circuit-breaker/",note:"JPX サーキットブレーカー",priority:"最優先"},
+  ],
+  realItems:[
+    "日本でも2020年コロナ暴落時にサーキットブレーカーが発動",
+    "ブラックマンデー翌年にダウは26%上昇し持ち続けた人が報われた",
+    "現代アルゴ取引は1秒に数千回の注文でフラッシュクラッシュリスクがある",
+  ],
 },
 
 "I022":{num:22,name:"バブルと暴落",en:"Bubbles & Crashes",level:"FOREST",
@@ -322,7 +491,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"バブル崩壊時に取るべき行動は？",a:"長期保有を続けることが歴史的には最善。底を見極めようとするより、定期積立を淡々と続ける方が多くの場合有効。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.boj.or.jp/research/wps_rev/wps_2016/data/wp16j06.pdf",note:"日銀 資産バブルの研究",priority:""},
+  ],
+  realItems:[
+    "17世紀オランダのチューリップ球根が年収の数倍に高騰し翌年暴落",
+    "日本の不動産バブルは1986-91年の最高値から7割下落",
+    "2021年のNFTブームも多くの作品が翌年99%以上下落した",
+  ],
 },
 
 "I023":{num:23,name:"リーマンと投資",en:"Lehman & Investing",level:"FOREST",
@@ -336,7 +513,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"リーマンショック後も投資を続けた人の成績は？",a:"2009年の底値から買い続けた人はその後10年で3〜5倍以上のリターン。パニック売りした人は損失を確定し回復を逃した。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.boj.or.jp/research/brp/ron/data/ron081121a.pdf",note:"日銀 リーマンショック考察",priority:"最優先"},
+  ],
+  realItems:[
+    "2009年3月の底値でS&P500を100万円買った人は2019年に600万円超",
+    "リーマン後パニック売りした人は底で損失を確定し回復を逃した",
+    "トヨタ・任天堂もリーマン時は半値以下になった",
+  ],
 },
 
 "I024":{num:24,name:"コロナと市場",en:"COVID & Markets",level:"FOREST",
@@ -350,7 +535,15 @@ window.INVESTMENT_DB = {
   ],
   qaItems:[
     {q:"コロナショックで学べる最大の投資教訓は？",a:"「市場はいつか回復する」という事実の再確認。暴落時に売らない・むしろ積立を続けることの有効性が実証された。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.boj.or.jp/research/research_data/rs2020/rs20041401.pdf",note:"日銀 コロナと金融市場",priority:"最優先"},
+  ],
+  realItems:[
+    "コロナ底（2020/3/23）から1年でS&P500は80%以上上昇",
+    "日本政府の10万円給付が一部株式市場への投資資金になった面も",
+    "コロナ後インフレで2022年に電気代・食料品が年30%超値上がり",
+  ],
 },
 
 "I025":{num:25,name:"FIRE運動",en:"FIRE Movement",level:"FOREST",
@@ -365,7 +558,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"日本でFIREするための必要資産額の目安は？",a:"年間生活費300万円なら25倍=7500万円が目安。ただし医療費・インフレ・税金も考慮が必要。"},
     {q:"FIRE後に生活が退屈にならないか？",a:"多くのFIRE実践者は完全引退でなく好きな仕事だけをする「サイドFIRE」を選んでいる。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/nenkin/nenkin/",note:"厚労省 年金制度",priority:"最優先"},
+  ],
+  realItems:[
+    "年収500万・支出300万ならFIRE必要資産は7500万円",
+    "日本では無職期間の国民年金・健康保険料が想定外に高い",
+    "FIRE後に社会的孤立・生きがい喪失を経験する人が多い",
+  ],
 },
 
 "I026":{num:26,name:"インフレと投資",en:"Inflation & Investing",level:"FOREST",
@@ -380,7 +581,15 @@ window.INVESTMENT_DB = {
   qaItems:[
     {q:"インフレ時に株式は有効なインフレヘッジになるか？",a:"一般的に企業は値上げできるため株式はインフレヘッジになるが、コスト転嫁できない企業は打撃を受ける。短期的には株安の場合も。"},
     {q:"日本人投資家にとって2022年以降の変化は？",a:"40年ぶりのインフレで現金保有のリスクが顕在化。投資の必要性が若い世代にも認識されるようになった。"},
-  ]
+  ],
+  sunItems:[
+    {type:"サイト",url:"https://www.stat.go.jp/data/cpi/",note:"総務省 消費者物価指数",priority:"最優先"},
+  ],
+  realItems:[
+    "年2%のインフレが30年続くと今の100万円の購買力は55万円",
+    "TIPSは個人も米国証券会社経由で購入できる",
+    "2022年インフレで現金100万円の価値が毎月1〜2万円ずつ実質減少",
+  ],
 }
 
 }; // end INVESTMENT_DB

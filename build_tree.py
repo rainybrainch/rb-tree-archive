@@ -391,8 +391,8 @@ loadStatus();
 const SI={jstr(subj["icon"])};
 const SN={jstr(subj["nav"])};
 
-// ── Tree Layout ──
-const NW=112, NH=54, H_GAP=32, V_GAP=120, PAD=108;
+// ── Tree Layout — bottom-up (ROOT=地面, FOREST=樹冠) ──
+const NW=112, NH=54, H_GAP=32, V_GAP=120, TOP_PAD=80, BOT_PAD=200;
 const NS={{ROOT:{{fs:13,nr:15,sw:2}},TRUNK:{{fs:12,nr:12,sw:1.6}},BRANCH:{{fs:11,nr:10,sw:1.5}},CROWN:{{fs:11,nr:9,sw:1.4}},FOREST:{{fs:10,nr:8,sw:1.3}}}};
 
 function buildLayout(){{
@@ -401,7 +401,6 @@ function buildLayout(){{
   SEEDS.forEach(s=>{{if(s.parent!=null) childrenOf[s.parent].push(s.num);}});
   const roots=SEEDS.filter(s=>s.parent==null).map(s=>s.num);
 
-  // Calculate subtree leaf count (for width)
   const leafW={{}};
   function calcW(n){{
     const ch=childrenOf[n];
@@ -411,7 +410,6 @@ function buildLayout(){{
   }}
   roots.forEach(r=>calcW(r));
 
-  // Assign X (center parent over children)
   const px={{}};
   function assignX(n,left){{
     const ch=childrenOf[n];
@@ -422,19 +420,20 @@ function buildLayout(){{
     px[n]=(px[fc]+px[lc]+NW)/2-NW/2;
     return cl;
   }}
-  let rl=PAD;
+  let rl=TOP_PAD;
   roots.forEach(r=>{{ rl=assignX(r,rl); }});
 
-  // Y positions by level
+  // Y positions: ROOT at bottom (high Y), FOREST at top (low Y)
+  // LEVELS = ["ROOT","TRUNK","BRANCH","CROWN","FOREST"]  i=0→ROOT i=4→FOREST
+  const svgH=TOP_PAD+4*(NH+V_GAP)+NH+BOT_PAD;
   const levelY={{}};
-  LEVELS.forEach((lv,i)=>{{ levelY[lv]=PAD+i*(NH+V_GAP); }});
+  LEVELS.forEach((lv,i)=>{{ levelY[lv]=TOP_PAD+(4-i)*(NH+V_GAP); }});
 
   SEEDS.forEach(s=>{{
     s._x=px[s.num]; s._y=levelY[s.level];
     s._cx=s._x+NW/2; s._cy=s._y+NH/2;
   }});
-  const svgW=Math.max(rl+PAD, 900);
-  const svgH=PAD+4*(NH+V_GAP)+NH+PAD;
+  const svgW=Math.max(rl+TOP_PAD, 900);
   return {{svgW,svgH,childrenOf,roots,levelY}};
 }}
 
@@ -474,59 +473,83 @@ function build(){{
   defs.appendChild(mk);
   svg.appendChild(defs);
 
-  // ── VIRTUAL ROOT (topic node at top) ──
-  const VRX=svgW/2, VRY=48, VRR=32;
-  svg.appendChild(el("circle",{{cx:VRX,cy:VRY,r:VRR+10,fill:"none",stroke:LC["ROOT"].r+".1)","stroke-width":"1.5","stroke-dasharray":"4 8"}}));
-  svg.appendChild(el("circle",{{cx:VRX,cy:VRY,r:VRR,fill:LC["ROOT"].r+".15)",stroke:LC["ROOT"].r+".72)","stroke-width":"2.5"}}));
-  svg.appendChild(el("text",{{x:VRX,y:VRY-5,"dominant-baseline":"central","text-anchor":"middle",fill:LC["ROOT"].c,"font-size":"18","font-family":"Noto Serif JP","font-weight":"700"}},SI));
-  svg.appendChild(el("text",{{x:VRX,y:VRY+12,"dominant-baseline":"central","text-anchor":"middle",fill:LC["ROOT"].r+".8)","font-size":"8","font-family":"Noto Sans JP","font-weight":"900","letter-spacing":"1.5"}},SN));
-  // Central spine (faint vertical through center)
-  svg.appendChild(el("line",{{x1:VRX,y1:VRY+VRR,x2:VRX,y2:svgH-PAD/2,stroke:LC["ROOT"].r+".07)","stroke-width":"1.5","stroke-dasharray":"3 18"}}));
-  // Edges: virtual root → ROOT seeds
+  // ── GROUND / SOIL (ROOT level 地面) ──
+  const groundY=levelY["ROOT"]+NH+24;
+  // Soil gradient def
+  const soilGrad=el("linearGradient",{{id:"soil",x1:"0",y1:"0",x2:"0",y2:"1"}});
+  soilGrad.appendChild(el("stop",{{offset:"0%","stop-color":LC["ROOT"].c,"stop-opacity":"0.12"}}));
+  soilGrad.appendChild(el("stop",{{offset:"100%","stop-color":LC["ROOT"].c,"stop-opacity":"0.03"}}));
+  defs.appendChild(soilGrad);
+  // Soil rect
+  svg.appendChild(el("rect",{{x:0,y:groundY,width:svgW,height:svgH-groundY,fill:"url(#soil)",rx:0}}));
+  // Ground line
+  svg.appendChild(el("line",{{x1:0,y1:groundY,x2:svgW,y2:groundY,
+    stroke:LC["ROOT"].r+".35)","stroke-width":"2"}}));
+  // Ground texture dots
+  for(let gx=20;gx<svgW;gx+=40){{
+    svg.appendChild(el("circle",{{cx:gx+Math.sin(gx)*4,cy:groundY+8,r:"1.5",fill:LC["ROOT"].r+".2)"}}));
+  }}
+
+  // ── VIRTUAL ROOT (trunk base) at bottom ──
+  const VRX=svgW/2, VRY=svgH-70, VRR=32;
+  // Glow rings
+  svg.appendChild(el("circle",{{cx:VRX,cy:VRY,r:VRR+16,fill:"none",stroke:LC["ROOT"].r+".06)","stroke-width":"1.5","stroke-dasharray":"3 9"}}));
+  svg.appendChild(el("circle",{{cx:VRX,cy:VRY,r:VRR+8,fill:"none",stroke:LC["ROOT"].r+".1)","stroke-width":"1","stroke-dasharray":"4 7"}}));
+  // Main circle (trunk base)
+  svg.appendChild(el("circle",{{cx:VRX,cy:VRY,r:VRR,fill:LC["ROOT"].r+".2)",stroke:LC["ROOT"].r+".8)","stroke-width":"2.5"}}));
+  svg.appendChild(el("text",{{x:VRX,y:VRY-5,"dominant-baseline":"central","text-anchor":"middle",fill:LC["ROOT"].c,"font-size":"20","font-family":"Noto Serif JP","font-weight":"700"}},SI));
+  svg.appendChild(el("text",{{x:VRX,y:VRY+13,"dominant-baseline":"central","text-anchor":"middle",fill:LC["ROOT"].r+".85)","font-size":"8","font-family":"Noto Sans JP","font-weight":"900","letter-spacing":"2"}},SN));
+  // Central trunk spine (from VR upward through all levels)
+  svg.appendChild(el("line",{{x1:VRX,y1:VRY-VRR,x2:VRX,y2:TOP_PAD/2,
+    stroke:LC["ROOT"].r+".1)","stroke-width":"2","stroke-dasharray":"4 16"}}));
+  // Edges: virtual root → ROOT seeds (going upward)
   SEEDS.filter(s=>s.parent==null).forEach(s=>{{
-    const ey1=VRY+VRR, ey2=s._y, emy=(ey1+ey2)/2;
+    const ey1=VRY-VRR, ey2=s._y+NH, emy=(ey1+ey2)/2;
     svg.appendChild(el("path",{{
       d:`M${{VRX}},${{ey1}} C${{VRX}},${{emy}},${{s._cx}},${{emy}},${{s._cx}},${{ey2}}`,
-      fill:"none",stroke:LC["ROOT"].r+".42)","stroke-width":"2","stroke-linecap":"round"
+      fill:"none",stroke:LC["ROOT"].r+".45)","stroke-width":"2.2","stroke-linecap":"round"
     }}));
-    svg.appendChild(el("circle",{{cx:s._cx,cy:ey2,r:"2.5",fill:LC["ROOT"].r+".55)"}}));
+    svg.appendChild(el("circle",{{cx:s._cx,cy:ey2,r:"2.5",fill:LC["ROOT"].r+".6)"}}));
   }});
-  svg.appendChild(el("circle",{{cx:VRX,cy:VRY+VRR,r:"3",fill:LC["ROOT"].r+".7)"}}));
+  svg.appendChild(el("circle",{{cx:VRX,cy:VRY-VRR,r:"3.5",fill:LC["ROOT"].r+".75)"}}));
 
-  // Level bands & labels
+  // Level bands & labels (bottom-up order)
   LEVELS.forEach((lv,li)=>{{
     const lc=LC[lv]; const y=levelY[lv];
-    // Band
-    svg.appendChild(el("rect",{{x:0,y:y-12,width:svgW,height:NH+24,fill:li%2?"rgba(255,255,255,.007)":"transparent"}}));
-    // Dashed separator
-    if(li>0) svg.appendChild(el("line",{{x1:0,y1:y-16,x2:svgW,y2:y-16,stroke:lc.r+".1)","stroke-width":"1","stroke-dasharray":"6 10"}}));
+    // Band (alternating tint)
+    svg.appendChild(el("rect",{{x:0,y:y-12,width:svgW,height:NH+24,fill:li%2===0?"rgba(255,255,255,.006)":"transparent"}}));
+    // Separator line between levels (above each non-FOREST level = below in screen)
+    if(li<4) svg.appendChild(el("line",{{x1:0,y1:y+NH+12,x2:svgW,y2:y+NH+12,
+      stroke:lc.r+".08)","stroke-width":"1","stroke-dasharray":"6 10"}}));
     // Left label chip
     const lg=el("g");
-    lg.appendChild(el("rect",{{x:8,y:y+NH/2-9,width:72,height:18,rx:9,fill:lc.r+".1)",stroke:lc.r+".28)","stroke-width":"1"}}));
-    lg.appendChild(el("text",{{x:44,y:y+NH/2,"dominant-baseline":"central","text-anchor":"middle",
+    lg.appendChild(el("rect",{{x:8,y:y+NH/2-9,width:76,height:18,rx:9,fill:lc.r+".12)",stroke:lc.r+".32)","stroke-width":"1"}}));
+    lg.appendChild(el("text",{{x:46,y:y+NH/2,"dominant-baseline":"central","text-anchor":"middle",
       fill:lc.c,"font-size":"9","font-family":"Noto Sans JP","font-weight":"900","letter-spacing":"1"}},
       `${{LI[lv]}} ${{lv}}`));
-    // Right label
+    // Right label (level description)
     lg.appendChild(el("text",{{x:svgW-12,y:y+NH/2,"dominant-baseline":"central","text-anchor":"end",
-      fill:lc.r+".4)","font-size":"9","font-family":"Noto Sans JP","font-weight":"700"}},
+      fill:lc.r+".42)","font-size":"9","font-family":"Noto Sans JP","font-weight":"700"}},
       LDESCS[lv]));
     svg.appendChild(lg);
   }});
 
-  // ── EDGES (drawn below nodes) ──
+  // ── EDGES: parent(下) → child(上) ── upward bezier
   SEEDS.forEach(s=>{{
     if(s.parent==null) return;
     const p=SEEDS.find(x=>x.num===s.parent); if(!p) return;
     const plc=LC[p.level];
-    const x1=p._cx, y1=p._y+NH;
-    const x2=s._cx, y2=s._y;
+    // Parent top face (facing upward toward canopy): p._y
+    // Child bottom face (facing downward toward root): s._y + NH
+    const x1=p._cx, y1=p._y;
+    const x2=s._cx, y2=s._y+NH;
     const my=(y1+y2)/2;
     svg.appendChild(el("path",{{
       d:`M${{x1}},${{y1}} C${{x1}},${{my}},${{x2}},${{my}},${{x2}},${{y2}}`,
-      fill:"none",stroke:plc.r+".38)","stroke-width":"2",
+      fill:"none",stroke:plc.r+".40)","stroke-width":"2",
       "stroke-linecap":"round"
     }}));
-    svg.appendChild(el("circle",{{cx:x1,cy:y1,r:"2.5",fill:plc.r+".6)"}}));
+    svg.appendChild(el("circle",{{cx:x1,cy:y1,r:"2.5",fill:plc.r+".65)"}}));
     svg.appendChild(el("circle",{{cx:x2,cy:y2,r:"2",fill:LC[s.level].r+".5)"}}));
   }});
 
@@ -591,7 +614,7 @@ function build(){{
   setTimeout(()=>{{
     const t=document.getElementById("tree");
     t.scrollLeft=(svgW-t.clientWidth)/2;
-    t.scrollTop=0;
+    t.scrollTop=svgH;  // start at bottom (roots visible)
   }},60);
 }}
 
