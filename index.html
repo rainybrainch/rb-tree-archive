@@ -330,6 +330,12 @@ button,input,textarea,select{font:inherit;color:inherit;}
   .grid2{grid-template-columns:1fr;}
   .logo-rb{display:none;}
 }
+
+.m-description{font-size:12px;line-height:1.7;color:var(--muted);font-style:italic;overflow-wrap:break-word;margin-bottom:4px;}
+.m-yt-link{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;background:rgba(255,50,50,.1);border:1px solid rgba(255,80,80,.25);color:#ff8080;font-size:12px;font-weight:900;text-decoration:none;transition:background .15s;margin-top:2px;}
+.m-yt-link:hover{background:rgba(255,50,50,.22);}
+.m-ref-list{display:flex;flex-direction:column;gap:5px;}
+.m-ref-link{font-size:12px;color:var(--invest);word-break:break-all;text-underline-offset:3px;}
 </style>
 </head>
 <body>
@@ -408,9 +414,20 @@ button,input,textarea,select{font:inherit;color:inherit;}
     <div class="m-stage-path" id="stagePath"></div>
     <div class="m-badge" id="mBadge"></div>
     <div class="m-keyword" id="mKeyword"></div>
+    <div id="mDescWrap">
+      <div class="m-description" id="mDesc"></div>
+    </div>
     <div>
-      <div class="m-slabel">🍃 学びの記録</div>
+      <div class="m-slabel">🍃 まとめ</div>
       <div class="m-body" id="mBody"></div>
+    </div>
+    <div id="mRefWrap">
+      <div class="m-slabel">📎 参考資料</div>
+      <div class="m-ref-list" id="mRefList"></div>
+    </div>
+    <div id="mYtWrap">
+      <div class="m-slabel">▶ YouTube</div>
+      <div id="mYt"></div>
     </div>
     <div id="mBranchWrap">
       <div class="m-slabel">🌿 関連キーワード</div>
@@ -456,14 +473,12 @@ button,input,textarea,select{font:inherit;color:inherit;}
         </select>
       </div>
     </div>
-    <div class="field"><label>キーワード</label><input id="fKw" placeholder="例: 金利" maxlength="40"></div>
-    <div class="field"><label>学びの記録（自分の言葉で）</label><textarea id="fBody" rows="5" placeholder="このキーワードについて、自分の言葉で説明してください…"></textarea></div>
+    <div class="field"><label>タイトル</label><input id="fKw" placeholder="例: 金利とは" maxlength="60"></div>
+    <div class="field"><label>説明（一言で）</label><textarea id="fDesc" rows="2" placeholder="このテーマを一言で…"></textarea></div>
+    <div class="field"><label>まとめ（自分の言葉で）</label><textarea id="fBody" rows="4" placeholder="学んだこと・気づきを自分の言葉で…"></textarea></div>
     <div class="field"><label>Branch — 関連キーワード（カンマ区切り）</label><input id="fBranches" placeholder="例: 利上げ, 国債, 為替"></div>
-    <div class="field"><label>Sun — 知識源（1行1件: タイトル|URL）</label><textarea id="fSources" rows="3" placeholder="日本銀行|https://www.boj.or.jp"></textarea></div>
-    <div class="grid2">
-      <div class="field"><label>Session</label><input id="fSession" placeholder="RB-Tree Economics #001"></div>
-      <div class="field"><label>Session URL</label><input id="fSessionUrl" placeholder="https://youtube.com/..."></div>
-    </div>
+    <div class="field"><label>📎 参考資料 URL（1行1件）</label><textarea id="fRefUrls" rows="2" placeholder="https://www.boj.or.jp"></textarea></div>
+    <div class="field"><label>▶ YouTube URL</label><input id="fYtUrl" placeholder="https://youtube.com/watch?v=…" type="url"></div>
     <div class="f-actions">
       <button class="btn sm" id="fCancelBtn">キャンセル</button>
       <button class="btn primary sm" id="fSaveBtn">保存</button>
@@ -796,20 +811,22 @@ function renderCards() {
   if (!list.length) {
     grid.innerHTML = `<div class="empty-state">エントリが見つかりません</div>`; return;
   }
-  grid.innerHTML = list.map(e=>{
-    const cm=CAT_META[e.category]||CAT_META.economics;
-    const sm=STAGE_META[e.stage]||STAGE_META.seed;
-    const br=(e.branches||[]).filter(Boolean).length;
-    return `<div class="card" data-id="${e.id}" style="--ccat-rgb:${cm.rgb}">
+  grid.innerHTML = list.map(e=>{const n=normalizeEntry(e);
+    const cm=CAT_META[n.category]||CAT_META.economics;
+    const sm=STAGE_META[n.stage]||STAGE_META.seed;
+    const br=(n.branches||[]).filter(Boolean).length;
+    const preview=(n.description||(n.body||"").slice(0,60)+(n.body&&n.body.length>60?"…":""));
+    return `<div class="card" data-id="${n.id}" style="--ccat-rgb:${cm.rgb}">
       <div class="card-top">
         <span class="card-stage-ico">${sm.icon}</span>
         <span class="card-cat" style="background:rgba(${cm.rgb},.18);color:${cm.color};border:1px solid rgba(${cm.rgb},.3)">${cm.label}</span>
+        ${n.youtubeUrl?'<span style="color:#ff8080;font-size:11px;margin-left:auto;">▶</span>':""}
       </div>
-      <div class="card-kw">${esc(e.keyword)}</div>
-      <div class="card-body">${esc(e.body||"（本文未入力）")}</div>
+      <div class="card-kw">${esc(n.keyword||n.theme||"—")}</div>
+      <div class="card-body">${esc(preview)}</div>
       <div class="card-footer">
         <span class="card-br">${br>0?`🌿 ${br}枝`:""}</span>
-        <span class="card-date">${(e.updatedAt||e.createdAt||"").slice(0,10)}</span>
+        <span class="card-date">${(n.updatedAt||n.createdAt||"").slice(0,10)}</span>
       </div>
     </div>`;
   }).join("");
@@ -826,6 +843,18 @@ function renderTabs() {
 }
 
 // ── Detail modal ──
+
+function normalizeEntry(e){
+  return{
+    ...e,
+    keyword:   e.keyword   || e.theme || "",
+    body:      e.body      || e.summary || "",
+    description: e.description || "",
+    refUrls:   e.refUrls   || (e.sources||[]).filter(s=>s&&s.url).map(s=>s.url),
+    youtubeUrl: e.youtubeUrl || e.sessionUrl || "",
+  };
+}
+
 function openDetail(id) {
   const e=entries.find(x=>x.id===id);
   if(!e) return;
@@ -843,10 +872,29 @@ function openDetail(id) {
   const badge=document.getElementById("mBadge");
   badge.textContent=`${cm.icon} ${cm.label}  ${sm.icon} ${sm.label}`;
   badge.style.cssText=`background:rgba(${cm.rgb},.18);color:${cm.color};border:1px solid rgba(${cm.rgb},.35);border-radius:999px;padding:4px 12px;font-size:10px;font-weight:900;letter-spacing:.08em;`;
-  document.getElementById("mKeyword").textContent=e.keyword;
-  document.getElementById("mBody").textContent=e.body||"（本文未入力）";
+  const n=normalizeEntry(e);
+  document.getElementById("mKeyword").textContent=n.keyword||n.theme||"—";
+  document.getElementById("mBody").textContent=n.body||"（まとめ未入力）";
 
-  const branches=(e.branches||[]).filter(Boolean);
+  const descWrap=document.getElementById("mDescWrap");
+  const descEl=document.getElementById("mDesc");
+  if(n.description){descEl.textContent=n.description;descWrap.style.display="";}
+  else descWrap.style.display="none";
+
+  const refUrls=(n.refUrls||[]).filter(Boolean);
+  const refWrap=document.getElementById("mRefWrap");
+  if(refUrls.length){
+    refWrap.style.display="";
+    document.getElementById("mRefList").innerHTML=refUrls.map(u=>`<a class="m-ref-link" href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`).join("");
+  } else refWrap.style.display="none";
+
+  const ytWrap=document.getElementById("mYtWrap");
+  if(n.youtubeUrl){
+    ytWrap.style.display="";
+    document.getElementById("mYt").innerHTML=`<a class="m-yt-link" href="${esc(n.youtubeUrl)}" target="_blank" rel="noopener">▶ 動画を見る</a>`;
+  } else ytWrap.style.display="none";
+
+  const branches=(n.branches||[]).filter(Boolean);
   if(branches.length){
     document.getElementById("mBranchWrap").style.display="";
     document.getElementById("mBranches").innerHTML=branches.map(b=>
@@ -855,20 +903,8 @@ function openDetail(id) {
       el.addEventListener("click",()=>{ jumpToKeyword(el.dataset.kw); closeDetail(); });
     });
   } else { document.getElementById("mBranchWrap").style.display="none"; }
-
-  const sources=(e.sources||[]).filter(s=>s&&s.title);
-  if(sources.length){
-    document.getElementById("mSourceWrap").style.display="";
-    document.getElementById("mSources").innerHTML=sources.map(s=>
-      `<div class="m-source">☀ <a href="${esc(s.url||"#")}" target="_blank" rel="noopener">${esc(s.title)}</a></div>`).join("");
-  } else { document.getElementById("mSourceWrap").style.display="none"; }
-
-  if(e.session){
-    document.getElementById("mSessionWrap").style.display="";
-    document.getElementById("mSession").innerHTML=e.sessionUrl
-      ?`🎥 <a href="${esc(e.sessionUrl)}" target="_blank">${esc(e.session)}</a>`
-      :`🎥 ${esc(e.session)}`;
-  } else { document.getElementById("mSessionWrap").style.display="none"; }
+  document.getElementById("mSourceWrap").style.display="none";
+  document.getElementById("mSessionWrap").style.display="none";
 
   document.getElementById("detailOv").classList.add("open");
 }
@@ -900,12 +936,13 @@ function openForm(entry=null){
   document.getElementById("fTitle").textContent=entry?"エントリ編集":"新規エントリ";
   document.getElementById("fCat").value=entry?.category||"economics";
   document.getElementById("fStage").value=entry?.stage||"seed";
-  document.getElementById("fKw").value=entry?.keyword||"";
-  document.getElementById("fBody").value=entry?.body||"";
-  document.getElementById("fBranches").value=(entry?.branches||[]).filter(Boolean).join(", ");
-  document.getElementById("fSources").value=(entry?.sources||[]).filter(s=>s&&s.title).map(s=>`${s.title}|${s.url||""}`).join("\n");
-  document.getElementById("fSession").value=entry?.session||"";
-  document.getElementById("fSessionUrl").value=entry?.sessionUrl||"";
+  const ne=entry?normalizeEntry(entry):null;
+  document.getElementById("fKw").value=ne?.keyword||"";
+  document.getElementById("fDesc").value=ne?.description||"";
+  document.getElementById("fBody").value=ne?.body||"";
+  document.getElementById("fBranches").value=(ne?.branches||[]).filter(Boolean).join(", ");
+  document.getElementById("fRefUrls").value=(ne?.refUrls||[]).filter(Boolean).join("\n");
+  document.getElementById("fYtUrl").value=ne?.youtubeUrl||"";
   document.getElementById("formOv").classList.add("open");
 }
 function closeForm(){document.getElementById("formOv").classList.remove("open");editId=null;}
@@ -913,34 +950,18 @@ function closeForm(){document.getElementById("formOv").classList.remove("open");
 function saveForm(){
   const kw=document.getElementById("fKw").value.trim();
   if(!kw){toast("キーワードは必須です");return;}
+  const description=document.getElementById("fDesc").value.trim();
+  const body=document.getElementById("fBody").value.trim();
   const branches=document.getElementById("fBranches").value.split(/[,、，]+/).map(s=>s.trim()).filter(Boolean);
-  const sources=document.getElementById("fSources").value.split("\n").map(line=>{
-    const [t,...r]=line.split("|");
-    return {title:t.trim(),url:(r.join("|")||"").trim()};
-  }).filter(s=>s.title);
+  const refUrls=document.getElementById("fRefUrls").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const youtubeUrl=document.getElementById("fYtUrl").value.trim();
   const now=new Date().toISOString().slice(0,10);
+  const patch={category:document.getElementById("fCat").value,stage:document.getElementById("fStage").value,keyword:kw,theme:kw,description,body,summary:body,branches,refUrls,sources:refUrls.map(u=>({title:u,url:u})),youtubeUrl,sessionUrl:youtubeUrl,session:"",updatedAt:now};
   if(editId){
-    entries=entries.map(e=>e.id===editId?{...e,
-      category:document.getElementById("fCat").value,
-      stage:document.getElementById("fStage").value,
-      keyword:kw,body:document.getElementById("fBody").value.trim(),
-      branches,sources,
-      session:document.getElementById("fSession").value.trim(),
-      sessionUrl:document.getElementById("fSessionUrl").value.trim(),
-      updatedAt:now
-    }:e);
+    entries=entries.map(e=>e.id===editId?{...e,...patch}:e);
     toast("更新しました");
   } else {
-    entries.unshift({
-      id:"rbt_"+Date.now()+"_"+Math.random().toString(36).slice(2,5),
-      category:document.getElementById("fCat").value,
-      stage:document.getElementById("fStage").value,
-      keyword:kw,body:document.getElementById("fBody").value.trim(),
-      branches,sources,
-      session:document.getElementById("fSession").value.trim(),
-      sessionUrl:document.getElementById("fSessionUrl").value.trim(),
-      createdAt:now,updatedAt:now
-    });
+    entries.unshift({id:"rbt_"+Date.now()+"_"+Math.random().toString(36).slice(2,5),createdAt:now,...patch});
     toast("追加しました");
   }
   saveLocal(); closeForm();
